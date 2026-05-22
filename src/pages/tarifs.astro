@@ -131,6 +131,7 @@ const faq = [
             plans.map((plan, i) => (
               <article
                 data-reveal
+                data-spotlight
                 style={`transition-delay: ${i * 100}ms`}
                 class={`relative overflow-hidden rounded-2xl border p-8 transition-colors ${
                   plan.featured
@@ -149,7 +150,7 @@ const faq = [
                 <p class="mt-1.5 text-sm text-ink-400">{plan.tagline}</p>
 
                 <div class="mt-6 flex items-baseline gap-1.5">
-                  <span class="text-4xl font-semibold tracking-tight text-ink-50">
+                  <span class="text-4xl font-semibold tracking-tight text-ink-50 tabular-nums">
                     {plan.price}
                   </span>
                   {plan.priceUnit && (
@@ -312,6 +313,7 @@ const faq = [
       <div class="mx-auto max-w-4xl">
         <div
           data-reveal
+          data-spotlight
           class="relative isolate overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-ink-900 to-ink-950 px-8 py-16 text-center sm:px-12 sm:py-20"
         >
           <div
