@@ -1,0 +1,90 @@
+---
+import Icon from "./Icon.astro";
+
+const points = [
+  {
+    icon: "eye-off" as const,
+    title: "Zéro tracker",
+    description:
+      "Aucune analytics tierce. Aucun cookie marketing. Rien à exfiltrer, rien à revendre.",
+  },
+  {
+    icon: "globe" as const,
+    title: "Hébergement UE",
+    description:
+      "AWS Irlande (eu-west-1). Vos données ne quittent jamais l'Union européenne.",
+  },
+  {
+    icon: "database" as const,
+    title: "Cloisonnement RLS Postgres",
+    description:
+      "Row Level Security stricte. Chaque association ne voit que ses propres données, garanti par la base.",
+  },
+  {
+    icon: "lock" as const,
+    title: "TLS 1.2+ & AES-256",
+    description:
+      "Chiffrement en transit et au repos. Standards industriels modernes, sans compromis.",
+  },
+  {
+    icon: "shield-check" as const,
+    title: "2FA TOTP",
+    description:
+      "Second facteur pour tous les comptes admin. Compatible Google Authenticator, Authy, 1Password.",
+  },
+  {
+    icon: "hard-drive" as const,
+    title: "Sauvegardes chiffrées 30j",
+    description:
+      "Backups quotidiens chiffrés, conservés 30 jours, restauration testée régulièrement.",
+  },
+];
+---
+
+<section
+  id="security"
+  class="relative border-t border-white/5 px-6 py-32 sm:py-40"
+>
+  <div class="mx-auto max-w-6xl">
+    <div class="mx-auto max-w-2xl text-center">
+      <p data-reveal class="text-sm font-medium text-accent-500">Sécurité</p>
+      <h2
+        data-reveal
+        class="mt-3 text-balance text-3xl font-semibold leading-tight tracking-tight text-ink-50 sm:text-4xl md:text-5xl"
+      >
+        Privé veut dire privé.
+      </h2>
+      <p
+        data-reveal
+        class="mt-4 text-pretty text-base leading-relaxed text-ink-400 sm:text-lg"
+      >
+        Pas de tracker, pas de revente, pas de « data partner ». Vos données
+        restent les vôtres — techniquement et contractuellement.
+      </p>
+    </div>
+
+    <ul
+      class="mt-16 grid gap-x-10 gap-y-10 sm:grid-cols-2 lg:grid-cols-3"
+    >
+      {
+        points.map((p, i) => (
+          <li
+            data-reveal
+            style={`transition-delay: ${i * 60}ms`}
+            class="flex gap-4"
+          >
+            <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-white/10 bg-ink-900 text-accent-500">
+              <Icon name={p.icon} class="h-4 w-4" />
+            </div>
+            <div>
+              <h3 class="text-sm font-medium text-ink-50">{p.title}</h3>
+              <p class="mt-1.5 text-sm leading-relaxed text-ink-400">
+                {p.description}
+              </p>
+            </div>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</section>
