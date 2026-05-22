@@ -1,0 +1,107 @@
+---
+import Layout from "./Layout.astro";
+import Navbar from "../components/Navbar.astro";
+import Footer from "../components/Footer.astro";
+
+interface Props {
+  title: string;
+  description?: string;
+  heading: string;
+  updated: string;
+}
+
+const { title, description, heading, updated } = Astro.props;
+---
+
+<Layout title={title} description={description}>
+  <Navbar />
+  <main>
+    <section class="relative isolate overflow-hidden px-6 pt-40 pb-16 sm:pt-48">
+      <div
+        aria-hidden="true"
+        class="pointer-events-none absolute left-1/2 top-0 -z-10 h-[400px] w-[700px] -translate-x-1/2 rounded-full opacity-15 blur-3xl"
+        style="background: radial-gradient(closest-side, #5e6ad2, transparent 70%);"
+      >
+      </div>
+
+      <div class="mx-auto max-w-3xl">
+        <div
+          data-reveal
+          class="mb-6 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.03] px-3 py-1 text-xs text-ink-400"
+        >
+          <span class="h-1.5 w-1.5 rounded-full bg-accent-500"></span>
+          Pages légales
+        </div>
+        <h1
+          data-reveal
+          class="text-balance text-4xl font-semibold leading-[1.1] tracking-tight text-ink-50 sm:text-5xl"
+        >
+          {heading}
+        </h1>
+        <p data-reveal class="mt-4 text-sm text-ink-500">
+          Dernière mise à jour : {updated}
+        </p>
+      </div>
+    </section>
+
+    <section class="relative px-6 pb-32">
+      <div
+        data-reveal
+        class="prose-legal mx-auto max-w-3xl text-base leading-relaxed text-ink-400"
+      >
+        <slot />
+      </div>
+    </section>
+  </main>
+  <Footer />
+</Layout>
+
+<style is:global>
+  .prose-legal h2 {
+    margin-top: 2.5rem;
+    margin-bottom: 0.75rem;
+    color: var(--color-ink-50);
+    font-size: 1.25rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+  .prose-legal h2:first-child {
+    margin-top: 0;
+  }
+  .prose-legal h3 {
+    margin-top: 1.5rem;
+    margin-bottom: 0.5rem;
+    color: var(--color-ink-50);
+    font-size: 1rem;
+    font-weight: 600;
+  }
+  .prose-legal p {
+    margin-bottom: 1rem;
+  }
+  .prose-legal ul {
+    margin: 1rem 0;
+    padding-left: 1.25rem;
+    list-style: disc;
+  }
+  .prose-legal ul li {
+    margin-bottom: 0.5rem;
+  }
+  .prose-legal a {
+    color: var(--color-accent-400);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    text-decoration-thickness: 1px;
+  }
+  .prose-legal a:hover {
+    color: var(--color-ink-50);
+  }
+  .prose-legal strong {
+    color: var(--color-ink-50);
+    font-weight: 600;
+  }
+  .prose-legal hr {
+    margin: 2rem 0;
+    border: 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+  }
+</style>

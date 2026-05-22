@@ -1,0 +1,369 @@
+---
+import Layout from "../layouts/Layout.astro";
+import Navbar from "../components/Navbar.astro";
+import Footer from "../components/Footer.astro";
+import Icon from "../components/Icon.astro";
+
+const plans = [
+  {
+    name: "Konclav",
+    tagline: "Pour les associations de toutes tailles.",
+    price: "4 CHF",
+    priceUnit: "/ membre actif / mois",
+    floor: "Forfait minimum 39 CHF / mois",
+    featured: true,
+    cta: { href: "/demo", label: "Réserver une démo" },
+    features: [
+      "Tâches Kanban illimitées",
+      "Agenda partagé, synchro Google et Apple",
+      "Bible documentaire (PV, statuts, contrats)",
+      "Notifications push mobile",
+      "Membres et rôles illimités",
+      "Support par email sous 24h ouvrées",
+    ],
+  },
+  {
+    name: "Sur mesure",
+    tagline: "Fédérations, grandes structures, besoins spécifiques.",
+    price: "Sur devis",
+    priceUnit: "",
+    floor: "Dès 100 membres ou besoins custom",
+    featured: false,
+    cta: { href: "mailto:mxrtystream@gmail.com?subject=Konclav%20Sur%20mesure", label: "Nous écrire" },
+    features: [
+      "Tout ce qui est dans Konclav",
+      "Onboarding personnalisé",
+      "Intégrations SSO / annuaire",
+      "Domaine personnalisé",
+      "Engagement annuel négociable",
+      "Support prioritaire",
+    ],
+  },
+];
+
+const included = [
+  {
+    icon: "shield-check" as const,
+    title: "Hébergé en UE",
+    description: "Données chez un hébergeur suisse ou européen. Aucun transfert hors UE.",
+  },
+  {
+    icon: "eye-off" as const,
+    title: "Sans tracker",
+    description: "Pas de Google Analytics, pas de pixels, pas de revente de données.",
+  },
+  {
+    icon: "lock" as const,
+    title: "Chiffré au repos",
+    description: "Sauvegardes quotidiennes chiffrées. Vous pouvez exporter vos données à tout moment.",
+  },
+  {
+    icon: "hard-drive" as const,
+    title: "Sans engagement",
+    description: "Résiliable au mois. Pas de frais cachés, pas de surfacturation au volume.",
+  },
+];
+
+const faq = [
+  {
+    q: "Qu'est-ce qu'un « membre actif » ?",
+    a: "Toute personne qui s'est connectée au moins une fois dans le mois. Les comptes inactifs ne sont pas facturés.",
+  },
+  {
+    q: "Comment se passe le paiement ?",
+    a: "Facturation mensuelle ou annuelle, par virement bancaire ou carte. TVA suisse incluse.",
+  },
+  {
+    q: "Y a-t-il une période d'essai ?",
+    a: "Oui — 30 jours gratuits, sans carte bancaire. Aucune relance si vous ne souhaitez pas continuer.",
+  },
+  {
+    q: "Faites-vous des tarifs réduits ?",
+    a: "Pour les petites assos (<10 membres), un tarif solidaire existe. Écrivez-nous, on en discute.",
+  },
+];
+---
+
+<Layout
+  title="Tarifs — Konclav"
+  description="Un tarif simple, pensé pour les associations. 4 CHF par membre actif par mois. Sans engagement, hébergé en UE."
+>
+  <Navbar />
+  <main>
+    <!-- Hero -->
+    <section class="relative isolate overflow-hidden px-6 pt-40 pb-12 sm:pt-48">
+      <div
+        aria-hidden="true"
+        class="pointer-events-none absolute left-1/2 top-0 -z-10 h-[500px] w-[800px] -translate-x-1/2 rounded-full opacity-20 blur-3xl"
+        style="background: radial-gradient(closest-side, #5e6ad2, transparent 70%);"
+      >
+      </div>
+
+      <div class="mx-auto max-w-3xl text-center">
+        <div
+          data-reveal
+          class="mb-8 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.03] px-3 py-1 text-xs text-ink-400"
+        >
+          <span class="h-1.5 w-1.5 rounded-full bg-accent-500"></span>
+          Tarifs
+        </div>
+        <h1
+          data-reveal
+          class="text-balance text-4xl font-semibold leading-[1.05] tracking-tight text-ink-50 sm:text-5xl md:text-6xl"
+        >
+          Un prix simple, pensé pour les assos.
+        </h1>
+        <p
+          data-reveal
+          class="mx-auto mt-6 max-w-xl text-pretty text-base leading-relaxed text-ink-400 sm:text-lg"
+        >
+          4 CHF par membre actif par mois. Sans engagement, sans surprise.
+          Membres inactifs jamais facturés.
+        </p>
+      </div>
+    </section>
+
+    <!-- Plans -->
+    <section class="relative px-6 pb-32">
+      <div class="mx-auto max-w-5xl">
+        <div class="grid gap-5 md:grid-cols-2">
+          {
+            plans.map((plan, i) => (
+              <article
+                data-reveal
+                style={`transition-delay: ${i * 100}ms`}
+                class={`relative overflow-hidden rounded-2xl border p-8 transition-colors ${
+                  plan.featured
+                    ? "border-accent-500/40 bg-gradient-to-br from-ink-900 to-ink-950"
+                    : "border-white/10 bg-white/[0.02] hover:border-white/20 hover:bg-white/[0.035]"
+                }`}
+              >
+                {plan.featured && (
+                  <div class="absolute right-6 top-6 inline-flex items-center rounded-full border border-accent-500/30 bg-accent-500/10 px-2.5 py-0.5 text-[11px] font-medium text-accent-400">
+                    Recommandé
+                  </div>
+                )}
+                <h2 class="text-xl font-semibold tracking-tight text-ink-50">
+                  {plan.name}
+                </h2>
+                <p class="mt-1.5 text-sm text-ink-400">{plan.tagline}</p>
+
+                <div class="mt-6 flex items-baseline gap-1.5">
+                  <span class="text-4xl font-semibold tracking-tight text-ink-50">
+                    {plan.price}
+                  </span>
+                  {plan.priceUnit && (
+                    <span class="text-sm text-ink-400">{plan.priceUnit}</span>
+                  )}
+                </div>
+                <p class="mt-1.5 text-xs text-ink-500">{plan.floor}</p>
+
+                <a
+                  href={plan.cta.href}
+                  class={`mt-7 inline-flex w-full items-center justify-center gap-1.5 rounded-lg px-4 py-2.5 text-sm font-medium transition-colors ${
+                    plan.featured
+                      ? "bg-accent-500 text-white hover:bg-accent-400"
+                      : "border border-white/10 bg-white/[0.02] text-ink-50 hover:border-white/20 hover:bg-white/[0.04]"
+                  }`}
+                >
+                  {plan.cta.label}
+                  <svg
+                    viewBox="0 0 16 16"
+                    fill="none"
+                    class="h-4 w-4"
+                    aria-hidden="true"
+                  >
+                    <path
+                      d="M3.5 8h9m0 0L8 3.5M12.5 8 8 12.5"
+                      stroke="currentColor"
+                      stroke-width="1.5"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
+                  </svg>
+                </a>
+
+                <ul class="mt-8 space-y-3 border-t border-white/5 pt-7">
+                  {plan.features.map((feature) => (
+                    <li class="flex items-start gap-2.5 text-sm text-ink-400">
+                      <svg
+                        viewBox="0 0 16 16"
+                        fill="none"
+                        class="mt-0.5 h-4 w-4 flex-none text-accent-500"
+                        aria-hidden="true"
+                      >
+                        <path
+                          d="m3.5 8.5 3 3 6-7"
+                          stroke="currentColor"
+                          stroke-width="1.75"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        />
+                      </svg>
+                      {feature}
+                    </li>
+                  ))}
+                </ul>
+              </article>
+            ))
+          }
+        </div>
+      </div>
+    </section>
+
+    <!-- Inclus partout -->
+    <section class="relative border-t border-white/5 px-6 py-32">
+      <div class="mx-auto max-w-6xl">
+        <div class="mx-auto max-w-2xl text-center">
+          <p data-reveal class="text-sm font-medium text-accent-500">
+            Inclus dans tous les plans
+          </p>
+          <h2
+            data-reveal
+            class="mt-3 text-balance text-3xl font-semibold leading-tight tracking-tight text-ink-50 sm:text-4xl"
+          >
+            La même base, pour tout le monde.
+          </h2>
+        </div>
+
+        <div class="mt-16 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          {
+            included.map((item, i) => (
+              <div
+                data-reveal
+                style={`transition-delay: ${i * 80}ms`}
+                class="rounded-2xl border border-white/10 bg-white/[0.02] p-6"
+              >
+                <div class="mb-4 inline-flex items-center justify-center rounded-lg border border-white/10 bg-ink-900 p-2 text-accent-500">
+                  <Icon name={item.icon} class="h-5 w-5" />
+                </div>
+                <h3 class="text-sm font-semibold tracking-tight text-ink-50">
+                  {item.title}
+                </h3>
+                <p class="mt-1.5 text-xs leading-relaxed text-ink-400">
+                  {item.description}
+                </p>
+              </div>
+            ))
+          }
+        </div>
+      </div>
+    </section>
+
+    <!-- FAQ tarifs -->
+    <section class="relative border-t border-white/5 px-6 py-32">
+      <div class="mx-auto max-w-3xl">
+        <div class="text-center">
+          <p data-reveal class="text-sm font-medium text-accent-500">
+            Questions de tarifs
+          </p>
+          <h2
+            data-reveal
+            class="mt-3 text-balance text-3xl font-semibold leading-tight tracking-tight text-ink-50 sm:text-4xl"
+          >
+            Tout ce qu'on nous demande.
+          </h2>
+        </div>
+
+        <div class="mt-12 divide-y divide-white/5 border-y border-white/5">
+          {
+            faq.map((item, i) => (
+              <details
+                data-reveal
+                style={`transition-delay: ${i * 60}ms`}
+                class="faq-item group py-5"
+              >
+                <summary class="flex cursor-pointer items-start justify-between gap-6">
+                  <span class="text-base font-medium text-ink-50">
+                    {item.q}
+                  </span>
+                  <span class="faq-toggle mt-0.5 inline-flex h-6 w-6 flex-none items-center justify-center rounded-full border border-white/10 text-ink-400">
+                    <svg
+                      viewBox="0 0 16 16"
+                      fill="none"
+                      class="h-3 w-3"
+                      aria-hidden="true"
+                    >
+                      <path
+                        d="M8 3.5v9M3.5 8h9"
+                        stroke="currentColor"
+                        stroke-width="1.5"
+                        stroke-linecap="round"
+                      />
+                    </svg>
+                  </span>
+                </summary>
+                <div class="faq-content-wrapper">
+                  <div>
+                    <p class="pt-3 text-sm leading-relaxed text-ink-400">
+                      {item.a}
+                    </p>
+                  </div>
+                </div>
+              </details>
+            ))
+          }
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA final -->
+    <section class="relative px-6 py-32 sm:py-40">
+      <div class="mx-auto max-w-4xl">
+        <div
+          data-reveal
+          class="relative isolate overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-ink-900 to-ink-950 px-8 py-16 text-center sm:px-12 sm:py-20"
+        >
+          <div
+            aria-hidden="true"
+            class="pointer-events-none absolute -top-32 left-1/2 -z-10 h-[400px] w-[600px] -translate-x-1/2 rounded-full opacity-30 blur-3xl"
+            style="background: radial-gradient(closest-side, #5e6ad2, transparent 70%);"
+          >
+          </div>
+
+          <h2
+            class="text-balance text-3xl font-semibold leading-tight tracking-tight text-ink-50 sm:text-4xl"
+          >
+            Pas sûr du plan qu'il vous faut ?
+          </h2>
+          <p
+            class="mx-auto mt-5 max-w-xl text-pretty text-base leading-relaxed text-ink-400 sm:text-lg"
+          >
+            On regarde ensemble en 20 minutes. Démo, questions, tarif final. Sans engagement.
+          </p>
+
+          <div
+            class="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row"
+          >
+            <a
+              href="/demo"
+              class="inline-flex items-center justify-center gap-1.5 rounded-lg bg-accent-500 px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-accent-400"
+            >
+              Réserver ma démo
+              <svg
+                viewBox="0 0 16 16"
+                fill="none"
+                class="h-4 w-4"
+                aria-hidden="true"
+              >
+                <path
+                  d="M3.5 8h9m0 0L8 3.5M12.5 8 8 12.5"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"></path>
+              </svg>
+            </a>
+            <a
+              href="mailto:mxrtystream@gmail.com"
+              class="inline-flex items-center justify-center rounded-lg border border-white/10 bg-white/[0.02] px-6 py-3 text-sm font-medium text-ink-50 transition-colors hover:border-white/20 hover:bg-white/[0.04]"
+            >
+              Poser une question
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+  <Footer />
+</Layout>
