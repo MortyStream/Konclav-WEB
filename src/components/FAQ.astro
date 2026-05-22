@@ -1,0 +1,85 @@
+---
+const faqs = [
+  {
+    question: "Combien coûte Konclav ?",
+    answer:
+      "Trois plans. Le plan Découverte est gratuit pendant 30 jours (jusqu'à 10 membres). Le plan Standard est à CHF 89 par mois pour les associations jusqu'à 200 membres. Au-delà, plan Pro sur devis. Voir la page Tarifs pour le détail.",
+  },
+  {
+    question: "Konclav convient-il aux petites comme aux grandes associations ?",
+    answer:
+      "Oui. De la société de chant de 12 membres au club sportif régional de 500 membres. L'app est pensée pour rester simple à toutes les échelles — moins d'options visibles quand vous avez peu de membres, plus de filtres et de permissions quand vous grandissez.",
+  },
+  {
+    question: "Qui peut accéder à nos données ?",
+    answer:
+      "Vous seuls. Vos données sont isolées par Row Level Security au niveau base de données : techniquement, aucune autre association ne peut les voir. Notre équipe technique n'y accède que sur demande explicite de votre comité, et nous ne revendons rien à personne. Jamais.",
+  },
+  {
+    question: "Si on arrête, qu'arrive-t-il à nos données ?",
+    answer:
+      "Vous récupérez tout : export complet ZIP avec vos documents, vos tâches, vos évènements et la liste de vos membres au format CSV. Après votre demande de suppression, vos données sont effacées définitivement de nos serveurs sous 30 jours.",
+  },
+  {
+    question: "Est-ce que ça fonctionne hors connexion ?",
+    answer:
+      "La consultation des tâches, du calendrier et des documents récents fonctionne hors-ligne sur mobile. Les modifications sont mises en file et synchronisées dès que vous retrouvez du réseau. Pratique pour les sorties scout, tournois ou week-ends en chalet.",
+  },
+  {
+    question: "Konclav est-il open source ?",
+    answer:
+      "Pas encore. Nous étudions un modèle hybride à terme — le cœur de l'app pourrait passer en open source quand le code sera assez mature. En attendant, nous publions nos audits de sécurité et nous travaillons en transparence sur notre roadmap.",
+  },
+];
+---
+
+<section
+  id="faq"
+  class="relative border-t border-white/5 px-6 py-32 sm:py-40"
+>
+  <div class="mx-auto max-w-3xl">
+    <div class="text-center">
+      <p data-reveal class="text-sm font-medium text-accent-500">FAQ</p>
+      <h2
+        data-reveal
+        class="mt-3 text-balance text-3xl font-semibold leading-tight tracking-tight text-ink-50 sm:text-4xl md:text-5xl"
+      >
+        Questions fréquentes.
+      </h2>
+    </div>
+
+    <ul
+      class="mt-14 divide-y divide-white/5 border-t border-b border-white/5"
+    >
+      {
+        faqs.map((faq, i) => (
+          <li data-reveal style={`transition-delay: ${i * 40}ms`}>
+            <details class="faq-item group">
+              <summary class="flex cursor-pointer items-center justify-between gap-6 py-5 text-base font-medium text-ink-50 transition-colors hover:text-accent-500">
+                <span>{faq.question}</span>
+                <svg
+                  class="faq-toggle h-4 w-4 shrink-0 text-ink-400"
+                  viewBox="0 0 16 16"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.75"
+                  stroke-linecap="round"
+                  aria-hidden="true"
+                >
+                  <path d="M8 3v10M3 8h10" />
+                </svg>
+              </summary>
+              <div class="faq-content-wrapper">
+                <div>
+                  <p class="pb-5 pr-10 text-sm leading-relaxed text-ink-400">
+                    {faq.answer}
+                  </p>
+                </div>
+              </div>
+            </details>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</section>

@@ -60,3 +60,34 @@ body {
     scroll-behavior: auto;
   }
 }
+
+/* FAQ accordion — natif <details>/<summary>, animation grid-row-trick */
+.faq-item summary {
+  list-style: none;
+}
+.faq-item summary::-webkit-details-marker {
+  display: none;
+}
+.faq-item .faq-content-wrapper {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 280ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.faq-item[open] .faq-content-wrapper {
+  grid-template-rows: 1fr;
+}
+.faq-item .faq-content-wrapper > div {
+  overflow: hidden;
+}
+.faq-item .faq-toggle {
+  transition: transform 280ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.faq-item[open] .faq-toggle {
+  transform: rotate(45deg);
+}
+@media (prefers-reduced-motion: reduce) {
+  .faq-item .faq-content-wrapper,
+  .faq-item .faq-toggle {
+    transition: none;
+  }
+}

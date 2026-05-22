@@ -1,0 +1,65 @@
+---
+const steps = [
+  {
+    title: "Contact",
+    description:
+      "On échange 30 minutes. On comprend votre asso, vos workflows actuels, vos contraintes.",
+  },
+  {
+    title: "Provisionnement",
+    description:
+      "On crée votre espace, on configure vos rôles, on importe vos membres existants (CSV ou copier-coller).",
+  },
+  {
+    title: "Go live",
+    description:
+      "Formation d'une heure avec votre comité, support dédié les premiers jours. Vos membres reçoivent leur accès.",
+  },
+];
+---
+
+<section
+  id="onboarding"
+  class="relative border-t border-white/5 px-6 py-32 sm:py-40"
+>
+  <div class="mx-auto max-w-6xl">
+    <div class="mx-auto max-w-2xl text-center">
+      <p data-reveal class="text-sm font-medium text-accent-500">Démarrage</p>
+      <h2
+        data-reveal
+        class="mt-3 text-balance text-3xl font-semibold leading-tight tracking-tight text-ink-50 sm:text-4xl md:text-5xl"
+      >
+        De zéro à go live en 7 jours.
+      </h2>
+      <p
+        data-reveal
+        class="mt-4 text-pretty text-base leading-relaxed text-ink-400 sm:text-lg"
+      >
+        Pas d'installation, pas de migration douloureuse. On vous accompagne
+        pas à pas.
+      </p>
+    </div>
+
+    <ol class="mt-16 grid gap-x-8 gap-y-12 sm:grid-cols-3">
+      {
+        steps.map((step, i) => (
+          <li
+            data-reveal
+            style={`transition-delay: ${i * 100}ms`}
+            class="relative"
+          >
+            <p class="text-xs font-medium tracking-widest text-accent-500 uppercase">
+              Étape {String(i + 1).padStart(2, "0")}
+            </p>
+            <h3 class="mt-3 text-lg font-semibold tracking-tight text-ink-50">
+              {step.title}
+            </h3>
+            <p class="mt-2 text-sm leading-relaxed text-ink-400">
+              {step.description}
+            </p>
+          </li>
+        ))
+      }
+    </ol>
+  </div>
+</section>
