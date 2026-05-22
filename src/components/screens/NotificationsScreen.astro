@@ -1,0 +1,150 @@
+---
+const notifications = [
+  {
+    group: "today",
+    avatar: { type: "initials", text: "MR", classes: "bg-amber-500/20 text-amber-300" },
+    title: "Marie Robert t'a assigné une tâche",
+    body: "« Réserver salle pour l'AG » · échéance 28 mai",
+    time: "il y a 12 min",
+    unread: true,
+  },
+  {
+    group: "today",
+    avatar: { type: "icon-bell", classes: "bg-accent-500/20 text-accent-500" },
+    title: "Rappel : AG annuelle dans 2 jours",
+    body: "Samedi 24 mai · 10:00 · Hôtel de Ville, Vevey",
+    time: "il y a 1 h",
+    unread: true,
+  },
+  {
+    group: "today",
+    avatar: { type: "initials", text: "SB", classes: "bg-emerald-500/20 text-emerald-300" },
+    title: "Sophie Buchs a ajouté un document",
+    body: "PV-2024-10-réunion.pdf dans Statuts & règlements",
+    time: "il y a 3 h",
+    unread: true,
+  },
+  {
+    group: "yesterday",
+    avatar: { type: "initials", text: "LD", classes: "bg-accent-500/20 text-accent-400" },
+    title: "Léa Dupraz a commenté ta tâche",
+    body: "« Pense à confirmer le traiteur »",
+    time: "hier, 18:42",
+    unread: false,
+  },
+];
+
+const todayItems = notifications.filter((n) => n.group === "today");
+const yesterdayItems = notifications.filter((n) => n.group === "yesterday");
+---
+
+<div class="flex h-full flex-col text-white">
+  <!-- App header -->
+  <div
+    class="flex items-center justify-between border-b border-white/[0.06] px-4 py-2.5"
+  >
+    <div class="flex items-center gap-1.5">
+      <span class="text-sm font-semibold">Notifications</span>
+      <span
+        class="rounded-full bg-accent-500 px-1.5 text-[9px] font-semibold leading-[14px] text-white"
+        >3</span
+      >
+    </div>
+    <div class="flex items-center gap-2">
+      <span class="text-[10px] text-accent-500">Tout lu</span>
+      <svg
+        viewBox="0 0 16 16"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.5"
+        class="h-3.5 w-3.5 text-white/50"
+      >
+        <circle cx="8" cy="8" r="2"></circle>
+        <path
+          d="M8 2v1.5M8 12.5V14M2 8h1.5M12.5 8H14M3.8 3.8l1 1M11.2 11.2l1 1M3.8 12.2l1-1M11.2 4.8l1-1"
+        ></path>
+      </svg>
+    </div>
+  </div>
+
+  <!-- Sub-tabs -->
+  <div class="flex gap-1 px-3 py-2 text-[11px]">
+    <span class="rounded-md bg-white/[0.08] px-2 py-1 font-medium text-white"
+      >Toutes</span
+    >
+    <span class="rounded-md px-2 py-1 text-white/40">Mentions</span>
+    <span class="rounded-md px-2 py-1 text-white/40">Tâches</span>
+  </div>
+
+  <!-- Notifications -->
+  <div class="flex-1 overflow-hidden">
+    <p
+      class="px-4 pb-1.5 text-[9px] font-semibold uppercase tracking-wider text-white/40"
+    >
+      Aujourd'hui
+    </p>
+    {
+      todayItems.map((n) => (
+        <div
+          class={`mx-3 mb-1.5 flex gap-2.5 rounded-xl border border-white/[0.06] p-2.5 ${n.unread ? "bg-accent-500/[0.04]" : "bg-white/[0.03]"}`}
+        >
+          <div
+            class={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-[10px] font-semibold ${n.avatar.classes}`}
+          >
+            {n.avatar.type === "initials" && n.avatar.text}
+            {n.avatar.type === "icon-bell" && (
+              <svg
+                viewBox="0 0 16 16"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.5"
+                class="h-3.5 w-3.5"
+              >
+                <path d="M4 6a4 4 0 0 1 8 0c0 5 2 6 2 6H2s2-1 2-6" />
+                <path d="M7 13a1 1 0 0 0 2 0" />
+              </svg>
+            )}
+          </div>
+          <div class="min-w-0 flex-1">
+            <p class={`text-[11px] font-medium leading-snug ${n.unread ? "text-white/90" : "text-white/70"}`}>
+              {n.title}
+            </p>
+            <p class="mt-0.5 text-[10px] leading-snug text-white/50">
+              {n.body}
+            </p>
+            <p class="mt-1 text-[9px] text-white/40">{n.time}</p>
+          </div>
+          {n.unread && (
+            <div class="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-accent-500" />
+          )}
+        </div>
+      ))
+    }
+
+    <p
+      class="mt-1 px-4 pb-1.5 text-[9px] font-semibold uppercase tracking-wider text-white/40"
+    >
+      Hier
+    </p>
+    {
+      yesterdayItems.map((n) => (
+        <div class="mx-3 mb-1.5 flex gap-2.5 rounded-xl border border-white/[0.06] bg-white/[0.03] p-2.5">
+          <div
+            class={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-[10px] font-semibold ${n.avatar.classes}`}
+          >
+            {n.avatar.type === "initials" && n.avatar.text}
+          </div>
+          <div class="min-w-0 flex-1">
+            <p class="text-[11px] font-medium leading-snug text-white/70">
+              {n.title}
+            </p>
+            <p class="mt-0.5 text-[10px] leading-snug text-white/50">
+              {n.body}
+            </p>
+            <p class="mt-1 text-[9px] text-white/40">{n.time}</p>
+          </div>
+        </div>
+      ))
+    }
+  </div>
+</div>

@@ -1,0 +1,177 @@
+---
+const items = [
+  {
+    type: "folder",
+    name: "Archives 2023",
+    meta: "28 fichiers · il y a 3 mois",
+    iconClasses: "bg-accent-500/15 text-accent-500",
+  },
+  {
+    type: "folder",
+    name: "PV de comité",
+    meta: "12 fichiers · hier",
+    iconClasses: "bg-accent-500/15 text-accent-500",
+    pinned: true,
+  },
+  {
+    type: "file",
+    ext: "PDF",
+    name: "Statuts FC Lausanne v3.pdf",
+    meta: "1.2 MB · Léa Dupraz · 12 mai",
+    iconClasses: "bg-rose-500/15 text-rose-300",
+  },
+  {
+    type: "file",
+    ext: "DOC",
+    name: "Modèle convocation AG.docx",
+    meta: "48 KB · Mathieu Robert · 08 mai",
+    iconClasses: "bg-sky-500/15 text-sky-300",
+  },
+  {
+    type: "file",
+    ext: "PDF",
+    name: "PV-2024-10-réunion.pdf",
+    meta: "320 KB · Sophie Buchs · 02 mai",
+    iconClasses: "bg-rose-500/15 text-rose-300",
+    badge: { text: "Nouveau", classes: "bg-emerald-400/15 text-emerald-300" },
+  },
+];
+---
+
+<div class="flex h-full flex-col text-white">
+  <!-- App header -->
+  <div
+    class="flex items-center justify-between border-b border-white/[0.06] px-4 py-2.5"
+  >
+    <div class="flex min-w-0 items-center gap-2">
+      <svg
+        viewBox="0 0 16 16"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.5"
+        class="h-3.5 w-3.5 shrink-0 text-white/50"
+      >
+        <path d="m10 4-4 4 4 4"></path>
+      </svg>
+      <span class="truncate text-sm font-semibold">Statuts &amp; règlements</span>
+    </div>
+    <div class="flex shrink-0 items-center gap-1.5">
+      <div
+        class="flex h-6 w-6 items-center justify-center rounded-md bg-white/[0.06] text-white/70"
+      >
+        <svg
+          viewBox="0 0 16 16"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.5"
+          class="h-3 w-3"
+        >
+          <path d="M3 5h10M5 8h6M7 11h2"></path>
+        </svg>
+      </div>
+      <div
+        class="flex h-6 w-6 items-center justify-center rounded-md bg-white/[0.06] text-white/70"
+      >
+        <svg
+          viewBox="0 0 16 16"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.75"
+          stroke-linecap="round"
+          class="h-3 w-3"
+        >
+          <path d="M8 3v10M3 8h10"></path>
+        </svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- Search -->
+  <div class="px-3 pt-2">
+    <div
+      class="flex h-8 items-center gap-2 rounded-lg border border-white/[0.06] bg-white/[0.04] px-2.5"
+    >
+      <svg
+        viewBox="0 0 16 16"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.5"
+        class="h-3 w-3 text-white/40"
+      >
+        <circle cx="7" cy="7" r="4"></circle>
+        <path d="m13 13-3-3"></path>
+      </svg>
+      <span class="text-[11px] text-white/40">Rechercher dans 248 documents</span>
+    </div>
+  </div>
+
+  <!-- Filter pills -->
+  <div class="flex gap-1 px-3 py-2 text-[10px]">
+    <span
+      class="rounded-full border border-accent-500/30 bg-accent-500/15 px-2 py-0.5 font-medium text-accent-500"
+      >Tous</span
+    >
+    <span class="rounded-full px-2 py-0.5 text-white/40">PDF</span>
+    <span class="rounded-full px-2 py-0.5 text-white/40">Word</span>
+    <span class="rounded-full px-2 py-0.5 text-white/40">Récents</span>
+  </div>
+
+  <!-- File list -->
+  <div class="flex-1 overflow-hidden">
+    {
+      items.map((item) => (
+        <div class="flex items-center gap-2.5 border-b border-white/[0.04] px-3 py-2">
+          <div
+            class={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-[8px] font-bold tracking-tight ${item.iconClasses}`}
+          >
+            {item.type === "folder" ? (
+              <svg
+                viewBox="0 0 16 16"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.5"
+                class="h-3.5 w-3.5"
+              >
+                <path d="M2 4a1 1 0 0 1 1-1h3l2 2h5a1 1 0 0 1 1 1v6a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1z" />
+              </svg>
+            ) : (
+              <span>{item.ext}</span>
+            )}
+          </div>
+          <div class="min-w-0 flex-1">
+            <div class="flex items-center gap-1.5">
+              <p class="truncate text-[12px] text-white/90">{item.name}</p>
+              {item.badge && (
+                <span
+                  class={`shrink-0 rounded px-1 py-px text-[8px] font-medium ${item.badge.classes}`}
+                >
+                  {item.badge.text}
+                </span>
+              )}
+            </div>
+            <p class="truncate text-[10px] text-white/45">{item.meta}</p>
+          </div>
+          {item.pinned ? (
+            <svg
+              viewBox="0 0 16 16"
+              fill="currentColor"
+              class="h-3 w-3 shrink-0 text-accent-500"
+            >
+              <path d="M8 2 6 5 3 6l2 2-1 4 4-2 4 2-1-4 2-2-3-1z" />
+            </svg>
+          ) : (
+            <svg
+              viewBox="0 0 16 16"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.5"
+              class="h-3 w-3 shrink-0 text-white/30"
+            >
+              <path d="m6 4 4 4-4 4" />
+            </svg>
+          )}
+        </div>
+      ))
+    }
+  </div>
+</div>
