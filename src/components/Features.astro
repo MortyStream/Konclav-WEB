@@ -37,6 +37,7 @@ const features = [
       </p>
       <h2
         data-reveal
+        data-split-text
         class="mt-3 text-balance text-3xl font-semibold leading-tight tracking-tight text-ink-50 sm:text-4xl md:text-5xl"
       >
         Quatre outils, une seule app.
@@ -56,10 +57,12 @@ const features = [
           <article
             data-reveal
             data-spotlight
+            data-tilt
+            data-gradient-border
             style={`transition-delay: ${i * 80}ms`}
-            class="group relative overflow-hidden rounded-2xl border border-white/10 bg-white/[0.02] p-7 transition-colors hover:border-white/20 hover:bg-white/[0.035]"
+            class="group relative overflow-hidden rounded-2xl border border-white/10 bg-white/[0.02] p-7 transition-colors hover:border-white/15 hover:bg-white/[0.035]"
           >
-            <div class="mb-5 inline-flex items-center justify-center rounded-lg border border-white/10 bg-ink-900 p-2.5 text-accent-500">
+            <div class="icon-tile mb-5 inline-flex items-center justify-center rounded-lg border border-white/10 bg-ink-900 p-2.5 text-accent-500">
               <Icon name={f.icon} class="h-5 w-5" />
             </div>
             <h3 class="text-lg font-semibold tracking-tight text-ink-50">

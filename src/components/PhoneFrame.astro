@@ -5,6 +5,7 @@ interface Props {
   translateY?: string;
   delay?: number;
   zIndex?: number;
+  float?: "" | "float" | "float-delay" | "float-slow" | "float-late";
 }
 
 const {
@@ -13,7 +14,10 @@ const {
   translateY = "",
   delay = 0,
   zIndex = 0,
+  float = "",
 } = Astro.props;
+
+const floatClass = float ? `animate-${float}` : "";
 
 const tabs = [
   { id: "accueil", label: "Accueil" },
@@ -28,6 +32,7 @@ const tabs = [
   style={`transition-delay: ${delay}ms; z-index: ${zIndex};`}
   class="relative shrink-0 snap-center"
 >
+  <div class={floatClass}>
   <div
     class={`transition-transform duration-500 ease-out hover:scale-[1.03] ${rotate} ${translateY}`}
   >
@@ -135,5 +140,6 @@ const tabs = [
         </div>
       </div>
     </div>
+  </div>
   </div>
 </div>

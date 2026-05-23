@@ -3,27 +3,34 @@
 ---
 
 <section
+  data-cursor-glow
   class="relative isolate overflow-hidden px-6 pt-40 pb-32 sm:pt-48 sm:pb-40"
 >
-  <!-- Halo accent décoratif -->
+  <!-- Halo accent décoratif + cursor glow layer -->
   <div
     aria-hidden="true"
+    data-parallax="0.18"
     class="pointer-events-none absolute left-1/2 top-0 -z-10 h-[600px] w-[900px] -translate-x-1/2 rounded-full opacity-25 blur-3xl"
     style="background: radial-gradient(closest-side, #5e6ad2, transparent 70%);"
   >
   </div>
+  <div aria-hidden="true" class="cursor-glow-layer"></div>
 
   <div class="mx-auto flex max-w-3xl flex-col items-center text-center">
     <div
       data-reveal
       class="mb-8 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.03] px-3 py-1 text-xs text-ink-400"
     >
-      <span class="h-1.5 w-1.5 rounded-full bg-accent-500"></span>
+      <span class="relative flex h-1.5 w-1.5">
+        <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent-500 opacity-70"></span>
+        <span class="relative inline-flex h-1.5 w-1.5 rounded-full bg-accent-500"></span>
+      </span>
       Pour les associations suisses
     </div>
 
     <h1
       data-reveal
+      data-split-text
       class="text-balance text-4xl font-semibold leading-[1.05] tracking-tight text-ink-50 sm:text-5xl md:text-6xl"
     >
       L'intranet privé pensé pour les associations.
@@ -43,13 +50,14 @@
     >
       <a
         href="/demo"
-        class="inline-flex items-center justify-center gap-1.5 rounded-lg bg-accent-500 px-5 py-3 text-sm font-medium text-white transition-colors hover:bg-accent-400"
+        data-magnetic
+        class="group/cta inline-flex items-center justify-center gap-1.5 rounded-lg bg-accent-500 px-5 py-3 text-sm font-medium text-white shadow-[0_10px_30px_-10px_rgba(94,106,210,0.6)] transition-colors hover:bg-accent-400"
       >
         Réserver ma démo
         <svg
           viewBox="0 0 16 16"
           fill="none"
-          class="h-4 w-4"
+          class="h-4 w-4 transition-transform duration-300 ease-out group-hover/cta:translate-x-0.5"
           aria-hidden="true"
         >
           <path
@@ -66,6 +74,30 @@
       >
         Voir les fonctionnalités
       </a>
+    </div>
+
+    <div
+      data-reveal
+      class="mt-14 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs text-ink-500"
+    >
+      <span class="inline-flex items-center gap-1.5">
+        <svg viewBox="0 0 16 16" fill="none" class="h-3.5 w-3.5 text-accent-500" aria-hidden="true">
+          <path d="M13.5 4.5 6 12 2.5 8.5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Hébergé en UE
+      </span>
+      <span class="inline-flex items-center gap-1.5">
+        <svg viewBox="0 0 16 16" fill="none" class="h-3.5 w-3.5 text-accent-500" aria-hidden="true">
+          <path d="M13.5 4.5 6 12 2.5 8.5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Zéro tracker
+      </span>
+      <span class="inline-flex items-center gap-1.5">
+        <svg viewBox="0 0 16 16" fill="none" class="h-3.5 w-3.5 text-accent-500" aria-hidden="true">
+          <path d="M13.5 4.5 6 12 2.5 8.5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        AES-256, RLS Postgres
+      </span>
     </div>
   </div>
 </section>

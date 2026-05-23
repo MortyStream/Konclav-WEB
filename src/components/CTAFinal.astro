@@ -7,16 +7,20 @@
     <div
       data-reveal
       data-spotlight
+      data-cursor-glow
       class="relative isolate overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-ink-900 to-ink-950 px-8 py-16 text-center sm:px-12 sm:py-20"
     >
       <div
         aria-hidden="true"
+        data-parallax="0.12"
         class="pointer-events-none absolute -top-32 left-1/2 -z-10 h-[400px] w-[600px] -translate-x-1/2 rounded-full opacity-30 blur-3xl"
         style="background: radial-gradient(closest-side, #5e6ad2, transparent 70%);"
       >
       </div>
+      <div aria-hidden="true" class="cursor-glow-layer"></div>
 
       <h2
+        data-split-text
         class="text-balance text-3xl font-semibold leading-tight tracking-tight text-ink-50 sm:text-4xl md:text-5xl"
       >
         Prêt à voir Konclav en action ?
@@ -33,13 +37,14 @@
       >
         <a
           href="/demo"
-          class="inline-flex items-center justify-center gap-1.5 rounded-lg bg-accent-500 px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-accent-400"
+          data-magnetic
+          class="group/cta inline-flex items-center justify-center gap-1.5 rounded-lg bg-accent-500 px-6 py-3 text-sm font-medium text-white shadow-[0_10px_30px_-10px_rgba(94,106,210,0.6)] transition-colors hover:bg-accent-400"
         >
           Réserver ma démo
           <svg
             viewBox="0 0 16 16"
             fill="none"
-            class="h-4 w-4"
+            class="h-4 w-4 transition-transform duration-300 ease-out group-hover/cta:translate-x-0.5"
             aria-hidden="true"
           >
             <path

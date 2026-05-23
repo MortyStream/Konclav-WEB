@@ -57,12 +57,24 @@ const imageUrl = new URL(image, Astro.site ?? Astro.url.origin).toString();
 
     <script is:inline>
       (function () {
-        // Reveal au scroll
-        const els = document.querySelectorAll('[data-reveal]');
-        if (els.length) {
-          const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        const supportsHover = window.matchMedia('(hover: hover)').matches;
+
+        // Split-text — wrap words in <span class="word"> so CSS stagger can animate them
+        document.querySelectorAll('[data-split-text]').forEach((el) => {
+          const text = (el.textContent || '').trim();
+          if (!text) return;
+          const words = text.split(/\s+/);
+          el.innerHTML = words
+            .map((w, i) => `<span class="word" style="--word-i:${i}">${w}</span>`)
+            .join(' ');
+        });
+
+        // Reveal au scroll (toggle .is-visible)
+        const revealEls = document.querySelectorAll('[data-reveal], [data-split-text], [data-draw]');
+        if (revealEls.length) {
           if (reduced || !('IntersectionObserver' in window)) {
-            els.forEach((el) => el.classList.add('is-visible'));
+            revealEls.forEach((el) => el.classList.add('is-visible'));
           } else {
             const io = new IntersectionObserver(
               (entries) => {
@@ -73,16 +85,23 @@ const imageUrl = new URL(image, Astro.site ?? Astro.url.origin).toString();
                   }
                 }
               },
-              { threshold: 0.12, rootMargin: '0px 0px -10% 0px' }
+              { threshold: 0.12, rootMargin: '0px 0px -8% 0px' }
             );
-            els.forEach((el) => io.observe(el));
+            revealEls.forEach((el) => io.observe(el));
           }
         }
 
-        // Cursor spotlight — délégué sur document pour éviter d'attacher N listeners
-        const supportsHover = window.matchMedia('(hover: hover)').matches;
-        const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-        if (supportsHover && !reducedMotion) {
+        // SVG draw-on-scroll — compute each path's total length so CSS can dash it
+        document.querySelectorAll('[data-draw]').forEach((wrap) => {
+          wrap.querySelectorAll('path').forEach((p) => {
+            if (typeof p.getTotalLength === 'function') {
+              p.style.setProperty('--len', p.getTotalLength());
+            }
+          });
+        });
+
+        // Cursor spotlight — délégué sur document
+        if (supportsHover && !reduced) {
           document.addEventListener('mousemove', (e) => {
             const target = e.target && e.target.closest
               ? e.target.closest('[data-spotlight]')
@@ -91,7 +110,99 @@ const imageUrl = new URL(image, Astro.site ?? Astro.url.origin).toString();
             const rect = target.getBoundingClientRect();
             target.style.setProperty('--mx', e.clientX - rect.left + 'px');
             target.style.setProperty('--my', e.clientY - rect.top + 'px');
+          }, { passive: true });
+        }
+
+        // Cursor glow — gradient qui suit la souris sur les sections marquées
+        const glowEls = Array.from(document.querySelectorAll('[data-cursor-glow]'));
+        if (glowEls.length && supportsHover && !reduced) {
+          document.addEventListener('mousemove', (e) => {
+            for (const el of glowEls) {
+              const rect = el.getBoundingClientRect();
+              if (e.clientY < rect.top - 240 || e.clientY > rect.bottom + 240) continue;
+              const x = ((e.clientX - rect.left) / rect.width) * 100;
+              const y = ((e.clientY - rect.top) / rect.height) * 100;
+              el.style.setProperty('--gx', x + '%');
+              el.style.setProperty('--gy', y + '%');
+            }
+          }, { passive: true });
+        }
+
+        // Parallax — éléments avec data-parallax="0.3" se translatent au scroll
+        const parallaxEls = document.querySelectorAll('[data-parallax]');
+        if (parallaxEls.length && !reduced) {
+          let ticking = false;
+          const update = () => {
+            const sy = window.scrollY;
+            parallaxEls.forEach((el) => {
+              const speed = parseFloat(el.dataset.parallax || '0.3');
+              el.style.setProperty('--py', (sy * speed * -1) + 'px');
+            });
+            ticking = false;
+          };
+          window.addEventListener('scroll', () => {
+            if (!ticking) {
+              requestAnimationFrame(update);
+              ticking = true;
+            }
+          }, { passive: true });
+          update();
+        }
+
+        // Magnetic — boutons attirent le curseur dans un rayon de 100px
+        if (supportsHover && !reduced) {
+          document.querySelectorAll('[data-magnetic]').forEach((btn) => {
+            const radius = 110;
+            const strength = 0.32;
+            const reset = () => { btn.style.transform = ''; };
+            btn.addEventListener('mousemove', (e) => {
+              const rect = btn.getBoundingClientRect();
+              const cx = rect.left + rect.width / 2;
+              const cy = rect.top + rect.height / 2;
+              const dx = e.clientX - cx;
+              const dy = e.clientY - cy;
+              const dist = Math.hypot(dx, dy);
+              if (dist < radius) {
+                btn.style.transform = `translate3d(${dx * strength}px, ${dy * strength}px, 0)`;
+              } else {
+                reset();
+              }
+            });
+            btn.addEventListener('mouseleave', reset);
+            btn.addEventListener('blur', reset);
           });
+        }
+
+        // Tilt 3D — cards qui s'inclinent vers le curseur (max 5°)
+        if (supportsHover && !reduced) {
+          document.querySelectorAll('[data-tilt]').forEach((el) => {
+            const max = 5;
+            const reset = () => {
+              el.style.setProperty('--tx', '0deg');
+              el.style.setProperty('--ty', '0deg');
+            };
+            el.addEventListener('mousemove', (e) => {
+              const rect = el.getBoundingClientRect();
+              const px = (e.clientX - rect.left) / rect.width;
+              const py = (e.clientY - rect.top) / rect.height;
+              const ry = (px - 0.5) * max * 2;
+              const rx = (0.5 - py) * max * 2;
+              el.style.setProperty('--ty', ry.toFixed(2) + 'deg');
+              el.style.setProperty('--tx', rx.toFixed(2) + 'deg');
+            });
+            el.addEventListener('mouseleave', reset);
+          });
+        }
+
+        // Nav scroll shadow
+        const nav = document.querySelector('header[data-nav]');
+        if (nav) {
+          const onScroll = () => {
+            if (window.scrollY > 8) nav.classList.add('nav-scrolled');
+            else nav.classList.remove('nav-scrolled');
+          };
+          onScroll();
+          window.addEventListener('scroll', onScroll, { passive: true });
         }
       })();
     </script>
