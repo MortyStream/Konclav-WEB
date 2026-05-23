@@ -32,14 +32,14 @@ const notifs = [
 ---
 
 <div class="relative h-full w-full overflow-hidden">
-  <!-- Horizontal scrolling row of notification cards -->
+  <!-- Horizontal row of notification cards -->
   <div class="flex gap-3 fade-right">
     {notifs.map((n) => (
       <div
-        class={`flex w-72 shrink-0 gap-2.5 rounded-xl border p-3 ${
+        class={`flex w-72 shrink-0 gap-3 rounded-xl border p-3.5 ${
           n.unread
-            ? "border-accent-500/20 bg-accent-500/[0.04]"
-            : "border-white/[0.06] bg-white/[0.02]"
+            ? "border-accent-500/25 bg-accent-500/[0.06]"
+            : "border-white/[0.08] bg-white/[0.025]"
         }`}
       >
         <div class={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-[12px] font-semibold ${n.avatar.classes}`}>
@@ -50,10 +50,10 @@ const notifs = [
             <p class={`text-[12px] font-medium leading-snug ${n.unread ? "text-white/95" : "text-white/70"}`}>
               {n.title}
             </p>
-            {n.unread && <span class="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-accent-500"></span>}
+            {n.unread && <span class="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-accent-400"></span>}
           </div>
-          <p class="mt-0.5 text-[10px] leading-snug text-white/55">{n.body}</p>
-          <p class="mt-1 text-[9px] text-white/40">il y a {n.time}</p>
+          <p class="mt-1 text-[11px] leading-snug text-white/60">{n.body}</p>
+          <p class="mt-1.5 text-[10px] text-white/40">il y a {n.time}</p>
         </div>
       </div>
     ))}

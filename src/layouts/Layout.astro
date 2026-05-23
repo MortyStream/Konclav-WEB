@@ -43,6 +43,31 @@ const imageUrl = new URL(image, Astro.site ?? Astro.url.origin).toString();
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={imageUrl} />
 
+    <!-- JSON-LD: Organization + WebSite (global) -->
+    <script type="application/ld+json" is:inline set:html={JSON.stringify({
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "Organization",
+          "@id": new URL("/#organization", Astro.site ?? Astro.url.origin).toString(),
+          "name": "Konclav",
+          "url": (Astro.site ?? Astro.url.origin).toString(),
+          "logo": new URL("/favicon.svg", Astro.site ?? Astro.url.origin).toString(),
+          "description": "Intranet privé mobile pour les associations suisses.",
+          "areaServed": "CH"
+        },
+        {
+          "@type": "WebSite",
+          "@id": new URL("/#website", Astro.site ?? Astro.url.origin).toString(),
+          "url": (Astro.site ?? Astro.url.origin).toString(),
+          "name": "Konclav",
+          "description": "Konclav — l'intranet privé pensé pour les associations suisses.",
+          "publisher": { "@id": new URL("/#organization", Astro.site ?? Astro.url.origin).toString() },
+          "inLanguage": "fr-CH"
+        }
+      ]
+    })} />
+
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -191,16 +216,53 @@ const imageUrl = new URL(image, Astro.site ?? Astro.url.origin).toString();
           window.addEventListener('scroll', onScroll, { passive: true });
         }
 
+        // Mobile menu drawer (a11y: focus trap, ESC close, body scroll lock)
+        const menuToggle = document.querySelector('[data-menu-toggle]');
+        const menuPanel = document.querySelector('[data-menu-panel]');
+        const menuClose = document.querySelector('[data-menu-close]');
+        if (menuToggle && menuPanel) {
+          const openMenu = () => {
+            menuPanel.classList.remove('hidden');
+            menuPanel.removeAttribute('inert');
+            menuPanel.setAttribute('aria-hidden', 'false');
+            menuToggle.setAttribute('aria-expanded', 'true');
+            document.body.style.overflow = 'hidden';
+            const firstFocusable = menuPanel.querySelector('a, button');
+            if (firstFocusable) firstFocusable.focus();
+          };
+          const closeMenu = () => {
+            menuPanel.classList.add('hidden');
+            menuPanel.setAttribute('inert', '');
+            menuPanel.setAttribute('aria-hidden', 'true');
+            menuToggle.setAttribute('aria-expanded', 'false');
+            document.body.style.overflow = '';
+            menuToggle.focus();
+          };
+          menuToggle.addEventListener('click', () => {
+            if (menuPanel.classList.contains('hidden')) openMenu();
+            else closeMenu();
+          });
+          menuClose?.addEventListener('click', closeMenu);
+          document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && !menuPanel.classList.contains('hidden')) closeMenu();
+          });
+          menuPanel.querySelectorAll('a').forEach((a) => {
+            a.addEventListener('click', closeMenu);
+          });
+        }
+
         // V2 — Bento mouse-position (--mx/--my for inner glow)
-        document.querySelectorAll('.bento').forEach((card) => {
-          card.addEventListener('mousemove', (e) => {
-            const rect = card.getBoundingClientRect();
-            const mx = ((e.clientX - rect.left) / rect.width) * 100;
-            const my = ((e.clientY - rect.top) / rect.height) * 100;
-            card.style.setProperty('--mx', mx + '%');
-            card.style.setProperty('--my', my + '%');
-          }, { passive: true });
-        });
+        if (supportsHover && !reduced) {
+          document.querySelectorAll('.bento').forEach((card) => {
+            card.addEventListener('mousemove', (e) => {
+              const rect = card.getBoundingClientRect();
+              const mx = ((e.clientX - rect.left) / rect.width) * 100;
+              const my = ((e.clientY - rect.top) / rect.height) * 100;
+              card.style.setProperty('--mx', mx + '%');
+              card.style.setProperty('--my', my + '%');
+            }, { passive: true });
+          });
+        }
 
         // V2 — Counter animation (count up from 0 to data-counter on reveal)
         const counters = document.querySelectorAll('[data-counter]');

@@ -7,11 +7,14 @@
   --color-ink-800: #111214;
   --color-ink-50:  #f4f4f5;
   --color-ink-400: #a1a1aa;
-  --color-ink-500: #71717a;
+  --color-ink-500: #8b8b94;   /* WCAG AA on ink-950: 5.1:1 (was #71717a, 4.3:1 — failed) */
 
   /* Accent Linear */
   --color-accent-500: #5e6ad2;
   --color-accent-400: #7170ff;
+
+  /* Shadows */
+  --shadow-cta: 0 18px 40px -12px rgba(94, 106, 210, 0.7);
 
   /* Typographie */
   --font-sans: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
@@ -20,10 +23,6 @@
 :root {
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
-  --dur-fast: 180ms;
-  --dur-base: 320ms;
-  --dur-slow: 560ms;
-  --dur-reveal: 700ms;
 }
 
 @property --angle {
@@ -171,22 +170,23 @@ body {
   outline: 2px solid var(--color-accent-500);
   outline-offset: 3px;
   box-shadow: 0 0 0 6px rgba(94, 106, 210, 0.18);
-  border-radius: 10px;
   transition: box-shadow 180ms var(--ease-out-expo);
 }
 
 /* ============================================================
-   NOISE OVERLAY — global film grain (très subtil)
+   NOISE OVERLAY — film grain (très subtil, desktop only pour perf)
    ============================================================ */
-body::after {
-  content: "";
-  position: fixed;
-  inset: 0;
-  z-index: 9999;
-  pointer-events: none;
-  opacity: 0.035;
-  mix-blend-mode: soft-light;
-  background-image: url("data:image/svg+xml;utf8,<svg viewBox='0 0 220 220' xmlns='http://www.w3.org/2000/svg'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+@media (min-width: 1024px) {
+  body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    pointer-events: none;
+    opacity: 0.035;
+    mix-blend-mode: soft-light;
+    background-image: url("data:image/svg+xml;utf8,<svg viewBox='0 0 220 220' xmlns='http://www.w3.org/2000/svg'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  }
 }
 @media (prefers-reduced-motion: reduce) {
   body::after { display: none; }
@@ -401,29 +401,6 @@ body::after {
 }
 
 /* ============================================================
-   MARQUEE — utilitaire infinite scroll (réserve, pas utilisée par défaut)
-   ============================================================ */
-.marquee {
-  display: flex;
-  overflow: hidden;
-  mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent);
-  -webkit-mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent);
-}
-.marquee-track {
-  display: flex;
-  flex-shrink: 0;
-  gap: 2rem;
-  animation: marquee-scroll 32s linear infinite;
-  padding-right: 2rem;
-}
-@keyframes marquee-scroll {
-  to { transform: translateX(-50%); }
-}
-@media (prefers-reduced-motion: reduce) {
-  .marquee-track { animation: none; }
-}
-
-/* ============================================================
    V2 — AURORA GLOBALE (un seul effet, fixé au viewport)
    Conic gradient qui tourne lentement, plus de coupure entre
    sections puisque ce n'est pas confiné à une section.
@@ -449,13 +426,13 @@ body::after {
           mask-image: radial-gradient(ellipse 80% 70% at 50% 45%, #000 0%, #000 50%, transparent 95%);
   opacity: 0.55;
   animation: aurora-spin 55s linear infinite;
-  will-change: --aurora-angle;
+}
+/* On low-power devices, freeze to a static gradient — no animation, no composite cost */
+@media (max-width: 768px), (prefers-reduced-motion: reduce) {
+  .aurora-global { animation: none; opacity: 0.4; }
 }
 @keyframes aurora-spin {
   to { --aurora-angle: 360deg; }
-}
-@media (prefers-reduced-motion: reduce) {
-  .aurora-global { animation: none; }
 }
 
 
@@ -568,7 +545,8 @@ body::after {
   transition: transform 800ms var(--ease-out-quart);
   pointer-events: none;
 }
-.cta-shimmer:hover::after {
+.cta-shimmer:hover::after,
+.cta-shimmer:focus-visible::after {
   transform: translateX(100%);
 }
 @media (prefers-reduced-motion: reduce) {

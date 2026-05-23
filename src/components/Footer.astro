@@ -42,22 +42,24 @@ const year = new Date().getFullYear();
         Konclav
       </a>
 
-      <ul
-        class="flex flex-wrap items-center gap-x-6 gap-y-3 text-sm text-ink-400"
-      >
-        {
-          productLinks.map((link) => (
-            <li>
-              <a
-                href={link.href}
-                class="link-underline transition-colors hover:text-ink-50"
-              >
-                {link.label}
-              </a>
-            </li>
-          ))
-        }
-      </ul>
+      <nav aria-label="Liens produit">
+        <ul
+          class="flex flex-wrap items-center gap-x-6 gap-y-3 text-sm text-ink-400"
+        >
+          {
+            productLinks.map((link) => (
+              <li>
+                <a
+                  href={link.href}
+                  class="link-underline transition-colors hover:text-ink-50"
+                >
+                  {link.label}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </nav>
     </div>
 
     <div
@@ -66,22 +68,24 @@ const year = new Date().getFullYear();
       <p class="text-xs text-ink-500">
         © {year} Konclav. Fait en Suisse.
       </p>
-      <ul
-        class="flex flex-wrap items-center gap-x-6 gap-y-2 text-xs text-ink-500"
-      >
-        {
-          legalLinks.map((link) => (
-            <li>
-              <a
-                href={link.href}
-                class="link-underline transition-colors hover:text-ink-50"
-              >
-                {link.label}
-              </a>
-            </li>
-          ))
-        }
-      </ul>
+      <nav aria-label="Liens légaux">
+        <ul
+          class="flex flex-wrap items-center gap-x-6 gap-y-2 text-xs text-ink-500"
+        >
+          {
+            legalLinks.map((link) => (
+              <li>
+                <a
+                  href={link.href}
+                  class="link-underline transition-colors hover:text-ink-50"
+                >
+                  {link.label}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </nav>
     </div>
   </div>
 </footer>

@@ -3,6 +3,7 @@ import Layout from "../layouts/Layout.astro";
 import Navbar from "../components/Navbar.astro";
 import Footer from "../components/Footer.astro";
 import Icon from "../components/Icon.astro";
+import PriceSimulator from "../components/PriceSimulator.astro";
 
 const plans = [
   {
@@ -29,7 +30,7 @@ const plans = [
     priceUnit: "",
     floor: "Dès 100 membres ou besoins custom",
     featured: false,
-    cta: { href: "mailto:mxrtystream@gmail.com?subject=Konclav%20Sur%20mesure", label: "Nous écrire" },
+    cta: { href: "mailto:contact@konclav.ch?subject=Konclav%20Sur%20mesure", label: "Nous écrire" },
     features: [
       "Tout ce qui est dans Konclav",
       "Onboarding personnalisé",
@@ -112,8 +113,10 @@ const faq = [
           data-reveal
           class="mx-auto mt-6 max-w-xl text-pretty text-base leading-relaxed text-ink-400 sm:text-lg"
         >
-          4 CHF par membre actif par mois. Sans engagement, sans surprise.
-          Membres inactifs jamais facturés.
+          4 CHF par <em class="not-italic font-semibold text-ink-50">membre actif</em> par mois.
+          Un membre actif, c'est une personne qui s'est connectée au moins
+          une fois dans le mois — les comptes dormants ne sont jamais
+          facturés.
         </p>
       </div>
     </section>
@@ -141,9 +144,9 @@ const faq = [
                     Recommandé
                   </div>
                 )}
-                <h2 class="text-xl font-semibold tracking-tight text-ink-50">
+                <h3 class="text-xl font-semibold tracking-tight text-ink-50">
                   {plan.name}
-                </h2>
+                </h3>
                 <p class="mt-1.5 text-sm text-ink-400">{plan.tagline}</p>
 
                 <div class="mt-6 flex items-baseline gap-1.5">
@@ -160,7 +163,7 @@ const faq = [
                   href={plan.cta.href}
                   class={`group/cta mt-7 inline-flex w-full items-center justify-center gap-1.5 rounded-xl px-5 py-3 text-sm font-semibold transition-colors ${
                     plan.featured
-                      ? "cta-shimmer bg-accent-500 text-white shadow-[0_18px_40px_-12px_rgba(94,106,210,0.7)] hover:bg-accent-400"
+                      ? "cta-shimmer bg-accent-500 text-white shadow-[var(--shadow-cta)] hover:bg-accent-400"
                       : "border border-white/10 bg-white/[0.02] text-ink-50 hover:border-white/20 hover:bg-white/[0.04]"
                   }`}
                 >
@@ -208,6 +211,8 @@ const faq = [
         </div>
       </div>
     </section>
+
+    <PriceSimulator />
 
     <!-- Inclus partout -->
     <section class="relative border-t border-white/5 px-6 py-32">
@@ -335,7 +340,7 @@ const faq = [
             <a
               href="/demo"
               data-magnetic
-              class="cta-shimmer group/cta inline-flex items-center justify-center gap-1.5 rounded-xl bg-accent-500 px-7 py-4 text-sm font-semibold text-white shadow-[0_20px_50px_-12px_rgba(94,106,210,0.7)] transition-colors hover:bg-accent-400"
+              class="cta-shimmer group/cta inline-flex items-center justify-center gap-1.5 rounded-xl bg-accent-500 px-7 py-4 text-sm font-semibold text-white shadow-[var(--shadow-cta)] transition-colors hover:bg-accent-400"
             >
               Réserver ma démo
               <svg
@@ -353,7 +358,7 @@ const faq = [
               </svg>
             </a>
             <a
-              href="mailto:mxrtystream@gmail.com"
+              href="mailto:contact@konclav.ch"
               class="inline-flex items-center justify-center rounded-xl border border-white/10 bg-white/[0.02] px-7 py-4 text-sm font-semibold text-ink-50 transition-colors hover:border-white/20 hover:bg-white/[0.05]"
             >
               Poser une question

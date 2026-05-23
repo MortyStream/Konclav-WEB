@@ -3,12 +3,12 @@
 ---
 
 <section
-  class="relative isolate overflow-hidden border-y border-white/[0.06] px-6 py-32 sm:py-40 lg:py-48"
+  class="relative isolate overflow-hidden px-6 py-40 sm:py-48 lg:py-56"
 >
-  <!-- Subtle grid -->
+  <!-- Vertical accent rule on the left -->
   <div
     aria-hidden="true"
-    class="pointer-events-none absolute inset-0 -z-10 grid-bg opacity-50"
+    class="pointer-events-none absolute left-6 top-1/2 -z-10 hidden h-32 w-px -translate-y-1/2 bg-gradient-to-b from-transparent via-accent-500/40 to-transparent lg:block"
   ></div>
 
   <div class="mx-auto max-w-6xl">
@@ -22,48 +22,38 @@
     <h2
       data-reveal
       data-split-text
-      class="display-manifesto mt-8 text-balance text-center text-ink-50"
+      class="display-manifesto mt-10 text-balance text-center text-ink-50"
     >
-      Vos données. Vos règles. Votre asso.
+      Vos données. Vos <span class="italic-display">règles</span>. Votre asso.
     </h2>
 
     <p
       data-reveal
       class="mx-auto mt-12 max-w-2xl text-pretty text-center text-base leading-relaxed text-ink-400 sm:text-lg"
     >
-      Konclav est un outil. Pas un produit qui transforme vos membres en
-      données vendables. Pas de pub. Pas d'analytics tierces. Pas de
-      « data partner ». Vous payez l'app, vous possédez tout.
+      Konclav est un <em class="not-italic font-semibold text-ink-50">outil</em>.
+      Pas un produit qui transforme vos membres en données vendables. Pas de
+      pub. Pas d'analytics tierces. Pas de « data partner ». Vous payez l'app,
+      vous possédez tout.
     </p>
 
+    <!-- Single stat callout replacing the redundant pill row -->
     <div
       data-reveal
-      class="mx-auto mt-12 flex max-w-lg flex-wrap items-center justify-center gap-x-3 gap-y-2 text-[11px] text-ink-500"
+      class="mx-auto mt-14 grid max-w-2xl grid-cols-1 gap-3 sm:grid-cols-3"
     >
-      <span class="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.03] px-3 py-1">
-        <svg viewBox="0 0 16 16" fill="none" class="h-3 w-3 text-accent-500" aria-hidden="true">
-          <path d="M13.5 4.5 6 12 2.5 8.5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-        Aucun tracker
-      </span>
-      <span class="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.03] px-3 py-1">
-        <svg viewBox="0 0 16 16" fill="none" class="h-3 w-3 text-accent-500" aria-hidden="true">
-          <path d="M13.5 4.5 6 12 2.5 8.5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-        Hébergé en UE
-      </span>
-      <span class="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.03] px-3 py-1">
-        <svg viewBox="0 0 16 16" fill="none" class="h-3 w-3 text-accent-500" aria-hidden="true">
-          <path d="M13.5 4.5 6 12 2.5 8.5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-        Export à tout moment
-      </span>
-      <span class="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.03] px-3 py-1">
-        <svg viewBox="0 0 16 16" fill="none" class="h-3 w-3 text-accent-500" aria-hidden="true">
-          <path d="M13.5 4.5 6 12 2.5 8.5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-        Sans engagement
-      </span>
+      <div class="bento p-5 text-center">
+        <p class="text-3xl font-semibold tabular-nums text-ink-50 sm:text-4xl">0</p>
+        <p class="mt-1 text-[11px] uppercase tracking-widest text-ink-500">Trackers</p>
+      </div>
+      <div class="bento p-5 text-center">
+        <p class="text-3xl font-semibold tabular-nums text-ink-50 sm:text-4xl">100<span class="text-xl">%</span></p>
+        <p class="mt-1 text-[11px] uppercase tracking-widest text-ink-500">Hébergé UE</p>
+      </div>
+      <div class="bento p-5 text-center">
+        <p class="text-3xl font-semibold tabular-nums text-ink-50 sm:text-4xl">30j</p>
+        <p class="mt-1 text-[11px] uppercase tracking-widest text-ink-500">Backups chiffrés</p>
+      </div>
     </div>
   </div>
 </section>

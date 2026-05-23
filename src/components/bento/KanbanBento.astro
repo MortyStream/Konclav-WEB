@@ -63,43 +63,69 @@ const columns = [
 ];
 ---
 
-<div class="mockup-kanban relative h-full w-full overflow-hidden rounded-xl border border-white/[0.06] bg-ink-950/60">
-  <!-- Mini app chrome -->
-  <div class="flex items-center justify-between border-b border-white/[0.06] px-3.5 py-2">
-    <div class="flex items-center gap-1.5">
-      <span class="text-[12px] font-semibold text-white/90">Tâches · FC Lausanne</span>
+<div class="mockup-kanban relative h-full w-full overflow-hidden rounded-xl border border-white/[0.08] bg-gradient-to-b from-white/[0.04] to-white/[0.01]">
+  <!-- App chrome with toolbar -->
+  <div class="flex items-center justify-between border-b border-white/[0.08] px-4 py-2.5">
+    <div class="flex items-center gap-2">
+      <div class="flex h-6 w-6 items-center justify-center rounded-md bg-accent-500/15 text-accent-400">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" class="h-3.5 w-3.5" aria-hidden="true">
+          <rect width="12" height="12" x="2" y="2" rx="1.5" />
+          <path d="M5 5v8M8 5v6M11 5v9" />
+        </svg>
+      </div>
+      <div>
+        <p class="text-[13px] font-semibold leading-none text-white/95">Tâches</p>
+        <p class="mt-0.5 text-[10px] text-white/45">FC Lausanne · Comité</p>
+      </div>
     </div>
-    <div class="flex items-center gap-1">
-      <span class="rounded-md bg-white/[0.06] px-1.5 py-0.5 text-[9px] font-medium text-white/60">Tableau</span>
-      <span class="px-1.5 py-0.5 text-[9px] text-white/30">Liste</span>
+    <div class="flex items-center gap-1.5">
+      <div class="flex -space-x-1.5">
+        <div class="flex h-5 w-5 items-center justify-center rounded-full bg-amber-500/25 text-[8px] font-semibold text-amber-300 ring-2 ring-ink-950">MR</div>
+        <div class="flex h-5 w-5 items-center justify-center rounded-full bg-accent-500/25 text-[8px] font-semibold text-accent-300 ring-2 ring-ink-950">LD</div>
+        <div class="flex h-5 w-5 items-center justify-center rounded-full bg-emerald-500/25 text-[8px] font-semibold text-emerald-300 ring-2 ring-ink-950">SB</div>
+      </div>
+      <span class="rounded-md bg-accent-500/15 px-2 py-0.5 text-[10px] font-medium text-accent-300">+ Tâche</span>
     </div>
   </div>
 
+  <!-- Pill tabs -->
+  <div class="flex items-center gap-1 border-b border-white/[0.04] px-3 py-1.5">
+    <span class="rounded-md bg-white/[0.08] px-2 py-0.5 text-[10px] font-medium text-white/90">Tableau</span>
+    <span class="rounded-md px-2 py-0.5 text-[10px] text-white/40">Liste</span>
+    <span class="rounded-md px-2 py-0.5 text-[10px] text-white/40">Calendrier</span>
+    <span class="ml-auto flex items-center gap-1 rounded-md border border-white/[0.08] px-2 py-0.5 text-[10px] text-white/50">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" class="h-3 w-3" aria-hidden="true">
+        <path d="M3 4h10M5 8h6M7 12h2" />
+      </svg>
+      Filtres
+    </span>
+  </div>
+
   <!-- Columns -->
-  <div class="flex h-full gap-2 overflow-hidden p-2 fade-bottom">
+  <div class="flex h-full gap-2.5 overflow-hidden p-2.5 fade-bottom">
     {columns.map((col) => (
-      <div class="flex w-44 shrink-0 flex-col rounded-lg bg-white/[0.02] p-1.5">
-        <div class="mb-1 flex items-center justify-between px-1">
-          <span class="text-[9px] font-semibold uppercase tracking-wider text-white/50">
+      <div class="flex w-48 shrink-0 flex-col rounded-lg bg-white/[0.025] p-2">
+        <div class="mb-1.5 flex items-center justify-between px-1">
+          <span class="text-[10px] font-semibold uppercase tracking-wider text-white/55">
             {col.title}
           </span>
-          <span class="text-[9px] tabular-nums text-white/40">{col.count}</span>
+          <span class="rounded bg-white/[0.06] px-1.5 py-0.5 text-[9px] font-medium tabular-nums text-white/55">{col.count}</span>
         </div>
         {col.tasks.map((t) => (
-          <div class="mb-1.5 space-y-1 rounded-md border border-white/[0.08] bg-white/[0.03] p-2">
+          <div class="mb-2 space-y-1.5 rounded-lg border border-white/[0.08] bg-white/[0.04] p-2.5 shadow-sm">
             {t.label && (
               <span
-                class={`inline-block rounded px-1 py-px text-[8px] font-medium ${t.label.classes}`}
+                class={`inline-block rounded px-1.5 py-px text-[9px] font-medium ${t.label.classes}`}
               >
                 {t.label.text}
               </span>
             )}
-            <p class="text-[11px] leading-snug text-white/90">{t.title}</p>
-            <div class="flex items-center justify-between text-[9px] text-white/40">
-              <div class="flex -space-x-1">
+            <p class="text-[12px] font-medium leading-snug text-white/95">{t.title}</p>
+            <div class="flex items-center justify-between pt-0.5 text-[10px] text-white/45">
+              <div class="flex -space-x-1.5">
                 {t.avatars.map((av) => (
                   <div
-                    class={`flex h-3.5 w-3.5 items-center justify-center rounded-full text-[7px] font-semibold ring-[1.5px] ring-ink-950 ${av.classes}`}
+                    class={`flex h-4 w-4 items-center justify-center rounded-full text-[8px] font-semibold ring-[1.5px] ring-ink-950 ${av.classes}`}
                   >
                     {av.i}
                   </div>

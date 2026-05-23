@@ -19,13 +19,16 @@ const captions = [
   },
   {
     label: "La Bible documentaire",
-    description: "Statuts, PV, contrats. Recherche instantanée dans 248 docs.",
+    description: "Statuts, PV, contrats. Recherche instantanée, versions, droits granulaires.",
   },
   {
     label: "Notifications",
     description: "Push mobile seulement quand ça compte. Pas de spam.",
   },
 ];
+
+// TODO: Remplacer par l'URL Cal.com finale (ex: "konclav/demo-20min")
+const CAL_USERNAME_EVENT = "konclav/demo-20min";
 ---
 
 <Layout
@@ -141,57 +144,69 @@ const captions = [
       </div>
     </section>
 
-    <!-- CTA / contact -->
+    <!-- Booking : Cal.com inline embed -->
     <section
       id="reserver"
-      class="relative border-t border-white/5 px-6 py-32 sm:py-40"
+      class="relative border-t border-white/[0.06] px-6 py-24 sm:py-32"
     >
-      <div class="mx-auto max-w-2xl">
-        <div data-reveal class="text-center">
-          <p class="text-sm font-medium text-accent-500">Réserver ma démo</p>
+      <div class="mx-auto max-w-5xl">
+        <div data-reveal class="mx-auto max-w-2xl text-center">
+          <p class="text-xs font-medium uppercase tracking-[0.18em] text-accent-500">Réserver ma démo</p>
           <h2
             data-split-text
-            class="mt-3 text-balance text-3xl font-semibold leading-tight tracking-tight text-ink-50 sm:text-4xl"
+            class="display-section mt-4 text-balance text-ink-50"
           >
             On se cale 20 minutes ?
           </h2>
-          <p class="mt-4 text-pretty text-base leading-relaxed text-ink-400">
-            Le formulaire de réservation arrive bientôt. En attendant, un mail
-            suffit — on répond sous 24h ouvrées.
+          <p class="mx-auto mt-5 max-w-xl text-pretty text-base leading-relaxed text-ink-400">
+            Choisissez un créneau qui vous convient — on confirme par email
+            sous 24h ouvrées.
           </p>
         </div>
 
+        <!-- "Ce que vous verrez" — expectations -->
+        <ul
+          data-reveal
+          class="mx-auto mt-10 grid max-w-3xl gap-3 sm:grid-cols-3"
+        >
+          {[
+            "Démo live adaptée à votre asso",
+            "Setup et workflows en 5 min",
+            "Tarif estimé pour votre taille",
+          ].map((item) => (
+            <li class="flex items-start gap-2.5 rounded-xl border border-white/[0.06] bg-white/[0.02] p-4">
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" class="mt-0.5 h-4 w-4 shrink-0 text-accent-400" aria-hidden="true">
+                <path d="m3.5 8.5 3 3 6-7" />
+              </svg>
+              <span class="text-sm leading-snug text-ink-50">{item}</span>
+            </li>
+          ))}
+        </ul>
+
+        <!-- Cal.com inline embed -->
         <div
           data-reveal
-          class="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row"
+          class="mt-14 overflow-hidden rounded-2xl border border-white/[0.08] bg-white/[0.02]"
         >
-          <a
-            href="mailto:mxrtystream@gmail.com?subject=Demande%20de%20d%C3%A9mo%20Konclav&body=Bonjour%2C%0A%0AJe%20repr%C3%A9sente%20l%27association%20%3A%20%0ANombre%20de%20membres%20%3A%20%0AT%C3%A9l%C3%A9phone%20%3A%20%0AMes%20disponibilit%C3%A9s%20%3A%20%0A%0AMerci%20%21"
-            data-magnetic
-            class="cta-shimmer group/cta inline-flex items-center justify-center gap-1.5 rounded-xl bg-accent-500 px-7 py-3.5 text-sm font-semibold text-white shadow-[0_18px_40px_-12px_rgba(94,106,210,0.7)] transition-colors hover:bg-accent-400"
-          >
-            Mail prérempli
-            <svg
-              viewBox="0 0 16 16"
-              fill="none"
-              class="h-4 w-4 transition-transform duration-300 ease-out group-hover/cta:translate-x-0.5"
-              aria-hidden="true"
-            >
-              <path
-                d="M3.5 8h9m0 0L8 3.5M12.5 8 8 12.5"
-                stroke="currentColor"
-                stroke-width="1.5"
-                stroke-linecap="round"
-                stroke-linejoin="round"></path>
-            </svg>
-          </a>
-          <a
-            href="mailto:mxrtystream@gmail.com"
-            class="inline-flex items-center justify-center rounded-lg border border-white/10 bg-white/[0.02] px-6 py-3 text-sm font-medium text-ink-50 transition-colors hover:border-white/20 hover:bg-white/[0.04]"
-          >
-            Mail vide
-          </a>
+          <iframe
+            src={`https://cal.com/${CAL_USERNAME_EVENT}?theme=dark&layout=month_view&hideEventTypeDetails=false`}
+            title="Réserver une démo Konclav — Cal.com"
+            loading="lazy"
+            allow="camera *; microphone *; fullscreen *; payment *"
+            class="block h-[700px] w-full sm:h-[760px]"
+          ></iframe>
         </div>
+
+        <!-- Fallback contact -->
+        <p data-reveal class="mt-8 text-center text-sm text-ink-400">
+          Le widget ne charge pas ?{" "}
+          <a
+            href="mailto:contact@konclav.ch?subject=Demande%20de%20d%C3%A9mo%20Konclav&body=Bonjour%2C%0A%0AJe%20repr%C3%A9sente%20l%27association%20%3A%20%0ANombre%20de%20membres%20%3A%20%0AT%C3%A9l%C3%A9phone%20%3A%20%0AMes%20disponibilit%C3%A9s%20%3A%20%0A%0AMerci%20%21"
+            class="link-underline font-medium text-ink-50"
+          >
+            Écrivez-nous à contact@konclav.ch
+          </a>
+        </p>
       </div>
     </section>
   </main>

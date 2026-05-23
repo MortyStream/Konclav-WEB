@@ -1,4 +1,6 @@
 ---
+import CTAButton from "./CTAButton.astro";
+
 const links = [
   { href: "/#features", label: "Fonctionnalités" },
   { href: "/#security", label: "Sécurité" },
@@ -51,12 +53,70 @@ const links = [
       }
     </ul>
 
-    <a
-      href="/demo"
-      data-magnetic
-      class="cta-shimmer inline-flex items-center rounded-lg bg-accent-500 px-3.5 py-2 text-sm font-semibold text-white shadow-[0_8px_24px_-12px_rgba(94,106,210,0.7)] transition-colors hover:bg-accent-400"
+    <!-- Desktop CTA -->
+    <div class="hidden md:block">
+      <CTAButton href="/demo" magnetic arrow={false} class="px-3.5 py-2 text-sm">
+        Réserver une démo
+      </CTAButton>
+    </div>
+
+    <!-- Mobile burger -->
+    <button
+      type="button"
+      data-menu-toggle
+      aria-label="Ouvrir le menu"
+      aria-expanded="false"
+      aria-controls="mobile-menu"
+      class="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-white/10 bg-white/[0.02] text-ink-50 md:hidden"
     >
-      Réserver une démo
-    </a>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" class="h-5 w-5" aria-hidden="true">
+        <path d="M4 7h16M4 12h16M4 17h16" />
+      </svg>
+    </button>
   </nav>
 </header>
+
+<!-- Mobile menu drawer -->
+<div
+  id="mobile-menu"
+  data-menu-panel
+  inert
+  aria-hidden="true"
+  class="fixed inset-0 z-[60] hidden bg-ink-950/95 backdrop-blur-md"
+>
+  <div class="flex h-16 items-center justify-between border-b border-white/5 px-6">
+    <span class="text-base font-semibold tracking-tight text-ink-50">Menu</span>
+    <button
+      type="button"
+      data-menu-close
+      aria-label="Fermer le menu"
+      class="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-white/10 bg-white/[0.02] text-ink-50"
+    >
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" class="h-5 w-5" aria-hidden="true">
+        <path d="M6 6l12 12M18 6l-12 12" />
+      </svg>
+    </button>
+  </div>
+
+  <nav class="px-6 py-8" aria-label="Navigation mobile">
+    <ul class="flex flex-col gap-1">
+      {
+        links.map((link) => (
+          <li>
+            <a
+              href={link.href}
+              class="block rounded-lg border border-transparent px-4 py-3 text-base font-medium text-ink-50 transition-colors hover:border-white/10 hover:bg-white/[0.02]"
+            >
+              {link.label}
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+    <div class="mt-8 border-t border-white/[0.06] pt-8">
+      <CTAButton href="/demo" arrow size="lg" class="w-full">
+        Réserver une démo
+      </CTAButton>
+    </div>
+  </nav>
+</div>
