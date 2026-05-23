@@ -10,6 +10,7 @@ Site marketing d'une app intranet privée pour associations suisses. Site statiq
 - **Inter** chargée depuis Google Fonts CSS2 (400/500/600/700)
 - Zéro framework JS — tout est `is:inline` script dans `Layout.astro`
 - View Transitions natives MPA via `@view-transition { navigation: auto; }` (pas de `ClientRouter` SPA)
+- **express** uniquement pour servir `dist/` en prod via `server.js` (cf. déploiement Infomaniak)
 
 ## Design system
 
@@ -97,7 +98,29 @@ public/
 npm run dev        # localhost:4321
 npm run build      # → dist/ avec sitemap-index.xml généré
 npm run preview
+npm start          # node server.js → sert dist/ sur PORT (3000 par défaut), utilisé par Infomaniak
 ```
+
+## Déploiement Infomaniak (Node.js v24)
+
+L'hébergement Infomaniak du domaine `konclav.ch` est configuré en **Site Node.js** (pas en static Apache). Le projet reste un Astro static output, mais on ajoute un petit `server.js` (express) qui sert `dist/` sur le port fourni par Infomaniak.
+
+Paramètres avancés Node.js dans le manager Infomaniak :
+
+| Champ | Valeur |
+|---|---|
+| Version de Node.js | 24 |
+| Commande d'exécution | `npm start` |
+| Port d'écoute | 3000 |
+| Commande de construction | `npm install && npm run build` |
+
+Le serveur (`server.js`) :
+- Écoute sur `process.env.PORT || 3000`
+- Sert `dist/` avec `express.static`, extension `.html` implicite (donc `/tarifs/` → `dist/tarifs/index.html`)
+- Cache long (1 an, immutable) sur les assets versionnés (js/css/img/font), cache court (5 min) sur les HTML
+- Fallback 404 → `dist/404.html`
+
+Upload du code sur Infomaniak via FTP/SSH ou Git (cf. onglet FTP/SSH du manager). Après upload, Infomaniak lance `npm install && npm run build` puis `npm start`.
 
 ## Régénérer l'OG image
 
