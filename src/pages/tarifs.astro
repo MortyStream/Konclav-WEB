@@ -13,7 +13,7 @@ const plans = [
     priceUnit: "/ membre actif / mois",
     floor: "Forfait minimum 39 CHF / mois",
     featured: true,
-    cta: { href: "/demo", label: "Réserver une démo" },
+    cta: { href: "/demo", label: "Réserver une démo", joinOpen: true },
     features: [
       "Tâches Kanban illimitées",
       "Agenda partagé, synchro Google et Apple",
@@ -161,6 +161,7 @@ const faq = [
 
                 <a
                   href={plan.cta.href}
+                  data-join-open={plan.cta.joinOpen ? "" : undefined}
                   class={`group/cta mt-7 inline-flex w-full items-center justify-center gap-1.5 rounded-xl px-5 py-3 text-sm font-semibold transition-colors ${
                     plan.featured
                       ? "cta-shimmer bg-accent-500 text-white shadow-[var(--shadow-cta)] hover:bg-accent-400"
@@ -339,6 +340,7 @@ const faq = [
           >
             <a
               href="/demo"
+              data-join-open
               data-magnetic
               class="cta-shimmer group/cta inline-flex items-center justify-center gap-1.5 rounded-xl bg-accent-500 px-7 py-4 text-sm font-semibold text-white shadow-[var(--shadow-cta)] transition-colors hover:bg-accent-400"
             >

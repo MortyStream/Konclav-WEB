@@ -1,0 +1,481 @@
+---
+// Modal "Rejoignez Konclav" — wizard multi-étapes qui POSTe vers Google Forms.
+// Les réponses arrivent dans le même Google Sheet que le formulaire d'origine.
+//
+// ⚠️ entry.* = PLACEHOLDERS. À remplacer par les vrais IDs issus du lien
+// pré-rempli Google Forms (éditeur → ⋮ → "Obtenir un lien pré-rempli").
+const FORM_ACTION =
+  "https://docs.google.com/forms/d/e/1FAIpQLSexpAosU928HE5nSZbg1pFht-JEKuaS4X_0G9JrEtm-R9zUsw/formResponse";
+
+// Le Google Form d'origine a 5 pages → pageHistory = 0,1,2,3,4
+const PAGE_HISTORY = "0,1,2,3,4";
+
+const E = {
+  assoName: "entry.TODO_assoName",
+  canton: "entry.TODO_canton",
+  legalForm: "entry.TODO_legalForm",
+  memberCount: "entry.TODO_memberCount",
+  activity: "entry.TODO_activity",
+  firstName: "entry.TODO_firstName",
+  lastName: "entry.TODO_lastName",
+  email: "entry.TODO_email",
+  role: "entry.TODO_role",
+  phone: "entry.TODO_phone",
+  source: "entry.TODO_source",
+  modules: "entry.TODO_modules",
+  needs: "entry.TODO_needs",
+  consent: "entry.TODO_consent",
+};
+
+const cantons = ["Valais", "Vaud", "Fribourg", "Genève", "Neuchâtel", "Jura", "Autre"];
+const legalForms = ["Asso suisse", "Asso loi 1901", "Asbl belge", "Club/Collectif", "ONG/Fondation", "Autre"];
+const memberCounts = ["Moins de 10", "10-30", "30-100", "100-300", "Plus de 300"];
+const roles = ["Président", "Vice-président", "Secrétaire", "Trésorier", "Membre du comité", "Autre"];
+const sources = ["Recommandation", "Recherche Google/réseaux", "LinkedIn", "Presse", "Bouche-à-oreille", "Autre"];
+const modules = ["Tâches", "Calendrier", "Documents", "Annuaire", "Cotisations", "Notes de frais", "AG/votations", "Forum", "Liens", "Pas décidé"];
+
+const steps = [
+  { n: 1, title: "Votre association", sub: "Parlez-nous de votre structure." },
+  { n: 2, title: "Votre contact", sub: "Qui est notre interlocuteur principal ?" },
+  { n: 3, title: "Pour mieux vous orienter", sub: "Optionnel, mais ça nous aide à mieux vous répondre." },
+  { n: 4, title: "Dernière étape", sub: "On y est presque." },
+];
+
+const inputCls =
+  "w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-ink-50 placeholder:text-ink-500 transition-colors focus:border-accent-500/50 focus:bg-white/[0.05] focus:outline-none focus:ring-2 focus:ring-accent-500/20";
+const labelCls = "mb-2 block text-sm font-medium text-ink-50";
+const optionCls =
+  "group/opt relative flex cursor-pointer items-center gap-3 rounded-xl border border-white/10 bg-white/[0.02] px-4 py-2.5 text-sm text-ink-300 transition-colors hover:border-white/20 has-[:checked]:border-accent-500/60 has-[:checked]:bg-accent-500/[0.08] has-[:checked]:text-ink-50";
+const radioIndCls =
+  "relative h-[18px] w-[18px] shrink-0 rounded-full border border-white/25 transition-colors after:absolute after:inset-0 after:m-auto after:h-1.5 after:w-1.5 after:rounded-full after:bg-white after:opacity-0 peer-checked:border-accent-500 peer-checked:bg-accent-500 peer-checked:after:opacity-100";
+const checkIndCls =
+  "relative h-[18px] w-[18px] shrink-0 rounded-md border border-white/25 transition-colors after:absolute after:left-1/2 after:top-[45%] after:h-[9px] after:w-[5px] after:-translate-x-1/2 after:-translate-y-1/2 after:rotate-45 after:border-b-2 after:border-r-2 after:border-white after:opacity-0 peer-checked:border-accent-500 peer-checked:bg-accent-500 peer-checked:after:opacity-100";
+---
+
+<div
+  data-join-modal
+  data-action={FORM_ACTION}
+  data-pagehistory={PAGE_HISTORY}
+  inert
+  class="join-modal fixed inset-0 z-[100] hidden"
+  aria-hidden="true"
+>
+  <div data-join-backdrop class="absolute inset-0 bg-ink-950/80 backdrop-blur-sm"></div>
+
+  <div class="absolute inset-0 flex items-start justify-center overflow-y-auto p-4 sm:items-center sm:p-6">
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="join-title"
+      class="join-panel relative my-auto w-full max-w-lg rounded-2xl border border-white/10 bg-ink-900 shadow-2xl"
+    >
+      <!-- Close -->
+      <button
+        type="button"
+        data-join-close
+        aria-label="Fermer"
+        class="absolute right-4 top-4 z-10 inline-flex h-9 w-9 items-center justify-center rounded-lg border border-white/10 bg-white/[0.03] text-ink-400 transition-colors hover:border-white/20 hover:text-ink-50"
+      >
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" class="h-4.5 w-4.5" aria-hidden="true">
+          <path d="M6 6l12 12M18 6l-12 12" />
+        </svg>
+      </button>
+
+      <!-- Header + progress -->
+      <div class="border-b border-white/[0.06] px-6 pt-6 pb-5 sm:px-8">
+        <div class="flex items-center gap-2">
+          <svg viewBox="0 0 32 32" fill="none" class="h-6 w-6" aria-hidden="true">
+            <rect width="32" height="32" rx="7" fill="#0f1011"></rect>
+            <path d="M11 8v16M11 16l8-8M11 16l8 8" stroke="#5e6ad2" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"></path>
+          </svg>
+          <span id="join-title" class="text-sm font-semibold tracking-tight text-ink-50">Rejoignez Konclav</span>
+        </div>
+        <div class="mt-4 flex items-center justify-between text-xs text-ink-400">
+          <span data-join-steplabel>Étape 1 / {steps.length}</span>
+          <span class="text-ink-500">Réponse sous 48h</span>
+        </div>
+        <div class="mt-2 h-1 w-full overflow-hidden rounded-full bg-white/[0.06]">
+          <div
+            data-join-progress
+            class="h-full rounded-full bg-accent-500 transition-[width] duration-500 ease-out"
+            style="width: 25%;"
+          ></div>
+        </div>
+      </div>
+
+      <form data-join-form novalidate class="px-6 py-6 sm:px-8">
+        <!-- STEP 1 -->
+        <div data-step class="join-step space-y-5">
+          <header>
+            <h3 class="text-lg font-semibold tracking-tight text-ink-50">{steps[0].title}</h3>
+            <p class="mt-1 text-sm text-ink-400">{steps[0].sub}</p>
+          </header>
+
+          <div data-field data-required>
+            <label class={labelCls} for="f-assoName">Nom de l'association <span class="text-accent-400">*</span></label>
+            <input id="f-assoName" type="text" name={E.assoName} autocomplete="organization" class={inputCls} placeholder="Ex : FC Lausanne" />
+            <p class="join-error mt-1.5 text-xs text-rose-400">Ce champ est obligatoire.</p>
+          </div>
+
+          <div data-field data-required>
+            <label class={labelCls} for="f-canton">Canton <span class="text-accent-400">*</span></label>
+            <div class="relative">
+              <select id="f-canton" name={E.canton} class={`${inputCls} appearance-none pr-10`}>
+                <option value="" selected disabled>Choisissez…</option>
+                {cantons.map((c) => <option value={c}>{c}</option>)}
+              </select>
+              <svg viewBox="0 0 16 16" fill="none" class="pointer-events-none absolute right-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-400" aria-hidden="true">
+                <path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+            </div>
+            <p class="join-error mt-1.5 text-xs text-rose-400">Merci de choisir un canton.</p>
+          </div>
+
+          <div data-field>
+            <span class={labelCls}>Forme juridique</span>
+            <div class="grid grid-cols-2 gap-2">
+              {legalForms.map((opt) => (
+                <label class={optionCls}>
+                  <input type="radio" name={E.legalForm} value={opt} class="peer sr-only" />
+                  <span class={radioIndCls}></span>
+                  <span>{opt}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+
+          <div data-field data-required>
+            <span class={labelCls}>Nombre de membres actifs <span class="text-accent-400">*</span></span>
+            <div class="grid grid-cols-2 gap-2 sm:grid-cols-3">
+              {memberCounts.map((opt) => (
+                <label class={optionCls}>
+                  <input type="radio" name={E.memberCount} value={opt} class="peer sr-only" />
+                  <span class={radioIndCls}></span>
+                  <span>{opt}</span>
+                </label>
+              ))}
+            </div>
+            <p class="join-error mt-1.5 text-xs text-rose-400">Merci de sélectionner une option.</p>
+          </div>
+
+          <div data-field data-required>
+            <label class={labelCls} for="f-activity">Que fait votre association ? <span class="text-accent-400">*</span></label>
+            <textarea id="f-activity" name={E.activity} rows="3" class={inputCls} placeholder="Ex : Théâtre, échecs, défense animale…"></textarea>
+            <p class="join-error mt-1.5 text-xs text-rose-400">Ce champ est obligatoire.</p>
+          </div>
+        </div>
+
+        <!-- STEP 2 -->
+        <div data-step hidden class="join-step space-y-5">
+          <header>
+            <h3 class="text-lg font-semibold tracking-tight text-ink-50">{steps[1].title}</h3>
+            <p class="mt-1 text-sm text-ink-400">{steps[1].sub}</p>
+          </header>
+
+          <div class="grid grid-cols-2 gap-4">
+            <div data-field data-required>
+              <label class={labelCls} for="f-firstName">Prénom <span class="text-accent-400">*</span></label>
+              <input id="f-firstName" type="text" name={E.firstName} autocomplete="given-name" class={inputCls} />
+              <p class="join-error mt-1.5 text-xs text-rose-400">Obligatoire.</p>
+            </div>
+            <div data-field data-required>
+              <label class={labelCls} for="f-lastName">Nom <span class="text-accent-400">*</span></label>
+              <input id="f-lastName" type="text" name={E.lastName} autocomplete="family-name" class={inputCls} />
+              <p class="join-error mt-1.5 text-xs text-rose-400">Obligatoire.</p>
+            </div>
+          </div>
+
+          <div data-field data-required>
+            <label class={labelCls} for="f-email">Email <span class="text-accent-400">*</span></label>
+            <input id="f-email" type="email" name={E.email} autocomplete="email" class={inputCls} placeholder="vous@votre-asso.ch" />
+            <p class="join-error mt-1.5 text-xs text-rose-400">Merci d'indiquer un email valide.</p>
+          </div>
+
+          <div data-field data-required>
+            <span class={labelCls}>Rôle dans l'association <span class="text-accent-400">*</span></span>
+            <div class="grid grid-cols-2 gap-2">
+              {roles.map((opt) => (
+                <label class={optionCls}>
+                  <input type="radio" name={E.role} value={opt} class="peer sr-only" />
+                  <span class={radioIndCls}></span>
+                  <span>{opt}</span>
+                </label>
+              ))}
+            </div>
+            <p class="join-error mt-1.5 text-xs text-rose-400">Merci de sélectionner votre rôle.</p>
+          </div>
+
+          <div data-field>
+            <label class={labelCls} for="f-phone">Téléphone <span class="text-ink-500">(optionnel)</span></label>
+            <input id="f-phone" type="tel" name={E.phone} autocomplete="tel" class={inputCls} placeholder="+41 …" />
+          </div>
+        </div>
+
+        <!-- STEP 3 -->
+        <div data-step hidden class="join-step space-y-5">
+          <header>
+            <h3 class="text-lg font-semibold tracking-tight text-ink-50">{steps[2].title}</h3>
+            <p class="mt-1 text-sm text-ink-400">{steps[2].sub}</p>
+          </header>
+
+          <div data-field>
+            <span class={labelCls}>Comment avez-vous connu Konclav ?</span>
+            <div class="grid grid-cols-2 gap-2">
+              {sources.map((opt) => (
+                <label class={optionCls}>
+                  <input type="radio" name={E.source} value={opt} class="peer sr-only" />
+                  <span class={radioIndCls}></span>
+                  <span>{opt}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+
+          <div data-field>
+            <span class={labelCls}>Modules envisagés en priorité</span>
+            <div class="grid grid-cols-2 gap-2 sm:grid-cols-3">
+              {modules.map((opt) => (
+                <label class={optionCls}>
+                  <input type="checkbox" name={E.modules} value={opt} class="peer sr-only" />
+                  <span class={checkIndCls}></span>
+                  <span>{opt}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+
+          <div data-field>
+            <label class={labelCls} for="f-needs">Besoins particuliers ou questions <span class="text-ink-500">(optionnel)</span></label>
+            <textarea id="f-needs" name={E.needs} rows="3" maxlength="1000" class={inputCls} placeholder="Dites-nous tout…"></textarea>
+          </div>
+        </div>
+
+        <!-- STEP 4 -->
+        <div data-step hidden class="join-step space-y-5">
+          <header>
+            <h3 class="text-lg font-semibold tracking-tight text-ink-50">{steps[3].title}</h3>
+            <p class="mt-1 text-sm text-ink-400">{steps[3].sub}</p>
+          </header>
+
+          <div data-field data-required>
+            <label class="flex cursor-pointer items-start gap-3 rounded-xl border border-white/10 bg-white/[0.02] p-4 transition-colors hover:border-white/20 has-[:checked]:border-accent-500/60 has-[:checked]:bg-accent-500/[0.06]">
+              <input type="checkbox" name={E.consent} value="Oui" class="peer sr-only" />
+              <span class={`mt-0.5 ${checkIndCls}`}></span>
+              <span class="text-sm leading-snug text-ink-200">
+                J'accepte que Konclav me recontacte par email au sujet de ma demande. <span class="text-accent-400">*</span>
+              </span>
+            </label>
+            <p class="join-error mt-1.5 text-xs text-rose-400">Vous devez accepter pour envoyer la demande.</p>
+          </div>
+
+          <p class="text-xs leading-relaxed text-ink-500">
+            Vos réponses servent uniquement à qualifier votre demande. Aucun email
+            marketing, aucune revente. Vous pouvez demander la suppression à tout moment.
+          </p>
+        </div>
+
+        <!-- Nav -->
+        <div class="mt-7 flex items-center justify-between gap-3">
+          <button
+            type="button"
+            data-join-prev
+            hidden
+            class="inline-flex items-center gap-1.5 rounded-xl border border-white/10 bg-white/[0.02] px-5 py-3 text-sm font-semibold text-ink-50 transition-colors hover:border-white/20 hover:bg-white/[0.05]"
+          >
+            <svg viewBox="0 0 16 16" fill="none" class="h-4 w-4" aria-hidden="true"><path d="M12.5 8h-9m0 0L8 12.5M3.5 8 8 3.5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+            Précédent
+          </button>
+          <div class="flex-1"></div>
+          <button
+            type="button"
+            data-join-next
+            class="cta-shimmer group/cta inline-flex items-center gap-1.5 rounded-xl bg-accent-500 px-6 py-3 text-sm font-semibold text-white shadow-[var(--shadow-cta)] transition-colors hover:bg-accent-400"
+          >
+            Suivant
+            <svg viewBox="0 0 16 16" fill="none" class="h-4 w-4 transition-transform duration-300 ease-out group-hover/cta:translate-x-0.5" aria-hidden="true"><path d="M3.5 8h9m0 0L8 3.5M12.5 8 8 12.5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+          </button>
+          <button
+            type="submit"
+            data-join-submit
+            hidden
+            class="cta-shimmer group/cta inline-flex items-center gap-1.5 rounded-xl bg-accent-500 px-6 py-3 text-sm font-semibold text-white shadow-[var(--shadow-cta)] transition-colors hover:bg-accent-400"
+          >
+            <span data-join-submit-label>Envoyer la demande</span>
+            <svg viewBox="0 0 16 16" fill="none" class="h-4 w-4" aria-hidden="true"><path d="M14 2 7 9M14 2l-4.5 12-2.5-5-5-2.5L14 2Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+          </button>
+        </div>
+      </form>
+
+      <!-- Success -->
+      <div data-join-success hidden class="px-6 py-12 text-center sm:px-8">
+        <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-accent-500/15 text-accent-400">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-7 w-7" aria-hidden="true"><path d="m5 13 4 4L19 7" /></svg>
+        </div>
+        <h3 class="mt-5 text-xl font-semibold tracking-tight text-ink-50">Demande envoyée !</h3>
+        <p class="mx-auto mt-2 max-w-sm text-sm leading-relaxed text-ink-400">
+          Merci. On étudie votre demande et on revient vers vous sous 48h ouvrées.
+        </p>
+        <button
+          type="button"
+          data-join-close
+          class="mt-7 inline-flex items-center justify-center rounded-xl border border-white/10 bg-white/[0.02] px-6 py-3 text-sm font-semibold text-ink-50 transition-colors hover:border-white/20 hover:bg-white/[0.05]"
+        >
+          Fermer
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script is:inline>
+  (function () {
+    const modal = document.querySelector("[data-join-modal]");
+    if (!modal) return;
+
+    const form = modal.querySelector("[data-join-form]");
+    const stepEls = Array.from(modal.querySelectorAll("[data-step]"));
+    const prevBtn = modal.querySelector("[data-join-prev]");
+    const nextBtn = modal.querySelector("[data-join-next]");
+    const submitBtn = modal.querySelector("[data-join-submit]");
+    const submitLabel = modal.querySelector("[data-join-submit-label]");
+    const progress = modal.querySelector("[data-join-progress]");
+    const stepLabel = modal.querySelector("[data-join-steplabel]");
+    const successEl = modal.querySelector("[data-join-success]");
+    const backdrop = modal.querySelector("[data-join-backdrop]");
+    const panel = modal.querySelector(".join-panel");
+    const ACTION = modal.dataset.action;
+    const PAGE_HISTORY = modal.dataset.pagehistory || "";
+
+    let current = 0;
+    let lastFocused = null;
+
+    function setStep(i) {
+      current = Math.max(0, Math.min(i, stepEls.length - 1));
+      stepEls.forEach((s, idx) => {
+        s.hidden = idx !== current;
+      });
+      const pct = ((current + 1) / stepEls.length) * 100;
+      if (progress) progress.style.width = pct + "%";
+      if (stepLabel) stepLabel.textContent = "Étape " + (current + 1) + " / " + stepEls.length;
+      prevBtn.hidden = current === 0;
+      nextBtn.hidden = current === stepEls.length - 1;
+      submitBtn.hidden = current !== stepEls.length - 1;
+      if (panel) panel.scrollIntoView({ block: "nearest" });
+      const first = stepEls[current].querySelector("input:not([type=radio]):not([type=checkbox]), select, textarea, input");
+      if (first) setTimeout(() => first.focus({ preventScroll: true }), 60);
+    }
+
+    function validateStep(i) {
+      let firstInvalid = null;
+      stepEls[i].querySelectorAll("[data-field]").forEach((field) => {
+        if (!field.hasAttribute("data-required")) {
+          field.removeAttribute("data-invalid");
+          return;
+        }
+        const text = field.querySelector('input[type="text"], input[type="email"], input[type="tel"], textarea, select');
+        const radios = field.querySelectorAll('input[type="radio"]');
+        const checks = field.querySelectorAll('input[type="checkbox"]');
+        let ok = false;
+        if (text) ok = text.value.trim() !== "" && text.checkValidity();
+        else if (radios.length) ok = Array.from(radios).some((r) => r.checked);
+        else if (checks.length) ok = Array.from(checks).some((c) => c.checked);
+        if (ok) {
+          field.removeAttribute("data-invalid");
+        } else {
+          field.setAttribute("data-invalid", "");
+          if (!firstInvalid) firstInvalid = field;
+        }
+      });
+      if (firstInvalid) {
+        firstInvalid.scrollIntoView({ behavior: "smooth", block: "center" });
+        const f = firstInvalid.querySelector("input, select, textarea");
+        if (f) setTimeout(() => f.focus({ preventScroll: true }), 220);
+      }
+      return !firstInvalid;
+    }
+
+    function closeMobileMenu() {
+      const menuPanel = document.querySelector("[data-menu-panel]");
+      if (menuPanel && !menuPanel.classList.contains("hidden")) {
+        menuPanel.classList.add("hidden");
+        menuPanel.setAttribute("inert", "");
+        menuPanel.setAttribute("aria-hidden", "true");
+        const mt = document.querySelector("[data-menu-toggle]");
+        if (mt) mt.setAttribute("aria-expanded", "false");
+      }
+    }
+
+    function openModal() {
+      lastFocused = document.activeElement;
+      closeMobileMenu();
+      form.hidden = false;
+      successEl.hidden = true;
+      modal.classList.remove("hidden");
+      modal.removeAttribute("inert");
+      modal.setAttribute("aria-hidden", "false");
+      document.body.style.overflow = "hidden";
+      setStep(0);
+    }
+    function closeModal() {
+      modal.classList.add("hidden");
+      modal.setAttribute("inert", "");
+      modal.setAttribute("aria-hidden", "true");
+      document.body.style.overflow = "";
+      if (lastFocused && lastFocused.focus) lastFocused.focus();
+    }
+
+    document.querySelectorAll("[data-join-open]").forEach((el) => {
+      el.addEventListener("click", (e) => {
+        e.preventDefault();
+        // Stop the mobile drawer's own click handler from also running
+        // (it would reset body overflow and unlock background scroll).
+        e.stopImmediatePropagation();
+        openModal();
+      });
+    });
+    modal.querySelectorAll("[data-join-close]").forEach((b) => b.addEventListener("click", closeModal));
+    backdrop && backdrop.addEventListener("click", closeModal);
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && !modal.classList.contains("hidden")) closeModal();
+    });
+
+    nextBtn.addEventListener("click", () => {
+      if (validateStep(current)) setStep(current + 1);
+    });
+    prevBtn.addEventListener("click", () => setStep(current - 1));
+
+    // Clear a field's error as soon as it's edited
+    form.addEventListener("input", (e) => {
+      const field = e.target.closest("[data-field]");
+      if (field) field.removeAttribute("data-invalid");
+    });
+    form.addEventListener("change", (e) => {
+      const field = e.target.closest("[data-field]");
+      if (field) field.removeAttribute("data-invalid");
+    });
+
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+      if (!validateStep(current)) return;
+
+      submitBtn.disabled = true;
+      if (submitLabel) submitLabel.textContent = "Envoi…";
+
+      const fd = new FormData(form);
+      fd.append("fvv", "1");
+      if (PAGE_HISTORY) fd.append("pageHistory", PAGE_HISTORY);
+
+      fetch(ACTION, { method: "POST", mode: "no-cors", body: fd })
+        .then(() => showSuccess())
+        .catch(() => showSuccess());
+    });
+
+    function showSuccess() {
+      form.hidden = true;
+      successEl.hidden = false;
+      if (progress) progress.style.width = "100%";
+      if (stepLabel) stepLabel.textContent = "Terminé";
+      if (typeof umami !== "undefined" && umami.track) umami.track("join-submit");
+    }
+  })();
+</script>

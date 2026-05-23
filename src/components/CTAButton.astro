@@ -5,6 +5,7 @@ interface Props {
   size?: "md" | "lg";
   magnetic?: boolean;
   arrow?: boolean;
+  joinOpen?: boolean;
   class?: string;
 }
 
@@ -14,6 +15,7 @@ const {
   size = "md",
   magnetic = false,
   arrow = true,
+  joinOpen = false,
   class: extraClass = "",
 } = Astro.props;
 
@@ -30,6 +32,7 @@ const baseClass = "group/cta inline-flex items-center justify-center gap-1.5 rou
 <a
   href={href}
   data-magnetic={magnetic ? "" : undefined}
+  data-join-open={joinOpen ? "" : undefined}
   class={`${baseClass} ${sizeClass} ${variantClass} ${extraClass}`}
 >
   <slot />

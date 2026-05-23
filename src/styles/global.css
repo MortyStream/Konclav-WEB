@@ -606,6 +606,42 @@ body {
 }
 
 /* ============================================================
+   JOIN MODAL — wizard form (errors + step transition)
+   ============================================================ */
+.join-error {
+  display: none;
+}
+[data-field][data-invalid] .join-error {
+  display: block;
+}
+[data-field][data-invalid] input:not([type="radio"]):not([type="checkbox"]),
+[data-field][data-invalid] textarea,
+[data-field][data-invalid] select {
+  border-color: rgba(251, 113, 133, 0.55);
+}
+.join-step {
+  animation: join-step-in 360ms var(--ease-out-expo) both;
+}
+@keyframes join-step-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .join-step {
+    animation: none;
+  }
+  .join-panel {
+    transition: none;
+  }
+}
+
+/* ============================================================
    V2 — TILT PASSIVE float (subtle rotation breathing)
    ============================================================ */
 @keyframes tilt-breathe {

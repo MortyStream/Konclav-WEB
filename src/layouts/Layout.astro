@@ -1,5 +1,6 @@
 ---
 import "../styles/global.css";
+import JoinModal from "../components/JoinModal.astro";
 
 interface Props {
   title?: string;
@@ -88,6 +89,7 @@ const imageUrl = new URL(image, Astro.site ?? Astro.url.origin).toString();
   <body class="text-ink-50 font-sans antialiased">
     <div aria-hidden="true" class="aurora-global"></div>
     <slot />
+    <JoinModal />
 
     <script is:inline>
       (function () {
