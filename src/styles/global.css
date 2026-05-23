@@ -32,6 +32,12 @@
   inherits: false;
 }
 
+@property --aurora-angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+
 html {
   background-color: var(--color-ink-950);
   color: var(--color-ink-50);
@@ -219,33 +225,6 @@ body::after {
 }
 @media (prefers-reduced-motion: reduce) {
   [data-parallax] { transform: none; }
-}
-
-/* ============================================================
-   CURSOR-GLOW — gradient qui suit la souris sur une section
-   ============================================================ */
-[data-cursor-glow] {
-  --gx: 50%;
-  --gy: 30%;
-}
-[data-cursor-glow] .cursor-glow-layer {
-  position: absolute;
-  inset: -10%;
-  z-index: -1;
-  pointer-events: none;
-  background: radial-gradient(
-    closest-side at var(--gx) var(--gy),
-    rgba(94, 106, 210, 0.32),
-    rgba(94, 106, 210, 0.06) 45%,
-    transparent 70%
-  );
-  filter: blur(60px);
-  transition: background 320ms var(--ease-out-quart);
-}
-@media (prefers-reduced-motion: reduce), (hover: none) {
-  [data-cursor-glow] .cursor-glow-layer {
-    background: radial-gradient(closest-side at 50% 30%, rgba(94, 106, 210, 0.28), transparent 70%);
-  }
 }
 
 /* ============================================================
@@ -445,41 +424,42 @@ body::after {
 }
 
 /* ============================================================
-   V2 — AURORA BLOB (mouse-driven gradient sphere)
+   V2 — AURORA (conic gradient autonome, rotation lente)
+   Pas de mouse tracking — un seul effet par section, ambient.
    ============================================================ */
 .aurora {
-  --bx: 50%;
-  --by: 50%;
   position: absolute;
-  inset: -20%;
+  inset: -30%;
   z-index: -1;
   pointer-events: none;
-  background:
-    radial-gradient(40rem 40rem at var(--bx) var(--by),
-      rgba(94, 106, 210, 0.45),
-      rgba(113, 112, 255, 0.20) 35%,
-      transparent 65%),
-    radial-gradient(28rem 28rem at calc(var(--bx) + 18%) calc(var(--by) + 22%),
-      rgba(34, 211, 238, 0.18),
-      transparent 60%),
-    radial-gradient(22rem 22rem at calc(var(--bx) - 22%) calc(var(--by) - 14%),
-      rgba(168, 85, 247, 0.18),
-      transparent 60%);
-  filter: blur(40px) saturate(140%);
-  transition: background 600ms var(--ease-out-quart);
-  opacity: 0.85;
+  background: conic-gradient(
+    from var(--aurora-angle, 0deg) at 50% 50%,
+    rgba(94, 106, 210, 0)   0deg,
+    rgba(94, 106, 210, 0.55) 55deg,
+    rgba(168, 85, 247, 0.45) 110deg,
+    rgba(94, 106, 210, 0)   170deg,
+    rgba(94, 106, 210, 0)   200deg,
+    rgba(34, 211, 238, 0.42) 260deg,
+    rgba(113, 112, 255, 0.52) 320deg,
+    rgba(94, 106, 210, 0)   360deg
+  );
+  filter: blur(80px) saturate(140%);
+  -webkit-mask-image: radial-gradient(closest-side at 50% 50%, #000 0%, #000 35%, transparent 80%);
+          mask-image: radial-gradient(closest-side at 50% 50%, #000 0%, #000 35%, transparent 80%);
+  opacity: 0.7;
+  animation: aurora-spin 42s linear infinite;
+  will-change: --aurora-angle;
 }
 .aurora-strong {
-  opacity: 1;
-  filter: blur(28px) saturate(160%);
+  opacity: 0.9;
+  filter: blur(60px) saturate(160%);
+  animation-duration: 36s;
 }
-@media (prefers-reduced-motion: reduce), (hover: none) {
-  .aurora {
-    background:
-      radial-gradient(40rem 40rem at 50% 30%,
-        rgba(94, 106, 210, 0.38),
-        transparent 65%);
-  }
+@keyframes aurora-spin {
+  to { --aurora-angle: 360deg; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .aurora { animation: none; }
 }
 
 /* ============================================================

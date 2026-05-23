@@ -113,21 +113,6 @@ const imageUrl = new URL(image, Astro.site ?? Astro.url.origin).toString();
           }, { passive: true });
         }
 
-        // Cursor glow — gradient qui suit la souris sur les sections marquées
-        const glowEls = Array.from(document.querySelectorAll('[data-cursor-glow]'));
-        if (glowEls.length && supportsHover && !reduced) {
-          document.addEventListener('mousemove', (e) => {
-            for (const el of glowEls) {
-              const rect = el.getBoundingClientRect();
-              if (e.clientY < rect.top - 240 || e.clientY > rect.bottom + 240) continue;
-              const x = ((e.clientX - rect.left) / rect.width) * 100;
-              const y = ((e.clientY - rect.top) / rect.height) * 100;
-              el.style.setProperty('--gx', x + '%');
-              el.style.setProperty('--gy', y + '%');
-            }
-          }, { passive: true });
-        }
-
         // Parallax — éléments avec data-parallax="0.3" se translatent au scroll
         const parallaxEls = document.querySelectorAll('[data-parallax]');
         if (parallaxEls.length && !reduced) {
@@ -203,37 +188,6 @@ const imageUrl = new URL(image, Astro.site ?? Astro.url.origin).toString();
           };
           onScroll();
           window.addEventListener('scroll', onScroll, { passive: true });
-        }
-
-        // V2 — Aurora blob mouse-driven (smooth follow via lerp)
-        const auroras = Array.from(document.querySelectorAll('.aurora'));
-        if (auroras.length && supportsHover && !reduced) {
-          const state = auroras.map(() => ({ tx: 50, ty: 30, cx: 50, cy: 30 }));
-          let auroraTicking = false;
-          const tick = () => {
-            for (let i = 0; i < auroras.length; i++) {
-              const s = state[i];
-              s.cx += (s.tx - s.cx) * 0.06;
-              s.cy += (s.ty - s.cy) * 0.06;
-              auroras[i].style.setProperty('--bx', s.cx.toFixed(2) + '%');
-              auroras[i].style.setProperty('--by', s.cy.toFixed(2) + '%');
-            }
-            auroraTicking = false;
-          };
-          document.addEventListener('mousemove', (e) => {
-            for (let i = 0; i < auroras.length; i++) {
-              const rect = auroras[i].getBoundingClientRect();
-              const x = ((e.clientX - rect.left) / rect.width) * 100;
-              const y = ((e.clientY - rect.top) / rect.height) * 100;
-              state[i].tx = Math.max(-20, Math.min(120, x));
-              state[i].ty = Math.max(-20, Math.min(120, y));
-            }
-            if (!auroraTicking) {
-              requestAnimationFrame(tick);
-              auroraTicking = true;
-            }
-          }, { passive: true });
-          tick();
         }
 
         // V2 — Bento mouse-position (--mx/--my for inner glow)
