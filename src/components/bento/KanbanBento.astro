@@ -63,7 +63,7 @@ const columns = [
 ];
 ---
 
-<div class="mockup-kanban relative h-full w-full overflow-hidden rounded-xl border border-white/[0.08] bg-gradient-to-b from-white/[0.04] to-white/[0.01] fade-right">
+<div class="mockup-kanban relative h-full w-full overflow-hidden rounded-xl border border-white/[0.08] bg-gradient-to-b from-white/[0.04] to-white/[0.01]">
   <!-- App chrome with toolbar -->
   <div class="flex items-center justify-between border-b border-white/[0.08] px-4 py-2.5">
     <div class="flex items-center gap-2">
@@ -138,4 +138,7 @@ const columns = [
       </div>
     ))}
   </div>
+
+  <!-- Mobile-only fade overlay to soften the right-edge cut of column 2 -->
+  <div class="pointer-events-none absolute inset-y-0 right-0 w-24 bg-gradient-to-l from-ink-900 via-ink-900/80 to-transparent sm:hidden"></div>
 </div>
