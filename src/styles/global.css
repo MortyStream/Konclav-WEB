@@ -424,43 +424,40 @@ body::after {
 }
 
 /* ============================================================
-   V2 — AURORA (conic gradient autonome, rotation lente)
-   Pas de mouse tracking — un seul effet par section, ambient.
+   V2 — AURORA GLOBALE (un seul effet, fixé au viewport)
+   Conic gradient qui tourne lentement, plus de coupure entre
+   sections puisque ce n'est pas confiné à une section.
    ============================================================ */
-.aurora {
-  position: absolute;
-  inset: -30%;
+.aurora-global {
+  position: fixed;
+  inset: -10vw;
   z-index: -1;
   pointer-events: none;
   background: conic-gradient(
-    from var(--aurora-angle, 0deg) at 50% 50%,
-    rgba(94, 106, 210, 0)   0deg,
-    rgba(94, 106, 210, 0.55) 55deg,
+    from var(--aurora-angle, 0deg) at 50% 45%,
+    rgba(94, 106, 210, 0)    0deg,
+    rgba(94, 106, 210, 0.55)  55deg,
     rgba(168, 85, 247, 0.45) 110deg,
-    rgba(94, 106, 210, 0)   170deg,
-    rgba(94, 106, 210, 0)   200deg,
+    rgba(94, 106, 210, 0)    175deg,
+    rgba(94, 106, 210, 0)    205deg,
     rgba(34, 211, 238, 0.42) 260deg,
-    rgba(113, 112, 255, 0.52) 320deg,
-    rgba(94, 106, 210, 0)   360deg
+    rgba(113, 112, 255, 0.55) 320deg,
+    rgba(94, 106, 210, 0)    360deg
   );
-  filter: blur(80px) saturate(140%);
-  -webkit-mask-image: radial-gradient(closest-side at 50% 50%, #000 0%, #000 35%, transparent 80%);
-          mask-image: radial-gradient(closest-side at 50% 50%, #000 0%, #000 35%, transparent 80%);
-  opacity: 0.7;
-  animation: aurora-spin 42s linear infinite;
+  filter: blur(110px) saturate(135%);
+  -webkit-mask-image: radial-gradient(ellipse 80% 70% at 50% 45%, #000 0%, #000 50%, transparent 95%);
+          mask-image: radial-gradient(ellipse 80% 70% at 50% 45%, #000 0%, #000 50%, transparent 95%);
+  opacity: 0.55;
+  animation: aurora-spin 55s linear infinite;
   will-change: --aurora-angle;
-}
-.aurora-strong {
-  opacity: 0.9;
-  filter: blur(60px) saturate(160%);
-  animation-duration: 36s;
 }
 @keyframes aurora-spin {
   to { --aurora-angle: 360deg; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .aurora { animation: none; }
+  .aurora-global { animation: none; }
 }
+
 
 /* ============================================================
    V2 — EDITORIAL TYPOGRAPHY (massive impact text)

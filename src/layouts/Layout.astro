@@ -52,7 +52,8 @@ const imageUrl = new URL(image, Astro.site ?? Astro.url.origin).toString();
     />
     <title>{title}</title>
   </head>
-  <body class="bg-ink-950 text-ink-50 font-sans antialiased">
+  <body class="text-ink-50 font-sans antialiased">
+    <div aria-hidden="true" class="aurora-global"></div>
     <slot />
 
     <script is:inline>
