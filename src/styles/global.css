@@ -443,3 +443,221 @@ body::after {
 @media (prefers-reduced-motion: reduce) {
   .marquee-track { animation: none; }
 }
+
+/* ============================================================
+   V2 — AURORA BLOB (mouse-driven gradient sphere)
+   ============================================================ */
+.aurora {
+  --bx: 50%;
+  --by: 50%;
+  position: absolute;
+  inset: -20%;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(40rem 40rem at var(--bx) var(--by),
+      rgba(94, 106, 210, 0.45),
+      rgba(113, 112, 255, 0.20) 35%,
+      transparent 65%),
+    radial-gradient(28rem 28rem at calc(var(--bx) + 18%) calc(var(--by) + 22%),
+      rgba(34, 211, 238, 0.18),
+      transparent 60%),
+    radial-gradient(22rem 22rem at calc(var(--bx) - 22%) calc(var(--by) - 14%),
+      rgba(168, 85, 247, 0.18),
+      transparent 60%);
+  filter: blur(40px) saturate(140%);
+  transition: background 600ms var(--ease-out-quart);
+  opacity: 0.85;
+}
+.aurora-strong {
+  opacity: 1;
+  filter: blur(28px) saturate(160%);
+}
+@media (prefers-reduced-motion: reduce), (hover: none) {
+  .aurora {
+    background:
+      radial-gradient(40rem 40rem at 50% 30%,
+        rgba(94, 106, 210, 0.38),
+        transparent 65%);
+  }
+}
+
+/* ============================================================
+   V2 — EDITORIAL TYPOGRAPHY (massive impact text)
+   ============================================================ */
+.display-hero {
+  font-size: clamp(2.75rem, 8.5vw, 7.5rem);
+  line-height: 0.95;
+  font-weight: 700;
+  letter-spacing: -0.045em;
+}
+.display-manifesto {
+  font-size: clamp(3rem, 12vw, 10rem);
+  line-height: 0.88;
+  font-weight: 800;
+  letter-spacing: -0.055em;
+}
+.display-section {
+  font-size: clamp(2.25rem, 5.5vw, 4.5rem);
+  line-height: 1;
+  font-weight: 700;
+  letter-spacing: -0.035em;
+}
+.display-stat {
+  font-size: clamp(3.5rem, 10vw, 8rem);
+  line-height: 0.9;
+  font-weight: 800;
+  letter-spacing: -0.055em;
+  font-variant-numeric: tabular-nums;
+}
+.italic-display {
+  font-style: italic;
+  font-weight: 300;
+  background: linear-gradient(120deg, #a78bfa 0%, #67e8f9 50%, #5e6ad2 100%);
+  -webkit-background-clip: text;
+          background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+/* ============================================================
+   V2 — COUNTER REVEAL (smooth count-up via CSS via JS data update)
+   ============================================================ */
+[data-counter] {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+}
+
+/* ============================================================
+   V2 — BENTO CARDS
+   ============================================================ */
+.bento {
+  position: relative;
+  overflow: hidden;
+  border-radius: 1.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.025), rgba(255, 255, 255, 0)),
+    rgb(15, 16, 17);
+  transition:
+    border-color 380ms var(--ease-out-expo),
+    transform 480ms var(--ease-out-expo);
+}
+.bento::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background:
+    radial-gradient(circle at var(--mx, 50%) var(--my, 0%),
+      rgba(94, 106, 210, 0.12),
+      transparent 50%);
+  opacity: 0;
+  transition: opacity 380ms var(--ease-out-expo);
+  pointer-events: none;
+}
+.bento:hover {
+  border-color: rgba(255, 255, 255, 0.14);
+}
+.bento:hover::before {
+  opacity: 1;
+}
+.bento-feature {
+  background:
+    linear-gradient(180deg, rgba(94, 106, 210, 0.04), rgba(94, 106, 210, 0)),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.025), rgba(255, 255, 255, 0)),
+    rgb(15, 16, 17);
+}
+
+/* ============================================================
+   V2 — SHIMMER on CTA primaries (subtle moving light)
+   ============================================================ */
+.cta-shimmer {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+.cta-shimmer::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    100deg,
+    transparent 25%,
+    rgba(255, 255, 255, 0.22) 50%,
+    transparent 75%
+  );
+  transform: translateX(-100%);
+  transition: transform 800ms var(--ease-out-quart);
+  pointer-events: none;
+}
+.cta-shimmer:hover::after {
+  transform: translateX(100%);
+}
+@media (prefers-reduced-motion: reduce) {
+  .cta-shimmer::after { display: none; }
+}
+
+/* ============================================================
+   V2 — TICKER / LIVE STATUS DOT
+   ============================================================ */
+.live-dot {
+  position: relative;
+  display: inline-block;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 9999px;
+  background: #4ade80;
+  box-shadow: 0 0 12px rgba(74, 222, 128, 0.7);
+}
+.live-dot::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: #4ade80;
+  animation: live-pulse 1.8s ease-out infinite;
+}
+@keyframes live-pulse {
+  0%   { transform: scale(1);    opacity: 0.7; }
+  100% { transform: scale(2.6);  opacity: 0;   }
+}
+@media (prefers-reduced-motion: reduce) {
+  .live-dot::after { animation: none; }
+}
+
+/* ============================================================
+   V2 — GRID LINES BG (subtle technical grid)
+   ============================================================ */
+.grid-bg {
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
+  background-size: 64px 64px;
+  mask-image: radial-gradient(ellipse 70% 60% at center, #000, transparent 80%);
+  -webkit-mask-image: radial-gradient(ellipse 70% 60% at center, #000, transparent 80%);
+}
+
+/* ============================================================
+   V2 — SCROLL FADE EDGES (for embedded mockups)
+   ============================================================ */
+.fade-bottom {
+  mask-image: linear-gradient(180deg, #000 0%, #000 70%, transparent 100%);
+  -webkit-mask-image: linear-gradient(180deg, #000 0%, #000 70%, transparent 100%);
+}
+.fade-right {
+  mask-image: linear-gradient(90deg, #000 0%, #000 80%, transparent 100%);
+  -webkit-mask-image: linear-gradient(90deg, #000 0%, #000 80%, transparent 100%);
+}
+
+/* ============================================================
+   V2 — TILT PASSIVE float (subtle rotation breathing)
+   ============================================================ */
+@keyframes tilt-breathe {
+  0%, 100% { transform: rotate(0deg)   translateY(0); }
+  50%      { transform: rotate(-0.4deg) translateY(-6px); }
+}
+.tilt-breathe { animation: tilt-breathe 7s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) {
+  .tilt-breathe { animation: none; }
+}

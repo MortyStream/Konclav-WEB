@@ -1,0 +1,61 @@
+---
+const notifs = [
+  {
+    avatar: { text: "MR", classes: "bg-amber-500/25 text-amber-300" },
+    title: "Marie t'a assigné une tâche",
+    body: "« Réserver salle pour l'AG »",
+    time: "12 min",
+    unread: true,
+  },
+  {
+    avatar: { text: "🔔", classes: "bg-accent-500/20 text-accent-400" },
+    title: "Rappel : AG dans 2 jours",
+    body: "Sam. 24 mai · 10:00 · Vevey",
+    time: "1 h",
+    unread: true,
+  },
+  {
+    avatar: { text: "SB", classes: "bg-emerald-500/25 text-emerald-300" },
+    title: "Sophie a ajouté un document",
+    body: "PV-2024-10.pdf · Statuts",
+    time: "3 h",
+    unread: true,
+  },
+  {
+    avatar: { text: "LD", classes: "bg-accent-500/25 text-accent-400" },
+    title: "Léa a commenté ta tâche",
+    body: "« Pense au traiteur »",
+    time: "hier",
+    unread: false,
+  },
+];
+---
+
+<div class="relative h-full w-full overflow-hidden">
+  <!-- Horizontal scrolling row of notification cards -->
+  <div class="flex gap-3 fade-right">
+    {notifs.map((n) => (
+      <div
+        class={`flex w-72 shrink-0 gap-2.5 rounded-xl border p-3 ${
+          n.unread
+            ? "border-accent-500/20 bg-accent-500/[0.04]"
+            : "border-white/[0.06] bg-white/[0.02]"
+        }`}
+      >
+        <div class={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-[12px] font-semibold ${n.avatar.classes}`}>
+          {n.avatar.text}
+        </div>
+        <div class="min-w-0 flex-1">
+          <div class="flex items-start justify-between gap-2">
+            <p class={`text-[12px] font-medium leading-snug ${n.unread ? "text-white/95" : "text-white/70"}`}>
+              {n.title}
+            </p>
+            {n.unread && <span class="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-accent-500"></span>}
+          </div>
+          <p class="mt-0.5 text-[10px] leading-snug text-white/55">{n.body}</p>
+          <p class="mt-1 text-[9px] text-white/40">il y a {n.time}</p>
+        </div>
+      </div>
+    ))}
+  </div>
+</div>

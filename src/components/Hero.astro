@@ -1,103 +1,142 @@
 ---
-
+import PhoneFrame from "./PhoneFrame.astro";
+import KanbanScreen from "./screens/KanbanScreen.astro";
 ---
 
 <section
-  data-cursor-glow
-  class="relative isolate overflow-hidden px-6 pt-40 pb-32 sm:pt-48 sm:pb-40"
+  class="relative isolate overflow-hidden px-6 pt-36 pb-24 sm:pt-44 sm:pb-32 lg:min-h-[92vh] lg:flex lg:items-center"
 >
-  <!-- Halo accent décoratif + cursor glow layer -->
+  <!-- Aurora blob (mouse-driven) -->
+  <div aria-hidden="true" class="aurora aurora-strong"></div>
+
+  <!-- Subtle technical grid background -->
   <div
     aria-hidden="true"
-    data-parallax="0.18"
-    class="pointer-events-none absolute left-1/2 top-0 -z-10 h-[600px] w-[900px] -translate-x-1/2 rounded-full opacity-25 blur-3xl"
-    style="background: radial-gradient(closest-side, #5e6ad2, transparent 70%);"
-  >
-  </div>
-  <div aria-hidden="true" class="cursor-glow-layer"></div>
+    class="pointer-events-none absolute inset-0 -z-10 grid-bg opacity-50"
+  ></div>
 
-  <div class="mx-auto flex max-w-3xl flex-col items-center text-center">
-    <div
-      data-reveal
-      class="mb-8 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.03] px-3 py-1 text-xs text-ink-400"
-    >
-      <span class="relative flex h-1.5 w-1.5">
-        <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent-500 opacity-70"></span>
-        <span class="relative inline-flex h-1.5 w-1.5 rounded-full bg-accent-500"></span>
-      </span>
-      Pour les associations suisses
-    </div>
-
-    <h1
-      data-reveal
-      data-split-text
-      class="text-balance text-4xl font-semibold leading-[1.05] tracking-tight text-ink-50 sm:text-5xl md:text-6xl"
-    >
-      L'intranet privé pensé pour les associations.
-    </h1>
-
-    <p
-      data-reveal
-      class="mt-6 max-w-xl text-pretty text-base leading-relaxed text-ink-400 sm:text-lg"
-    >
-      Tâches, agenda partagé, documents. Sur mobile, sans tracker, hébergé en
-      Europe.
-    </p>
-
-    <div
-      data-reveal
-      class="mt-10 flex flex-col items-center gap-3 sm:flex-row"
-    >
-      <a
-        href="/demo"
-        data-magnetic
-        class="group/cta inline-flex items-center justify-center gap-1.5 rounded-lg bg-accent-500 px-5 py-3 text-sm font-medium text-white shadow-[0_10px_30px_-10px_rgba(94,106,210,0.6)] transition-colors hover:bg-accent-400"
-      >
-        Réserver ma démo
-        <svg
-          viewBox="0 0 16 16"
-          fill="none"
-          class="h-4 w-4 transition-transform duration-300 ease-out group-hover/cta:translate-x-0.5"
-          aria-hidden="true"
+  <div class="mx-auto w-full max-w-7xl">
+    <div class="grid grid-cols-12 items-center gap-x-8 gap-y-16">
+      <!-- LEFT — editorial text -->
+      <div class="col-span-12 lg:col-span-7">
+        <div
+          data-reveal
+          class="inline-flex items-center gap-2.5 rounded-full border border-white/10 bg-white/[0.04] py-1.5 pl-2 pr-3.5 text-[11px] font-medium text-ink-400 backdrop-blur"
         >
-          <path
-            d="M3.5 8h9m0 0L8 3.5M12.5 8 8 12.5"
-            stroke="currentColor"
-            stroke-width="1.5"
-            stroke-linecap="round"
-            stroke-linejoin="round"></path>
-        </svg>
-      </a>
-      <a
-        href="#features"
-        class="inline-flex items-center justify-center rounded-lg border border-white/10 bg-white/[0.02] px-5 py-3 text-sm font-medium text-ink-50 transition-colors hover:border-white/20 hover:bg-white/[0.04]"
-      >
-        Voir les fonctionnalités
-      </a>
-    </div>
+          <span class="live-dot"></span>
+          <span>
+            <span
+              data-counter="34"
+              data-counter-prefix="+"
+              data-counter-duration="1600"
+              class="text-ink-50"
+            >+0</span>
+            <span class="text-ink-500">nouvelles assos · 30 derniers jours</span>
+          </span>
+        </div>
 
-    <div
-      data-reveal
-      class="mt-14 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs text-ink-500"
-    >
-      <span class="inline-flex items-center gap-1.5">
-        <svg viewBox="0 0 16 16" fill="none" class="h-3.5 w-3.5 text-accent-500" aria-hidden="true">
-          <path d="M13.5 4.5 6 12 2.5 8.5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-        Hébergé en UE
-      </span>
-      <span class="inline-flex items-center gap-1.5">
-        <svg viewBox="0 0 16 16" fill="none" class="h-3.5 w-3.5 text-accent-500" aria-hidden="true">
-          <path d="M13.5 4.5 6 12 2.5 8.5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-        Zéro tracker
-      </span>
-      <span class="inline-flex items-center gap-1.5">
-        <svg viewBox="0 0 16 16" fill="none" class="h-3.5 w-3.5 text-accent-500" aria-hidden="true">
-          <path d="M13.5 4.5 6 12 2.5 8.5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-        AES-256, RLS Postgres
-      </span>
+        <h1
+          data-reveal
+          data-split-text
+          class="display-hero mt-7 text-balance text-ink-50"
+        >
+          L'intranet privé, pensé pour les associations suisses.
+        </h1>
+
+        <p
+          data-reveal
+          class="mt-7 max-w-xl text-pretty text-base leading-relaxed text-ink-400 sm:text-lg"
+        >
+          Tâches, agenda partagé, documents — réunis dans une seule app mobile.
+          Sans tracker. Hébergé en Europe. Pensé pour la vie associative
+          quotidienne.
+        </p>
+
+        <div
+          data-reveal
+          class="mt-10 flex flex-col items-start gap-3 sm:flex-row sm:items-center"
+        >
+          <a
+            href="/demo"
+            data-magnetic
+            class="cta-shimmer group/cta inline-flex items-center justify-center gap-1.5 rounded-xl bg-accent-500 px-6 py-3.5 text-sm font-semibold text-white shadow-[0_18px_40px_-12px_rgba(94,106,210,0.7)] transition-colors hover:bg-accent-400"
+          >
+            Réserver ma démo
+            <svg
+              viewBox="0 0 16 16"
+              fill="none"
+              class="h-4 w-4 transition-transform duration-300 ease-out group-hover/cta:translate-x-0.5"
+              aria-hidden="true"
+            >
+              <path
+                d="M3.5 8h9m0 0L8 3.5M12.5 8 8 12.5"
+                stroke="currentColor"
+                stroke-width="1.75"
+                stroke-linecap="round"
+                stroke-linejoin="round"></path>
+            </svg>
+          </a>
+          <a
+            href="#features"
+            class="inline-flex items-center justify-center gap-1.5 rounded-xl border border-white/10 bg-white/[0.02] px-6 py-3.5 text-sm font-semibold text-ink-50 transition-colors hover:border-white/20 hover:bg-white/[0.05]"
+          >
+            Voir les fonctionnalités
+            <svg viewBox="0 0 16 16" fill="none" class="h-3.5 w-3.5 text-ink-400" aria-hidden="true">
+              <path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </a>
+        </div>
+
+        <!-- Inline counters strip -->
+        <dl
+          data-reveal
+          class="mt-14 grid max-w-xl grid-cols-3 gap-x-4 gap-y-3 border-t border-white/[0.07] pt-7"
+        >
+          <div>
+            <dt class="text-[10px] font-medium uppercase tracking-widest text-ink-500">Assos</dt>
+            <dd class="mt-1 text-2xl font-semibold tracking-tight text-ink-50 sm:text-3xl">
+              <span data-counter="218" data-counter-suffix="+">0</span>
+            </dd>
+          </div>
+          <div>
+            <dt class="text-[10px] font-medium uppercase tracking-widest text-ink-500">Trackers</dt>
+            <dd class="mt-1 text-2xl font-semibold tracking-tight text-ink-50 sm:text-3xl tabular-nums">
+              <span data-counter="0">0</span>
+            </dd>
+          </div>
+          <div>
+            <dt class="text-[10px] font-medium uppercase tracking-widest text-ink-500">Hébergé</dt>
+            <dd class="mt-1 text-2xl font-semibold tracking-tight text-ink-50 sm:text-3xl">
+              🇪🇺&nbsp;<span class="text-ink-400 text-base">UE</span>
+            </dd>
+          </div>
+        </dl>
+      </div>
+
+      <!-- RIGHT — phone embed (lg+) -->
+      <div
+        data-reveal
+        class="relative col-span-12 hidden justify-center lg:col-span-5 lg:flex"
+        style="transition-delay: 200ms;"
+      >
+        <div class="tilt-breathe relative">
+          <div
+            aria-hidden="true"
+            class="pointer-events-none absolute -inset-10 -z-10 rounded-full opacity-60 blur-3xl"
+            style="background: radial-gradient(closest-side, rgba(94,106,210,0.45), transparent 70%);"
+          >
+          </div>
+          <PhoneFrame
+            activeTab="taches"
+            rotate="-rotate-3"
+            translateY=""
+            delay={0}
+            zIndex={1}
+          >
+            <KanbanScreen />
+          </PhoneFrame>
+        </div>
+      </div>
     </div>
   </div>
 </section>

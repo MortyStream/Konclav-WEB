@@ -1,0 +1,47 @@
+---
+const docs = [
+  { ext: "PDF", name: "Statuts v3.pdf", meta: "1.2 MB · 12 mai", classes: "bg-rose-500/15 text-rose-300" },
+  { ext: "DOC", name: "Modèle AG.docx", meta: "48 KB · 08 mai", classes: "bg-sky-500/15 text-sky-300" },
+  { ext: "PDF", name: "PV-2024-10.pdf", meta: "320 KB · 02 mai", classes: "bg-rose-500/15 text-rose-300", badge: "Nouveau" },
+];
+---
+
+<div class="relative h-full w-full overflow-hidden rounded-xl border border-white/[0.06] bg-ink-950/60 p-3">
+  <!-- Search bar -->
+  <div class="mb-2.5 flex h-7 items-center gap-2 rounded-lg border border-white/[0.06] bg-white/[0.04] px-2">
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" class="h-2.5 w-2.5 text-white/40" aria-hidden="true">
+      <circle cx="7" cy="7" r="4" />
+      <path d="m13 13-3-3" />
+    </svg>
+    <span class="text-[10px] text-white/40">Rechercher dans 248 documents</span>
+  </div>
+
+  <!-- Filter pills -->
+  <div class="mb-2 flex gap-1 text-[9px]">
+    <span class="rounded-full border border-accent-500/30 bg-accent-500/15 px-1.5 py-0.5 font-medium text-accent-400">Tous</span>
+    <span class="rounded-full px-1.5 py-0.5 text-white/40">PDF</span>
+    <span class="rounded-full px-1.5 py-0.5 text-white/40">Récents</span>
+  </div>
+
+  <!-- File list -->
+  <div class="space-y-1 fade-bottom">
+    {docs.map((d) => (
+      <div class="flex items-center gap-2 rounded-lg border border-white/[0.05] bg-white/[0.02] p-1.5">
+        <div class={`flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-[8px] font-bold ${d.classes}`}>
+          {d.ext}
+        </div>
+        <div class="min-w-0 flex-1">
+          <div class="flex items-center gap-1.5">
+            <p class="truncate text-[11px] text-white/90">{d.name}</p>
+            {d.badge && (
+              <span class="shrink-0 rounded bg-emerald-400/15 px-1 py-px text-[8px] font-medium text-emerald-300">
+                {d.badge}
+              </span>
+            )}
+          </div>
+          <p class="truncate text-[9px] text-white/40">{d.meta}</p>
+        </div>
+      </div>
+    ))}
+  </div>
+</div>

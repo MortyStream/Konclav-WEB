@@ -204,6 +204,84 @@ const imageUrl = new URL(image, Astro.site ?? Astro.url.origin).toString();
           onScroll();
           window.addEventListener('scroll', onScroll, { passive: true });
         }
+
+        // V2 — Aurora blob mouse-driven (smooth follow via lerp)
+        const auroras = Array.from(document.querySelectorAll('.aurora'));
+        if (auroras.length && supportsHover && !reduced) {
+          const state = auroras.map(() => ({ tx: 50, ty: 30, cx: 50, cy: 30 }));
+          let auroraTicking = false;
+          const tick = () => {
+            for (let i = 0; i < auroras.length; i++) {
+              const s = state[i];
+              s.cx += (s.tx - s.cx) * 0.06;
+              s.cy += (s.ty - s.cy) * 0.06;
+              auroras[i].style.setProperty('--bx', s.cx.toFixed(2) + '%');
+              auroras[i].style.setProperty('--by', s.cy.toFixed(2) + '%');
+            }
+            auroraTicking = false;
+          };
+          document.addEventListener('mousemove', (e) => {
+            for (let i = 0; i < auroras.length; i++) {
+              const rect = auroras[i].getBoundingClientRect();
+              const x = ((e.clientX - rect.left) / rect.width) * 100;
+              const y = ((e.clientY - rect.top) / rect.height) * 100;
+              state[i].tx = Math.max(-20, Math.min(120, x));
+              state[i].ty = Math.max(-20, Math.min(120, y));
+            }
+            if (!auroraTicking) {
+              requestAnimationFrame(tick);
+              auroraTicking = true;
+            }
+          }, { passive: true });
+          tick();
+        }
+
+        // V2 — Bento mouse-position (--mx/--my for inner glow)
+        document.querySelectorAll('.bento').forEach((card) => {
+          card.addEventListener('mousemove', (e) => {
+            const rect = card.getBoundingClientRect();
+            const mx = ((e.clientX - rect.left) / rect.width) * 100;
+            const my = ((e.clientY - rect.top) / rect.height) * 100;
+            card.style.setProperty('--mx', mx + '%');
+            card.style.setProperty('--my', my + '%');
+          }, { passive: true });
+        });
+
+        // V2 — Counter animation (count up from 0 to data-counter on reveal)
+        const counters = document.querySelectorAll('[data-counter]');
+        if (counters.length && !reduced && 'IntersectionObserver' in window) {
+          const fmt = new Intl.NumberFormat('fr-CH');
+          const countIO = new IntersectionObserver((entries) => {
+            for (const entry of entries) {
+              if (!entry.isIntersecting) continue;
+              const el = entry.target;
+              const target = parseFloat(el.dataset.counter || '0');
+              const dur = parseInt(el.dataset.counterDuration || '1400', 10);
+              const suffix = el.dataset.counterSuffix || '';
+              const prefix = el.dataset.counterPrefix || '';
+              const decimals = parseInt(el.dataset.counterDecimals || '0', 10);
+              const t0 = performance.now();
+              const step = (now) => {
+                const t = Math.min(1, (now - t0) / dur);
+                const eased = 1 - Math.pow(1 - t, 3);
+                const v = target * eased;
+                el.textContent = prefix + (decimals > 0 ? v.toFixed(decimals) : fmt.format(Math.round(v))) + suffix;
+                if (t < 1) requestAnimationFrame(step);
+              };
+              requestAnimationFrame(step);
+              countIO.unobserve(el);
+            }
+          }, { threshold: 0.4 });
+          counters.forEach((el) => countIO.observe(el));
+        } else if (counters.length) {
+          counters.forEach((el) => {
+            const target = parseFloat(el.dataset.counter || '0');
+            const decimals = parseInt(el.dataset.counterDecimals || '0', 10);
+            const suffix = el.dataset.counterSuffix || '';
+            const prefix = el.dataset.counterPrefix || '';
+            el.textContent = prefix + (decimals > 0 ? target.toFixed(decimals) : new Intl.NumberFormat('fr-CH').format(target)) + suffix;
+          });
+        }
       })();
     </script>
   </body>

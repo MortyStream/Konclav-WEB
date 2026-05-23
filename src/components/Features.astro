@@ -1,79 +1,127 @@
 ---
-import Icon from "./Icon.astro";
-
-const features = [
-  {
-    icon: "kanban" as const,
-    title: "Tâches Kanban",
-    description:
-      "Colonnes À faire / En cours / Fait. Attribution, deadlines, étiquettes. Du chaos du PV à la clarté du sprint.",
-  },
-  {
-    icon: "calendar" as const,
-    title: "Calendrier partagé",
-    description:
-      "Évènements, AG, permanences. Tout le monde voit la même chose. Synchro Google et Apple, sans friction.",
-  },
-  {
-    icon: "book-open" as const,
-    title: "La Bible documentaire",
-    description:
-      "Statuts, PV, contrats, modèles. Recherche instantanée, versions, droits granulaires. Fini les pièces jointes perdues.",
-  },
-  {
-    icon: "bell" as const,
-    title: "Notifications intelligentes",
-    description:
-      "Push mobile seulement quand ça compte. Pas de spam, pas d'emails inutiles. Chaque membre règle son canal.",
-  },
-];
+import KanbanBento from "./bento/KanbanBento.astro";
+import CalendarBento from "./bento/CalendarBento.astro";
+import BibleBento from "./bento/BibleBento.astro";
+import NotificationsBento from "./bento/NotificationsBento.astro";
 ---
 
 <section id="features" class="relative px-6 py-32 sm:py-40">
-  <div class="mx-auto max-w-6xl">
-    <div class="mx-auto max-w-2xl text-center">
-      <p data-reveal class="text-sm font-medium text-accent-500">
+  <div class="mx-auto max-w-7xl">
+    <div class="mx-auto max-w-3xl text-center">
+      <p data-reveal class="text-xs font-medium uppercase tracking-[0.18em] text-accent-500">
         Fonctionnalités
       </p>
       <h2
         data-reveal
         data-split-text
-        class="mt-3 text-balance text-3xl font-semibold leading-tight tracking-tight text-ink-50 sm:text-4xl md:text-5xl"
+        class="display-section mt-4 text-balance text-ink-50"
       >
         Quatre outils, une seule app.
       </h2>
       <p
         data-reveal
-        class="mt-4 text-pretty text-base leading-relaxed text-ink-400 sm:text-lg"
+        class="mx-auto mt-5 max-w-xl text-pretty text-base leading-relaxed text-ink-400 sm:text-lg"
       >
         Pensé pour la vie quotidienne d'une association — du comité aux
         bénévoles, du mobile au desktop.
       </p>
     </div>
 
-    <div class="mt-16 grid gap-5 sm:grid-cols-2">
-      {
-        features.map((f, i) => (
-          <article
-            data-reveal
-            data-spotlight
-            data-tilt
-            data-gradient-border
-            style={`transition-delay: ${i * 80}ms`}
-            class="group relative overflow-hidden rounded-2xl border border-white/10 bg-white/[0.02] p-7 transition-colors hover:border-white/15 hover:bg-white/[0.035]"
-          >
-            <div class="icon-tile mb-5 inline-flex items-center justify-center rounded-lg border border-white/10 bg-ink-900 p-2.5 text-accent-500">
-              <Icon name={f.icon} class="h-5 w-5" />
-            </div>
-            <h3 class="text-lg font-semibold tracking-tight text-ink-50">
-              {f.title}
-            </h3>
-            <p class="mt-2 text-sm leading-relaxed text-ink-400">
-              {f.description}
-            </p>
-          </article>
-        ))
-      }
+    <div class="mt-20 grid auto-rows-[minmax(0,1fr)] grid-cols-12 gap-4 sm:gap-5">
+      <!-- Card 1 : Kanban (hero) — 8 cols x 2 rows desktop -->
+      <article
+        data-reveal
+        class="bento bento-feature group relative col-span-12 row-span-2 flex min-h-[520px] flex-col p-7 sm:p-8 lg:col-span-8"
+      >
+        <div class="flex items-center gap-2">
+          <span class="rounded-md border border-accent-500/30 bg-accent-500/10 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider text-accent-400">
+            Tâches
+          </span>
+          <span class="text-[11px] text-ink-500">Kanban</span>
+        </div>
+        <h3 class="mt-4 max-w-md text-2xl font-semibold leading-tight tracking-tight text-ink-50 sm:text-3xl">
+          Du chaos du PV à la clarté du sprint.
+        </h3>
+        <p class="mt-3 max-w-md text-sm leading-relaxed text-ink-400">
+          Colonnes À faire / En cours / Fait. Attribution, deadlines,
+          étiquettes. Chaque tâche a un responsable, chaque échéance compte.
+        </p>
+        <!-- Mockup -->
+        <div class="relative mt-7 flex-1 min-h-[260px]">
+          <KanbanBento />
+        </div>
+      </article>
+
+      <!-- Card 2 : Calendar — 4 cols x 1 row -->
+      <article
+        data-reveal
+        style="transition-delay: 80ms;"
+        class="bento group relative col-span-12 flex min-h-[250px] flex-col p-6 sm:col-span-6 lg:col-span-4"
+      >
+        <div class="flex items-center gap-2">
+          <span class="rounded-md border border-emerald-400/30 bg-emerald-400/10 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider text-emerald-300">
+            Agenda
+          </span>
+        </div>
+        <h3 class="mt-3 text-lg font-semibold tracking-tight text-ink-50">
+          Partagé, synchronisé.
+        </h3>
+        <p class="mt-1.5 text-sm leading-relaxed text-ink-400">
+          Synchro Google et Apple. Sans friction.
+        </p>
+        <!-- Mockup -->
+        <div class="relative mt-5 flex-1">
+          <CalendarBento />
+        </div>
+      </article>
+
+      <!-- Card 3 : Bible documentaire — 4 cols x 1 row -->
+      <article
+        data-reveal
+        style="transition-delay: 160ms;"
+        class="bento group relative col-span-12 flex min-h-[250px] flex-col p-6 sm:col-span-6 lg:col-span-4"
+      >
+        <div class="flex items-center gap-2">
+          <span class="rounded-md border border-rose-400/30 bg-rose-400/10 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider text-rose-300">
+            Documents
+          </span>
+        </div>
+        <h3 class="mt-3 text-lg font-semibold tracking-tight text-ink-50">
+          La Bible documentaire.
+        </h3>
+        <p class="mt-1.5 text-sm leading-relaxed text-ink-400">
+          Statuts, PV, contrats. Recherche instantanée.
+        </p>
+        <!-- Mockup -->
+        <div class="relative mt-5 flex-1">
+          <BibleBento />
+        </div>
+      </article>
+
+      <!-- Card 4 : Notifications — full width strip -->
+      <article
+        data-reveal
+        style="transition-delay: 240ms;"
+        class="bento group relative col-span-12 flex min-h-[210px] flex-col gap-5 p-7 sm:p-8 lg:flex-row lg:items-center"
+      >
+        <div class="lg:max-w-xs lg:shrink-0">
+          <div class="flex items-center gap-2">
+            <span class="rounded-md border border-sky-400/30 bg-sky-400/10 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider text-sky-300">
+              Notifications
+            </span>
+          </div>
+          <h3 class="mt-3 text-xl font-semibold tracking-tight text-ink-50">
+            Push mobile, seulement quand ça compte.
+          </h3>
+          <p class="mt-2 text-sm leading-relaxed text-ink-400">
+            Pas de spam, pas d'emails inutiles. Chaque membre règle son canal.
+          </p>
+        </div>
+        <!-- Mockup -->
+        <div class="relative min-w-0 flex-1 overflow-hidden">
+          <NotificationsBento />
+        </div>
+      </article>
     </div>
   </div>
 </section>

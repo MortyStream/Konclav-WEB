@@ -1,0 +1,57 @@
+---
+const days = Array.from({ length: 35 }, (_, i) => {
+  const date = i - 3;
+  return {
+    label: date > 0 && date <= 31 ? date : null,
+    muted: date <= 0 || date > 31,
+  };
+});
+
+const eventDays = new Set([5, 12, 13, 19, 22, 24, 28]);
+const activeDay = 22;
+---
+
+<div class="relative h-full w-full overflow-hidden rounded-xl border border-white/[0.06] bg-ink-950/60 p-3">
+  <!-- Month header -->
+  <div class="mb-2 flex items-center justify-between">
+    <div class="flex items-center gap-1">
+      <span class="text-[11px] font-semibold text-white/90">Mai 2026</span>
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" class="h-2.5 w-2.5 text-white/40" aria-hidden="true">
+        <path d="m4 6 4 4 4-4" />
+      </svg>
+    </div>
+    <span class="rounded-md bg-accent-500/15 px-1.5 py-0.5 text-[8px] font-medium text-accent-400">AG samedi</span>
+  </div>
+
+  <!-- Weekday labels -->
+  <div class="mb-1 grid grid-cols-7 gap-0.5 text-center">
+    {["L", "M", "M", "J", "V", "S", "D"].map((d) => (
+      <span class="text-[8px] font-medium uppercase tracking-wider text-white/40">{d}</span>
+    ))}
+  </div>
+
+  <!-- Day grid -->
+  <div class="grid grid-cols-7 gap-0.5">
+    {days.map((d) => {
+      if (!d.label) return <span class="aspect-square"></span>;
+      const isActive = d.label === activeDay;
+      const hasEvent = eventDays.has(d.label);
+      return (
+        <span
+          class={`relative flex aspect-square items-center justify-center rounded text-[10px] tabular-nums ${
+            isActive
+              ? "bg-accent-500 font-semibold text-white"
+              : hasEvent
+              ? "bg-white/[0.04] text-white/80"
+              : "text-white/50"
+          }`}
+        >
+          {d.label}
+          {hasEvent && !isActive && (
+            <span class="absolute bottom-0.5 h-1 w-1 rounded-full bg-accent-500"></span>
+          )}
+        </span>
+      );
+    })}
+  </div>
+</div>

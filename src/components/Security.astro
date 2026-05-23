@@ -3,18 +3,6 @@ import Icon from "./Icon.astro";
 
 const points = [
   {
-    icon: "eye-off" as const,
-    title: "Zéro tracker",
-    description:
-      "Aucune analytics tierce. Aucun cookie marketing. Rien à exfiltrer, rien à revendre.",
-  },
-  {
-    icon: "globe" as const,
-    title: "Hébergement UE",
-    description:
-      "AWS Irlande (eu-west-1). Vos données ne quittent jamais l'Union européenne.",
-  },
-  {
     icon: "database" as const,
     title: "Cloisonnement RLS Postgres",
     description:
@@ -43,49 +31,95 @@ const points = [
 
 <section
   id="security"
-  class="relative border-t border-white/5 px-6 py-32 sm:py-40"
+  class="relative border-t border-white/[0.06] px-6 py-32 sm:py-40"
 >
-  <div class="mx-auto max-w-6xl">
-    <div class="mx-auto max-w-2xl text-center">
-      <p data-reveal class="text-sm font-medium text-accent-500">Sécurité</p>
+  <div class="mx-auto max-w-7xl">
+    <div class="mx-auto max-w-3xl text-center">
+      <p data-reveal class="text-xs font-medium uppercase tracking-[0.18em] text-accent-500">
+        Sécurité
+      </p>
       <h2
         data-reveal
         data-split-text
-        class="mt-3 text-balance text-3xl font-semibold leading-tight tracking-tight text-ink-50 sm:text-4xl md:text-5xl"
+        class="display-section mt-4 text-balance text-ink-50"
       >
         Privé veut dire privé.
       </h2>
       <p
         data-reveal
-        class="mt-4 text-pretty text-base leading-relaxed text-ink-400 sm:text-lg"
+        class="mx-auto mt-5 max-w-xl text-pretty text-base leading-relaxed text-ink-400 sm:text-lg"
       >
         Pas de tracker, pas de revente, pas de « data partner ». Vos données
         restent les vôtres — techniquement et contractuellement.
       </p>
     </div>
 
-    <ul
-      class="mt-16 grid gap-x-10 gap-y-10 sm:grid-cols-2 lg:grid-cols-3"
-    >
-      {
-        points.map((p, i) => (
-          <li
-            data-reveal
-            style={`transition-delay: ${i * 60}ms`}
-            class="group flex gap-4"
-          >
-            <div class="icon-tile flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-white/10 bg-ink-900 text-accent-500">
-              <Icon name={p.icon} class="h-4 w-4" />
-            </div>
-            <div>
-              <h3 class="text-sm font-medium text-ink-50 transition-colors group-hover:text-accent-400">{p.title}</h3>
-              <p class="mt-1.5 text-sm leading-relaxed text-ink-400">
-                {p.description}
-              </p>
-            </div>
-          </li>
-        ))
-      }
-    </ul>
+    <!-- Top : 2 huge stat bento cards -->
+    <div class="mt-20 grid grid-cols-12 gap-4 sm:gap-5">
+      <article
+        data-reveal
+        class="bento group relative col-span-12 flex min-h-[280px] flex-col justify-between overflow-hidden p-7 sm:p-10 lg:col-span-7"
+      >
+        <div>
+          <span class="rounded-md border border-emerald-400/30 bg-emerald-400/10 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider text-emerald-300">
+            Trackers tiers
+          </span>
+        </div>
+        <div>
+          <div class="display-stat text-ink-50">
+            <span data-counter="0">0</span>
+          </div>
+          <p class="mt-4 max-w-md text-sm leading-relaxed text-ink-400">
+            Pas de Google Analytics. Pas de pixels. Aucun cookie marketing.
+            Rien à exfiltrer, rien à revendre.
+          </p>
+        </div>
+        <div
+          aria-hidden="true"
+          class="pointer-events-none absolute -bottom-20 -right-20 h-72 w-72 rounded-full opacity-40 blur-3xl"
+          style="background: radial-gradient(closest-side, rgba(74,222,128,0.25), transparent 70%);"
+        ></div>
+      </article>
+
+      <article
+        data-reveal
+        style="transition-delay: 80ms;"
+        class="bento group relative col-span-12 flex min-h-[280px] flex-col justify-between overflow-hidden p-7 sm:p-10 lg:col-span-5"
+      >
+        <div>
+          <span class="rounded-md border border-accent-500/30 bg-accent-500/10 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider text-accent-400">
+            Hébergement
+          </span>
+        </div>
+        <div>
+          <div class="display-stat text-ink-50">
+            <span data-counter="100" data-counter-suffix="%">0%</span>
+          </div>
+          <p class="mt-4 max-w-sm text-sm leading-relaxed text-ink-400">
+            AWS eu-west-1 (Irlande). Vos données ne quittent jamais l'Union européenne.
+          </p>
+        </div>
+        <div
+          aria-hidden="true"
+          class="pointer-events-none absolute -bottom-20 -right-12 h-72 w-72 rounded-full opacity-40 blur-3xl"
+          style="background: radial-gradient(closest-side, rgba(94,106,210,0.35), transparent 70%);"
+        ></div>
+      </article>
+
+      <!-- Bottom : 4 detail items in a row -->
+      {points.map((p, i) => (
+        <article
+          data-reveal
+          style={`transition-delay: ${(i + 2) * 80}ms`}
+          class="bento group relative col-span-12 flex flex-col gap-3 p-6 sm:col-span-6 lg:col-span-3"
+        >
+          <div class="icon-tile inline-flex h-9 w-9 items-center justify-center rounded-lg border border-white/10 bg-white/[0.03] text-accent-400">
+            <Icon name={p.icon} class="h-4 w-4" />
+          </div>
+          <h3 class="text-sm font-semibold tracking-tight text-ink-50">{p.title}</h3>
+          <p class="text-sm leading-relaxed text-ink-400">{p.description}</p>
+        </article>
+      ))}
+    </div>
   </div>
 </section>
