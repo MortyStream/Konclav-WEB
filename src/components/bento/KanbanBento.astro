@@ -63,7 +63,7 @@ const columns = [
 ];
 ---
 
-<div class="mockup-kanban relative h-full w-full overflow-hidden rounded-xl border border-white/[0.08] bg-gradient-to-b from-white/[0.04] to-white/[0.01]">
+<div class="mockup-kanban relative h-full w-full overflow-hidden rounded-xl border border-white/[0.08] bg-gradient-to-b from-white/[0.04] to-white/[0.01] fade-right">
   <!-- App chrome with toolbar -->
   <div class="flex items-center justify-between border-b border-white/[0.08] px-4 py-2.5">
     <div class="flex items-center gap-2">
@@ -102,7 +102,7 @@ const columns = [
   </div>
 
   <!-- Columns -->
-  <div class="flex h-full gap-2.5 overflow-hidden p-2.5 fade-bottom-right">
+  <div class="flex h-full gap-2.5 overflow-hidden p-2.5 fade-bottom">
     {columns.map((col) => (
       <div class="flex w-44 shrink-0 flex-col rounded-lg bg-white/[0.025] p-2 sm:w-48">
         <div class="mb-1.5 flex items-center justify-between px-1">
