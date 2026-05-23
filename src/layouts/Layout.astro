@@ -76,12 +76,12 @@ const imageUrl = new URL(image, Astro.site ?? Astro.url.origin).toString();
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
     />
 
-    <!-- Plausible Analytics (sans tracker, RGPD-compliant) -->
-    <!-- outbound-links.js track auto les clics vers Google Form pour mesurer la conversion -->
+    <!-- Umami Analytics (sans tracker, RGPD-compliant, gratuit) -->
+    <!-- TODO: remplacer data-website-id par l'ID fourni par cloud.umami.is -->
     <script
       defer
-      data-domain="konclav.ch"
-      src="https://plausible.io/js/script.outbound-links.js"
+      src="https://cloud.umami.is/script.js"
+      data-website-id="REPLACE_WITH_UMAMI_WEBSITE_ID"
     ></script>
 
     <title>{title}</title>
