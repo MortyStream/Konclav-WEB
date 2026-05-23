@@ -104,7 +104,7 @@ const columns = [
   <!-- Columns -->
   <div class="flex h-full gap-2.5 overflow-hidden p-2.5 fade-bottom">
     {columns.map((col) => (
-      <div class="flex w-44 shrink-0 flex-col rounded-lg bg-white/[0.025] p-2 sm:w-48">
+      <div class="flex w-48 shrink-0 flex-col rounded-lg bg-white/[0.025] p-2">
         <div class="mb-1.5 flex items-center justify-between px-1">
           <span class="text-[10px] font-semibold uppercase tracking-wider text-white/55">
             {col.title}
@@ -138,7 +138,4 @@ const columns = [
       </div>
     ))}
   </div>
-
-  <!-- Mobile-only fade overlay to soften the right-edge cut of column 2 -->
-  <div class="pointer-events-none absolute inset-y-0 right-0 w-24 bg-gradient-to-l from-ink-900 via-ink-900/80 to-transparent sm:hidden"></div>
 </div>
