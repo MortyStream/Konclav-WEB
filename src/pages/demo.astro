@@ -27,13 +27,13 @@ const captions = [
   },
 ];
 
-// TODO: Remplacer par l'URL Cal.com finale (ex: "konclav/demo-20min")
-const CAL_USERNAME_EVENT = "konclav/demo-20min";
+// TODO: remplacer par l'URL Google Form de demande d'accès
+const GOOGLE_FORM_URL = "https://forms.google.com/REPLACE_ME";
 ---
 
 <Layout
-  title="Réserver une démo — Konclav"
-  description="Découvrez Konclav en 20 minutes. Une démo personnalisée pour votre association, sans discours commercial."
+  title="Demander une démo — Konclav"
+  description="Konclav en images. Présentez-nous votre association pour demander un accès — on étudie chaque demande sous 48h ouvrées."
 >
   <Navbar />
   <main>
@@ -58,8 +58,9 @@ const CAL_USERNAME_EVENT = "konclav/demo-20min";
           data-reveal
           class="mx-auto mt-6 max-w-xl text-pretty text-base leading-relaxed text-ink-400 sm:text-lg"
         >
-          Découvrez Konclav en 20 minutes. Adapté à votre asso, en direct, sans
-          discours commercial.
+          Découvrez Konclav en images. Si l'app vous parle, présentez-nous
+          votre asso — on étudie chaque demande pour s'assurer que Konclav
+          vous correspond.
         </p>
       </div>
     </section>
@@ -144,35 +145,36 @@ const CAL_USERNAME_EVENT = "konclav/demo-20min";
       </div>
     </section>
 
-    <!-- Booking : Cal.com inline embed -->
+    <!-- Demande d'accès : Google Form -->
     <section
       id="reserver"
       class="relative border-t border-white/[0.06] px-6 py-24 sm:py-32"
     >
-      <div class="mx-auto max-w-5xl">
+      <div class="mx-auto max-w-4xl">
         <div data-reveal class="mx-auto max-w-2xl text-center">
-          <p class="text-xs font-medium uppercase tracking-[0.18em] text-accent-500">Réserver ma démo</p>
+          <p class="text-xs font-medium uppercase tracking-[0.18em] text-accent-500">Demander une démo</p>
           <h2
             data-split-text
             class="display-section mt-4 text-balance text-ink-50"
           >
-            On se cale 20 minutes ?
+            Présentez-nous votre asso.
           </h2>
           <p class="mx-auto mt-5 max-w-xl text-pretty text-base leading-relaxed text-ink-400">
-            Choisissez un créneau qui vous convient — on confirme par email
-            sous 24h ouvrées.
+            Un court formulaire pour qu'on s'assure que Konclav vous
+            correspond. On revient vers vous sous 48h ouvrées avec un accès
+            ou une réponse argumentée.
           </p>
         </div>
 
-        <!-- "Ce que vous verrez" — expectations -->
+        <!-- Ce qu'on regarde -->
         <ul
           data-reveal
           class="mx-auto mt-10 grid max-w-3xl gap-3 sm:grid-cols-3"
         >
           {[
-            "Démo live adaptée à votre asso",
-            "Setup et workflows en 5 min",
-            "Tarif estimé pour votre taille",
+            "Taille et nature de votre asso",
+            "Vos outils actuels et leurs limites",
+            "Vos contraintes (budget, RGPD, etc.)",
           ].map((item) => (
             <li class="flex items-start gap-2.5 rounded-xl border border-white/[0.06] bg-white/[0.02] p-4">
               <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" class="mt-0.5 h-4 w-4 shrink-0 text-accent-400" aria-hidden="true">
@@ -183,28 +185,41 @@ const CAL_USERNAME_EVENT = "konclav/demo-20min";
           ))}
         </ul>
 
-        <!-- Cal.com inline embed -->
+        <!-- CTA vers Google Form (s'ouvre dans un nouvel onglet) -->
         <div
           data-reveal
-          class="mt-14 overflow-hidden rounded-2xl border border-white/[0.08] bg-white/[0.02]"
+          class="mt-12 flex flex-col items-center gap-4"
         >
-          <iframe
-            src={`https://cal.com/${CAL_USERNAME_EVENT}?theme=dark&layout=month_view&hideEventTypeDetails=false`}
-            title="Réserver une démo Konclav — Cal.com"
-            loading="lazy"
-            allow="camera *; microphone *; fullscreen *; payment *"
-            class="block h-[700px] w-full sm:h-[760px]"
-          ></iframe>
+          <a
+            href={GOOGLE_FORM_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            data-magnetic
+            class="cta-shimmer group/cta inline-flex items-center justify-center gap-1.5 rounded-xl bg-accent-500 px-7 py-4 text-sm font-semibold text-white shadow-[var(--shadow-cta)] transition-colors hover:bg-accent-400"
+          >
+            Remplir le formulaire
+            <svg
+              viewBox="0 0 16 16"
+              fill="none"
+              class="h-4 w-4 transition-transform duration-300 ease-out group-hover/cta:translate-x-0.5"
+              aria-hidden="true"
+            >
+              <path d="M3.5 3.5h9v9M3.5 12.5l9-9" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </a>
+          <p class="text-xs text-ink-500">
+            5 minutes · Hébergé sur Google Forms · Réponse sous 48h ouvrées
+          </p>
         </div>
 
-        <!-- Fallback contact -->
-        <p data-reveal class="mt-8 text-center text-sm text-ink-400">
-          Le widget ne charge pas ?{" "}
+        <!-- Fallback mail -->
+        <p data-reveal class="mt-10 text-center text-sm text-ink-400">
+          Vous préférez écrire directement ?{" "}
           <a
-            href="mailto:contact@konclav.ch?subject=Demande%20de%20d%C3%A9mo%20Konclav&body=Bonjour%2C%0A%0AJe%20repr%C3%A9sente%20l%27association%20%3A%20%0ANombre%20de%20membres%20%3A%20%0AT%C3%A9l%C3%A9phone%20%3A%20%0AMes%20disponibilit%C3%A9s%20%3A%20%0A%0AMerci%20%21"
+            href="mailto:contact@konclav.ch?subject=Demande%20d%27acc%C3%A8s%20Konclav"
             class="link-underline font-medium text-ink-50"
           >
-            Écrivez-nous à contact@konclav.ch
+            contact@konclav.ch
           </a>
         </p>
       </div>
