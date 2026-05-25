@@ -2,6 +2,9 @@
 import PhoneFan from "./PhoneFan.astro";
 import PhoneFrame from "./PhoneFrame.astro";
 import KanbanScreen from "./screens/KanbanScreen.astro";
+import AgendaScreen from "./screens/AgendaScreen.astro";
+import BibleScreen from "./screens/BibleScreen.astro";
+import NotificationsScreen from "./screens/NotificationsScreen.astro";
 import CTAButton from "./CTAButton.astro";
 ---
 
@@ -89,19 +92,31 @@ import CTAButton from "./CTAButton.astro";
 
       <!-- RIGHT — aperçu de l'app -->
       <div class="relative col-span-12 lg:col-span-5">
-        <!-- mobile / tablette : un téléphone, centré -->
-        <div class="flex justify-center lg:hidden">
+        <!-- mobile / tablette : carrousel d'écrans, glissable -->
+        <div class="lg:hidden">
           <div class="relative">
             <div
               aria-hidden="true"
-              class="pointer-events-none absolute -inset-8 -z-10 rounded-full opacity-60 blur-3xl"
+              class="pointer-events-none absolute left-1/2 top-1/2 -z-10 h-72 w-80 -translate-x-1/2 -translate-y-1/2 rounded-full opacity-50 blur-3xl"
               style="background: radial-gradient(closest-side, rgba(94,106,210,0.45), transparent 70%);"
             >
             </div>
-            <PhoneFrame activeTab="taches" float="float">
-              <KanbanScreen />
-            </PhoneFrame>
+            <div class="-mx-6 flex snap-x snap-mandatory gap-5 overflow-x-auto px-6 pb-1 no-scrollbar">
+              <PhoneFrame activeTab="taches"><KanbanScreen /></PhoneFrame>
+              <PhoneFrame activeTab="agenda"><AgendaScreen /></PhoneFrame>
+              <PhoneFrame activeTab="plus"><BibleScreen /></PhoneFrame>
+              <PhoneFrame activeTab="accueil"><NotificationsScreen /></PhoneFrame>
+            </div>
           </div>
+          <p
+            class="mt-4 flex items-center justify-center gap-1.5 text-xs font-medium text-ink-500"
+            aria-hidden="true"
+          >
+            Glissez pour voir les écrans
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4">
+              <path d="M5 12h14M13 6l6 6-6 6" />
+            </svg>
+          </p>
         </div>
         <!-- desktop : éventail -->
         <div class="hidden lg:block">
