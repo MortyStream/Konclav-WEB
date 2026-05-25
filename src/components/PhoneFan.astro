@@ -5,34 +5,34 @@ import AgendaScreen from "./screens/AgendaScreen.astro";
 import BibleScreen from "./screens/BibleScreen.astro";
 import NotificationsScreen from "./screens/NotificationsScreen.astro";
 
-// Éventail : chaque téléphone pivote autour d'un point bas commun.
+// Cluster "main de cartes" : 2 téléphones au centre (devant/hauts),
+// 2 sur les côtés (derrière/bas). Au survol, le tel se soulève et passe devant.
 const phones = [
-  { angle: -21, z: 1, tab: "taches", Screen: KanbanScreen },
-  { angle: -7, z: 2, tab: "agenda", Screen: AgendaScreen },
-  { angle: 7, z: 3, tab: "plus", Screen: BibleScreen },
-  { angle: 21, z: 4, tab: "accueil", Screen: NotificationsScreen },
+  { pos: "l", tab: "taches", Screen: KanbanScreen, delay: 0, float: "float-slow" },
+  { pos: "c1", tab: "agenda", Screen: AgendaScreen, delay: 120, float: "float" },
+  { pos: "c2", tab: "plus", Screen: BibleScreen, delay: 240, float: "float-late" },
+  { pos: "r", tab: "accueil", Screen: NotificationsScreen, delay: 360, float: "float-delay" },
 ] as const;
 ---
 
-<div class="phone-fan-wrap">
+<div class="phone-show">
   <div
     aria-hidden="true"
-    class="pointer-events-none absolute left-1/2 top-1/2 -z-10 h-[420px] w-[420px] -translate-x-1/2 -translate-y-1/2 rounded-full opacity-70 blur-3xl"
-    style="background: radial-gradient(closest-side, rgba(94,106,210,0.5), transparent 70%);"
+    class="pointer-events-none absolute left-1/2 top-1/2 -z-10 h-[120%] w-[125%] -translate-x-1/2 -translate-y-1/2 rounded-full opacity-60 blur-3xl"
+    style="background: radial-gradient(ellipse 60% 55% at center, rgba(94,106,210,0.42), transparent 70%);"
   >
   </div>
-  <div class="phone-fan">
-    {
-      phones.map((p, i) => {
-        const Screen = p.Screen;
-        return (
-          <div class="phone-fan__item" style={`--angle:${p.angle}deg; --z:${p.z};`}>
-            <PhoneFrame activeTab={p.tab} delay={i * 110}>
-              <Screen />
-            </PhoneFrame>
-          </div>
-        );
-      })
-    }
-  </div>
+
+  {
+    phones.map((p) => {
+      const Screen = p.Screen;
+      return (
+        <div class="phone-show__item" data-pos={p.pos}>
+          <PhoneFrame activeTab={p.tab} delay={p.delay} float={p.float} hoverScale={false}>
+            <Screen />
+          </PhoneFrame>
+        </div>
+      );
+    })
+  }
 </div>

@@ -645,51 +645,85 @@ body {
 }
 
 /* ============================================================
-   PHONE FAN — hero éventail (hover = passe devant + se soulève)
+   PHONE SHOWCASE — hero cluster "main de cartes" (survol fluide)
+   --fit = échelle globale (responsive) ; chaque tel est posé via
+   --x/--y (px natifs, mis à l'échelle), --r rotation, --z, --s.
    ============================================================ */
-.phone-fan-wrap {
+.phone-show {
+  --fit: 0.56;
   position: relative;
   width: 100%;
-  height: 27rem;
+  height: 26rem;
 }
 @media (min-width: 1280px) {
-  .phone-fan-wrap {
-    height: 31rem;
+  .phone-show {
+    --fit: 0.7;
+    height: 30rem;
   }
 }
-.phone-fan {
-  --fan-scale: 0.54;
+.phone-show__item {
   position: absolute;
-  bottom: 0;
-  left: 50%;
-  margin-left: -130px; /* moitié des 260px d'un téléphone → pivot centré */
+  inset: 0;
+  margin: auto;
   width: 260px;
   height: 540px;
-  transform: scale(var(--fan-scale));
-  transform-origin: bottom center;
-}
-@media (min-width: 1280px) {
-  .phone-fan {
-    --fan-scale: 0.62;
-  }
-}
-.phone-fan__item {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 260px;
-  transform-origin: bottom center;
-  transform: translateY(0) rotate(var(--angle)) scale(1);
-  transition: transform 0.55s cubic-bezier(0.16, 1, 0.3, 1);
+  transform-origin: center center;
+  transform: translate(
+      calc(var(--x) * 1px * var(--fit)),
+      calc(var(--y) * 1px * var(--fit))
+    )
+    rotate(var(--r)) scale(calc(var(--fit) * var(--s)));
+  transition:
+    transform 0.5s cubic-bezier(0.16, 1, 0.3, 1),
+    filter 0.45s cubic-bezier(0.16, 1, 0.3, 1);
   z-index: var(--z);
-  will-change: transform;
+  filter: brightness(0.82) saturate(0.95);
+  will-change: transform, filter;
 }
-.phone-fan__item:hover {
+.phone-show__item[data-pos="c1"],
+.phone-show__item[data-pos="c2"] {
+  filter: brightness(1) saturate(1);
+}
+.phone-show__item:hover {
   z-index: 50;
-  transform: translateY(-26px) rotate(var(--angle)) scale(1.04);
+  filter: brightness(1.06) saturate(1.05)
+    drop-shadow(0 26px 55px rgba(94, 106, 210, 0.4));
+  transform: translate(
+      calc(var(--x) * 1px * var(--fit)),
+      calc((var(--y) - 42) * 1px * var(--fit))
+    )
+    rotate(calc(var(--r) * 0.3)) scale(calc(var(--fit) * (var(--s) + 0.08)));
+}
+.phone-show__item[data-pos="l"] {
+  --x: -235;
+  --y: 46;
+  --r: -10deg;
+  --z: 1;
+  --s: 0.9;
+}
+.phone-show__item[data-pos="c1"] {
+  --x: -82;
+  --y: -16;
+  --r: -3deg;
+  --z: 4;
+  --s: 1;
+}
+.phone-show__item[data-pos="c2"] {
+  --x: 82;
+  --y: 4;
+  --r: 3deg;
+  --z: 3;
+  --s: 0.96;
+}
+.phone-show__item[data-pos="r"] {
+  --x: 235;
+  --y: 56;
+  --r: 10deg;
+  --z: 2;
+  --s: 0.9;
 }
 @media (prefers-reduced-motion: reduce) {
-  .phone-fan__item {
+  .phone-show__item {
     transition: none;
   }
 }
