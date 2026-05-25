@@ -1,5 +1,6 @@
 ---
 import CTAButton from "./CTAButton.astro";
+import Logo from "./Logo.astro";
 
 const links = [
   { href: "/#features", label: "Fonctionnalités" },
@@ -21,20 +22,7 @@ const links = [
       href="/"
       class="group flex items-center gap-2 text-base font-semibold tracking-tight text-ink-50"
     >
-      <svg
-        viewBox="0 0 32 32"
-        fill="none"
-        class="h-7 w-7 transition-transform duration-300 ease-out group-hover:scale-110 group-hover:rotate-3"
-        aria-hidden="true"
-      >
-        <rect width="32" height="32" rx="7" fill="#0f1011"></rect>
-        <path
-          d="M11 8v16M11 16l8-8M11 16l8 8"
-          stroke="#5e6ad2"
-          stroke-width="2.4"
-          stroke-linecap="round"
-          stroke-linejoin="round"></path>
-      </svg>
+      <Logo class="h-7 w-7 transition-transform duration-300 ease-out group-hover:scale-110 group-hover:rotate-3" />
       Konclav
     </a>
 

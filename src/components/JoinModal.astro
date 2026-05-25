@@ -1,4 +1,5 @@
 ---
+import Logo from "./Logo.astro";
 // Modal "Rejoignez Konclav" — wizard multi-étapes qui POSTe vers Google Forms.
 // Les réponses arrivent dans le même Google Sheet que le formulaire d'origine.
 //
@@ -84,10 +85,7 @@ const checkIndCls =
       <!-- Header + progress -->
       <div class="border-b border-white/[0.06] px-6 pt-6 pb-5 sm:px-8">
         <div class="flex items-center gap-2">
-          <svg viewBox="0 0 32 32" fill="none" class="h-6 w-6" aria-hidden="true">
-            <rect width="32" height="32" rx="7" fill="#0f1011"></rect>
-            <path d="M11 8v16M11 16l8-8M11 16l8 8" stroke="#5e6ad2" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"></path>
-          </svg>
+          <Logo class="h-6 w-6" />
           <span id="join-title" class="text-sm font-semibold tracking-tight text-ink-50">Rejoignez Konclav</span>
         </div>
         <div class="mt-4 flex items-center justify-between text-xs text-ink-400">
