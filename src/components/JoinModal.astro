@@ -46,7 +46,7 @@ const inputCls =
   "w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-ink-50 placeholder:text-ink-500 transition-colors focus:border-accent-500/50 focus:bg-white/[0.05] focus:outline-none focus:ring-2 focus:ring-accent-500/20";
 const labelCls = "mb-2 block text-sm font-medium text-ink-50";
 const optionCls =
-  "group/opt relative flex cursor-pointer items-center gap-3 rounded-xl border border-white/10 bg-white/[0.02] px-4 py-2.5 text-sm text-ink-300 transition-colors hover:border-white/20 has-[:checked]:border-accent-500/60 has-[:checked]:bg-accent-500/[0.08] has-[:checked]:text-ink-50";
+  "group/opt relative flex cursor-pointer items-center gap-3 rounded-xl border border-white/10 bg-white/[0.02] px-4 py-3 text-sm text-ink-300 transition-colors hover:border-white/20 has-[:checked]:border-accent-500/60 has-[:checked]:bg-accent-500/[0.08] has-[:checked]:text-ink-50";
 const radioIndCls =
   "relative h-[18px] w-[18px] shrink-0 rounded-full border border-white/25 transition-colors after:absolute after:inset-0 after:m-auto after:h-1.5 after:w-1.5 after:rounded-full after:bg-white after:opacity-0 peer-checked:border-accent-500 peer-checked:bg-accent-500 peer-checked:after:opacity-100";
 const checkIndCls =
@@ -149,7 +149,7 @@ const checkIndCls =
                     data-value={c}
                     tabindex="-1"
                     aria-selected="false"
-                    class="group flex cursor-pointer items-center justify-between gap-2 rounded-lg px-3 py-2 text-sm text-ink-300 transition-colors hover:bg-white/[0.06] hover:text-ink-50 focus:bg-white/[0.06] focus:text-ink-50 focus:outline-none aria-selected:bg-accent-500/[0.08] aria-selected:text-ink-50"
+                    class="group flex cursor-pointer items-center justify-between gap-2 rounded-lg px-3 py-2.5 text-sm text-ink-300 transition-colors hover:bg-white/[0.06] hover:text-ink-50 focus:bg-white/[0.06] focus:text-ink-50 focus:outline-none aria-selected:bg-accent-500/[0.08] aria-selected:text-ink-50"
                   >
                     <span>{c}</span>
                     <svg viewBox="0 0 16 16" fill="none" class="h-4 w-4 shrink-0 text-accent-400 opacity-0 transition-opacity group-aria-selected:opacity-100" aria-hidden="true">
@@ -203,7 +203,7 @@ const checkIndCls =
             <p class="mt-1 text-sm text-ink-400">{steps[1].sub}</p>
           </header>
 
-          <div class="grid grid-cols-2 gap-4">
+          <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div data-field data-required>
               <label class={labelCls} for="f-firstName">Prénom <span class="text-accent-400">*</span></label>
               <input id="f-firstName" type="text" name={E.firstName} autocomplete="given-name" class={inputCls} />
