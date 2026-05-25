@@ -645,6 +645,56 @@ body {
 }
 
 /* ============================================================
+   PHONE FAN — hero éventail (hover = passe devant + se soulève)
+   ============================================================ */
+.phone-fan-wrap {
+  position: relative;
+  width: 100%;
+  height: 27rem;
+}
+@media (min-width: 1280px) {
+  .phone-fan-wrap {
+    height: 31rem;
+  }
+}
+.phone-fan {
+  --fan-scale: 0.54;
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  margin-left: -130px; /* moitié des 260px d'un téléphone → pivot centré */
+  width: 260px;
+  height: 540px;
+  transform: scale(var(--fan-scale));
+  transform-origin: bottom center;
+}
+@media (min-width: 1280px) {
+  .phone-fan {
+    --fan-scale: 0.62;
+  }
+}
+.phone-fan__item {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 260px;
+  transform-origin: bottom center;
+  transform: translateY(0) rotate(var(--angle)) scale(1);
+  transition: transform 0.55s cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: var(--z);
+  will-change: transform;
+}
+.phone-fan__item:hover {
+  z-index: 50;
+  transform: translateY(-26px) rotate(var(--angle)) scale(1.04);
+}
+@media (prefers-reduced-motion: reduce) {
+  .phone-fan__item {
+    transition: none;
+  }
+}
+
+/* ============================================================
    V2 — TILT PASSIVE float (subtle rotation breathing)
    ============================================================ */
 @keyframes tilt-breathe {

@@ -1,6 +1,5 @@
 ---
-import PhoneFrame from "./PhoneFrame.astro";
-import KanbanScreen from "./screens/KanbanScreen.astro";
+import PhoneFan from "./PhoneFan.astro";
 import CTAButton from "./CTAButton.astro";
 ---
 
@@ -86,29 +85,9 @@ import CTAButton from "./CTAButton.astro";
         </dl>
       </div>
 
-      <!-- RIGHT — phone embed (md+ for tablet support) -->
-      <div
-        data-reveal
-        class="relative col-span-12 hidden justify-center md:flex md:col-span-12 lg:col-span-5"
-        style="transition-delay: 200ms;"
-      >
-        <div class="relative tilt-breathe">
-          <div
-            aria-hidden="true"
-            class="pointer-events-none absolute -inset-6 -z-10 rounded-full opacity-70 blur-3xl"
-            style="background: radial-gradient(closest-side, rgba(94,106,210,0.55), transparent 70%);"
-          >
-          </div>
-          <PhoneFrame
-            activeTab="taches"
-            rotate=""
-            translateY=""
-            delay={0}
-            zIndex={1}
-          >
-            <KanbanScreen />
-          </PhoneFrame>
-        </div>
+      <!-- RIGHT — éventail de téléphones (lg+) -->
+      <div class="relative col-span-12 hidden lg:col-span-5 lg:block">
+        <PhoneFan />
       </div>
     </div>
   </div>

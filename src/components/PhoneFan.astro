@@ -1,0 +1,38 @@
+---
+import PhoneFrame from "./PhoneFrame.astro";
+import KanbanScreen from "./screens/KanbanScreen.astro";
+import AgendaScreen from "./screens/AgendaScreen.astro";
+import BibleScreen from "./screens/BibleScreen.astro";
+import NotificationsScreen from "./screens/NotificationsScreen.astro";
+
+// Éventail : chaque téléphone pivote autour d'un point bas commun.
+const phones = [
+  { angle: -21, z: 1, tab: "taches", Screen: KanbanScreen },
+  { angle: -7, z: 2, tab: "agenda", Screen: AgendaScreen },
+  { angle: 7, z: 3, tab: "plus", Screen: BibleScreen },
+  { angle: 21, z: 4, tab: "accueil", Screen: NotificationsScreen },
+] as const;
+---
+
+<div class="phone-fan-wrap">
+  <div
+    aria-hidden="true"
+    class="pointer-events-none absolute left-1/2 top-1/2 -z-10 h-[420px] w-[420px] -translate-x-1/2 -translate-y-1/2 rounded-full opacity-70 blur-3xl"
+    style="background: radial-gradient(closest-side, rgba(94,106,210,0.5), transparent 70%);"
+  >
+  </div>
+  <div class="phone-fan">
+    {
+      phones.map((p, i) => {
+        const Screen = p.Screen;
+        return (
+          <div class="phone-fan__item" style={`--angle:${p.angle}deg; --z:${p.z};`}>
+            <PhoneFrame activeTab={p.tab} delay={i * 110}>
+              <Screen />
+            </PhoneFrame>
+          </div>
+        );
+      })
+    }
+  </div>
+</div>
