@@ -24,7 +24,16 @@ app.use(
 );
 
 app.use((req, res) => {
-  res.status(404).sendFile(path.join(distPath, "404.html"));
+  res.status(404).sendFile(path.join(distPath, "404.html"), (err) => {
+    if (err && !res.headersSent) {
+      res
+        .status(404)
+        .type("html")
+        .send(
+          "<!doctype html><meta charset=utf-8><title>404</title><h1>404 — Page introuvable</h1>"
+        );
+    }
+  });
 });
 
 app.listen(port, () => {
