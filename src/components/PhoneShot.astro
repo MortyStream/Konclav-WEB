@@ -1,0 +1,62 @@
+---
+interface Props {
+  src: string;
+  alt: string;
+  rotate?: string;
+  translateY?: string;
+  delay?: number;
+  zIndex?: number;
+  float?: "" | "float" | "float-delay" | "float-slow" | "float-late";
+  hoverScale?: boolean;
+}
+
+const {
+  src,
+  alt,
+  rotate = "",
+  translateY = "",
+  delay = 0,
+  zIndex = 0,
+  float = "",
+  hoverScale = true,
+} = Astro.props;
+
+const floatClass = float ? `animate-${float}` : "";
+const hoverClass = hoverScale ? "hover:scale-[1.03]" : "";
+---
+
+<div
+  data-reveal
+  style={`transition-delay: ${delay}ms; z-index: ${zIndex};`}
+  class="relative shrink-0 snap-center"
+>
+  <div class={floatClass}>
+    <div
+      class={`transition-transform duration-500 ease-out ${hoverClass} ${rotate} ${translateY}`}
+    >
+      <div
+        class="relative h-[540px] w-[260px] rounded-[44px] border border-white/10 bg-neutral-950 p-[6px] shadow-[0_30px_80px_-20px_rgba(94,106,210,0.35),0_0_0_1px_rgba(255,255,255,0.04)]"
+      >
+        <div
+          class="relative h-full overflow-hidden rounded-[38px] bg-black ring-1 ring-white/5"
+        >
+          <img
+            src={src}
+            alt={alt}
+            width="720"
+            height="1560"
+            loading="lazy"
+            decoding="async"
+            class="h-full w-full object-cover object-top"
+          />
+          <!-- Notch -->
+          <div
+            class="absolute left-1/2 top-2 z-30 flex h-6 w-20 -translate-x-1/2 items-center justify-center rounded-full bg-black"
+          >
+            <div class="h-1 w-1 rounded-full bg-white/20"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

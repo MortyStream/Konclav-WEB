@@ -1,10 +1,6 @@
 ---
 import PhoneFan from "./PhoneFan.astro";
-import PhoneFrame from "./PhoneFrame.astro";
-import KanbanScreen from "./screens/KanbanScreen.astro";
-import AgendaScreen from "./screens/AgendaScreen.astro";
-import BibleScreen from "./screens/BibleScreen.astro";
-import NotificationsScreen from "./screens/NotificationsScreen.astro";
+import PhoneShot from "./PhoneShot.astro";
 import CTAButton from "./CTAButton.astro";
 ---
 
@@ -102,10 +98,10 @@ import CTAButton from "./CTAButton.astro";
             >
             </div>
             <div class="-mx-6 flex snap-x snap-mandatory gap-5 overflow-x-auto px-6 pb-1 no-scrollbar [&>*]:snap-always">
-              <PhoneFrame activeTab="taches"><KanbanScreen /></PhoneFrame>
-              <PhoneFrame activeTab="agenda"><AgendaScreen /></PhoneFrame>
-              <PhoneFrame activeTab="plus"><BibleScreen /></PhoneFrame>
-              <PhoneFrame activeTab="accueil"><NotificationsScreen /></PhoneFrame>
+              <PhoneShot src="/app/agenda-semaine.webp" alt="Konclav — agenda, vue semaine des entraînements" />
+              <PhoneShot src="/app/tache.webp" alt="Konclav — détail d'une tâche avec validation" />
+              <PhoneShot src="/app/documents.webp" alt="Konclav — documents et dossiers" />
+              <PhoneShot src="/app/annuaire.webp" alt="Konclav — annuaire des membres" />
             </div>
           </div>
           <p

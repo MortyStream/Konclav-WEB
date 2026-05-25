@@ -2,28 +2,34 @@
 import Layout from "../layouts/Layout.astro";
 import Navbar from "../components/Navbar.astro";
 import Footer from "../components/Footer.astro";
-import PhoneFrame from "../components/PhoneFrame.astro";
-import KanbanScreen from "../components/screens/KanbanScreen.astro";
-import AgendaScreen from "../components/screens/AgendaScreen.astro";
-import BibleScreen from "../components/screens/BibleScreen.astro";
-import NotificationsScreen from "../components/screens/NotificationsScreen.astro";
+import PhoneShot from "../components/PhoneShot.astro";
+
+const screens = [
+  { src: "/app/tache.webp", alt: "Konclav — détail d'une tâche avec validation" },
+  { src: "/app/agenda-semaine.webp", alt: "Konclav — agenda, vue semaine des entraînements" },
+  { src: "/app/agenda-mois.webp", alt: "Konclav — agenda, vue mois" },
+  { src: "/app/documents.webp", alt: "Konclav — documents et dossiers de l'association" },
+  { src: "/app/statuts.webp", alt: "Konclav — statuts et règlements" },
+  { src: "/app/annuaire.webp", alt: "Konclav — annuaire des membres et rôles" },
+  { src: "/app/association.webp", alt: "Konclav — espace association : cotisations, notes de frais" },
+];
 
 const captions = [
   {
-    label: "Tâches Kanban",
-    description: "Tableau, attribution, deadlines. Du PV à l'action en un glissement.",
+    label: "Tâches & validations",
+    description: "Kanban, attribution, deadlines — et un circuit de validation pour les dépenses.",
   },
   {
     label: "Agenda partagé",
-    description: "Tous les évènements visibles, synchronisés avec Google et Apple.",
+    description: "Vues mois et semaine, événements par équipe, synchronisés avec Google et Apple.",
   },
   {
-    label: "La Bible documentaire",
-    description: "Statuts, PV, contrats. Recherche instantanée, versions, droits granulaires.",
+    label: "Documents",
+    description: "Statuts, PV, contrats, règlements — classés par pôle, recherche instantanée.",
   },
   {
-    label: "Notifications",
-    description: "Push mobile seulement quand ça compte. Pas de spam.",
+    label: "Vie associative",
+    description: "Annuaire et rôles, cotisations, notes de frais, sondages, réunions.",
   },
 ];
 ---
@@ -74,52 +80,17 @@ const captions = [
 
       <div class="mx-auto max-w-7xl">
         <div
-          class="-mx-6 flex justify-start gap-6 overflow-x-auto px-6 pb-6 snap-x snap-mandatory [&>*]:snap-always md:mx-0 md:justify-center md:gap-0 md:overflow-visible md:px-0 md:pb-0 md:snap-none md:[&>*:not(:first-child)]:-ml-8 lg:[&>*:not(:first-child)]:-ml-12"
+          class="-mx-6 flex snap-x snap-mandatory gap-6 overflow-x-auto px-6 pb-4 no-scrollbar [&>*]:snap-always sm:gap-8"
         >
-          <PhoneFrame
-            activeTab="taches"
-            rotate="md:-rotate-6"
-            translateY="md:translate-y-8"
-            delay={0}
-            zIndex={1}
-            float="float-slow"
-          >
-            <KanbanScreen />
-          </PhoneFrame>
-          <PhoneFrame
-            activeTab="agenda"
-            rotate="md:-rotate-2"
-            translateY="md:translate-y-0"
-            delay={120}
-            zIndex={4}
-            float="float"
-          >
-            <AgendaScreen />
-          </PhoneFrame>
-          <PhoneFrame
-            activeTab="plus"
-            rotate="md:rotate-2"
-            translateY="md:translate-y-4"
-            delay={240}
-            zIndex={3}
-            float="float-late"
-          >
-            <BibleScreen />
-          </PhoneFrame>
-          <PhoneFrame
-            activeTab="accueil"
-            rotate="md:rotate-6"
-            translateY="md:translate-y-12"
-            delay={360}
-            zIndex={2}
-            float="float-delay"
-          >
-            <NotificationsScreen />
-          </PhoneFrame>
+          {
+            screens.map((s, i) => (
+              <PhoneShot src={s.src} alt={s.alt} delay={i * 90} />
+            ))
+          }
         </div>
 
         <p
-          class="mt-4 flex items-center justify-center gap-1.5 text-xs font-medium text-ink-500 md:hidden"
+          class="mt-4 flex items-center justify-center gap-1.5 text-xs font-medium text-ink-500"
           aria-hidden="true"
         >
           Glissez pour explorer les écrans
