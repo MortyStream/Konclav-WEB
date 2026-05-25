@@ -36,3 +36,32 @@ const phones = [
     })
   }
 </div>
+
+<script is:inline>
+  (function () {
+    const el = document.querySelector(".phone-show");
+    if (!el) return;
+    // Échelle fluide : interpole entre deux largeurs d'écran, puis borne.
+    const MINW = 1024,
+      MAXW = 1800,
+      MINF = 0.52,
+      MAXF = 0.92;
+    const apply = () => {
+      const t = Math.max(0, Math.min(1, (window.innerWidth - MINW) / (MAXW - MINW)));
+      el.style.setProperty("--fit", (MINF + t * (MAXF - MINF)).toFixed(3));
+    };
+    apply();
+    let raf = 0;
+    window.addEventListener(
+      "resize",
+      () => {
+        if (raf) return;
+        raf = requestAnimationFrame(() => {
+          raf = 0;
+          apply();
+        });
+      },
+      { passive: true }
+    );
+  })();
+</script>

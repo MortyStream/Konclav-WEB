@@ -650,16 +650,10 @@ body {
    --x/--y (px natifs, mis à l'échelle), --r rotation, --z, --s.
    ============================================================ */
 .phone-show {
-  --fit: 0.56;
+  --fit: 0.62; /* fallback no-JS ; ajusté en continu par JS selon la largeur d'écran */
   position: relative;
   width: 100%;
-  height: 26rem;
-}
-@media (min-width: 1280px) {
-  .phone-show {
-    --fit: 0.7;
-    height: 30rem;
-  }
+  height: calc(540px * var(--fit) + 6rem); /* la hauteur suit l'échelle */
 }
 .phone-show__item {
   position: absolute;
