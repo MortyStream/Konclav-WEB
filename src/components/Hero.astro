@@ -101,7 +101,7 @@ import CTAButton from "./CTAButton.astro";
               style="background: radial-gradient(closest-side, rgba(94,106,210,0.45), transparent 70%);"
             >
             </div>
-            <div class="-mx-6 flex snap-x snap-mandatory gap-5 overflow-x-auto px-6 pb-1 no-scrollbar">
+            <div class="-mx-6 flex snap-x snap-mandatory gap-5 overflow-x-auto px-6 pb-1 no-scrollbar [&>*]:snap-always">
               <PhoneFrame activeTab="taches"><KanbanScreen /></PhoneFrame>
               <PhoneFrame activeTab="agenda"><AgendaScreen /></PhoneFrame>
               <PhoneFrame activeTab="plus"><BibleScreen /></PhoneFrame>
