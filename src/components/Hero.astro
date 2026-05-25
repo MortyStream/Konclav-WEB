@@ -1,5 +1,7 @@
 ---
 import PhoneFan from "./PhoneFan.astro";
+import PhoneFrame from "./PhoneFrame.astro";
+import KanbanScreen from "./screens/KanbanScreen.astro";
 import CTAButton from "./CTAButton.astro";
 ---
 
@@ -85,9 +87,26 @@ import CTAButton from "./CTAButton.astro";
         </dl>
       </div>
 
-      <!-- RIGHT — éventail de téléphones (lg+) -->
-      <div class="relative col-span-12 hidden lg:col-span-5 lg:block">
-        <PhoneFan />
+      <!-- RIGHT — aperçu de l'app -->
+      <div class="relative col-span-12 lg:col-span-5">
+        <!-- mobile / tablette : un téléphone, centré -->
+        <div class="flex justify-center lg:hidden">
+          <div class="relative">
+            <div
+              aria-hidden="true"
+              class="pointer-events-none absolute -inset-8 -z-10 rounded-full opacity-60 blur-3xl"
+              style="background: radial-gradient(closest-side, rgba(94,106,210,0.45), transparent 70%);"
+            >
+            </div>
+            <PhoneFrame activeTab="taches" float="float">
+              <KanbanScreen />
+            </PhoneFrame>
+          </div>
+        </div>
+        <!-- desktop : éventail -->
+        <div class="hidden lg:block">
+          <PhoneFan />
+        </div>
       </div>
     </div>
   </div>

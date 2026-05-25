@@ -722,6 +722,15 @@ body {
   }
 }
 
+/* Masque la scrollbar (carrousels mockup mobile) tout en gardant le scroll */
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
 /* ============================================================
    V2 — TILT PASSIVE float (subtle rotation breathing)
    ============================================================ */
