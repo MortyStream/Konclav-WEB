@@ -118,15 +118,48 @@ const checkIndCls =
           </div>
 
           <div data-field data-required>
-            <label class={labelCls} for="f-canton">Canton <span class="text-accent-400">*</span></label>
-            <div class="relative">
-              <select id="f-canton" name={E.canton} class={`${inputCls} appearance-none pr-10`}>
+            <label class={labelCls} id="canton-label">Canton <span class="text-accent-400">*</span></label>
+            <div data-custom-select class="relative">
+              <select name={E.canton} tabindex="-1" aria-hidden="true" class="sr-only">
                 <option value="" selected disabled>Choisissez…</option>
                 {cantons.map((c) => <option value={c}>{c}</option>)}
               </select>
-              <svg viewBox="0 0 16 16" fill="none" class="pointer-events-none absolute right-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-400" aria-hidden="true">
+              <button
+                type="button"
+                data-cs-trigger
+                aria-haspopup="listbox"
+                aria-expanded="false"
+                aria-labelledby="canton-label"
+                class={`${inputCls} flex items-center justify-between pr-10 text-left`}
+              >
+                <span data-cs-value class="text-ink-500">Choisissez…</span>
+              </button>
+              <svg viewBox="0 0 16 16" fill="none" class="cs-chevron pointer-events-none absolute bottom-0 right-3.5 top-0 my-auto h-4 w-4 text-ink-400 transition-transform duration-200" aria-hidden="true">
                 <path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
               </svg>
+              <ul
+                data-cs-list
+                role="listbox"
+                aria-labelledby="canton-label"
+                hidden
+                class="absolute z-30 mt-2 max-h-60 w-full overflow-y-auto rounded-xl border border-white/10 bg-ink-900 p-1.5 shadow-2xl"
+              >
+                {cantons.map((c) => (
+                  <li
+                    role="option"
+                    data-cs-option
+                    data-value={c}
+                    tabindex="-1"
+                    aria-selected="false"
+                    class="group flex cursor-pointer items-center justify-between gap-2 rounded-lg px-3 py-2 text-sm text-ink-300 transition-colors hover:bg-white/[0.06] hover:text-ink-50 focus:bg-white/[0.06] focus:text-ink-50 focus:outline-none aria-selected:bg-accent-500/[0.08] aria-selected:text-ink-50"
+                  >
+                    <span>{c}</span>
+                    <svg viewBox="0 0 16 16" fill="none" class="h-4 w-4 shrink-0 text-accent-400 opacity-0 transition-opacity group-aria-selected:opacity-100" aria-hidden="true">
+                      <path d="m3.5 8.5 3 3 6-7" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                  </li>
+                ))}
+              </ul>
             </div>
             <p class="join-error mt-1.5 text-xs text-rose-400">Merci de choisir un canton.</p>
           </div>
@@ -388,7 +421,7 @@ const checkIndCls =
       });
       if (firstInvalid) {
         firstInvalid.scrollIntoView({ behavior: "smooth", block: "center" });
-        const f = firstInvalid.querySelector("input, select, textarea");
+        const f = firstInvalid.querySelector("[data-cs-trigger]") || firstInvalid.querySelector("input, select, textarea");
         if (f) setTimeout(() => f.focus({ preventScroll: true }), 220);
       }
       return !firstInvalid;
@@ -443,6 +476,60 @@ const checkIndCls =
       if (validateStep(current)) setStep(current + 1);
     });
     prevBtn.addEventListener("click", () => setStep(current - 1));
+
+    // Custom dark dropdown(s) — backed by a hidden native <select>
+    modal.querySelectorAll("[data-custom-select]").forEach((cs) => {
+      const select = cs.querySelector("select");
+      const trigger = cs.querySelector("[data-cs-trigger]");
+      const valueEl = cs.querySelector("[data-cs-value]");
+      const list = cs.querySelector("[data-cs-list]");
+      const opts = Array.from(cs.querySelectorAll("[data-cs-option]"));
+      const placeholder = valueEl.textContent;
+
+      const openList = () => {
+        list.hidden = false;
+        trigger.setAttribute("aria-expanded", "true");
+        const sel = opts.find((o) => o.getAttribute("aria-selected") === "true") || opts[0];
+        sel.scrollIntoView({ block: "nearest" });
+      };
+      const closeList = () => {
+        list.hidden = true;
+        trigger.setAttribute("aria-expanded", "false");
+      };
+      const choose = (opt) => {
+        select.value = opt.dataset.value;
+        valueEl.textContent = opt.dataset.value;
+        valueEl.classList.remove("text-ink-500");
+        opts.forEach((o) => o.setAttribute("aria-selected", String(o === opt)));
+        select.dispatchEvent(new Event("change", { bubbles: true }));
+        closeList();
+        trigger.focus();
+      };
+
+      trigger.addEventListener("click", (e) => {
+        e.stopPropagation();
+        if (list.hidden) openList();
+        else closeList();
+      });
+      opts.forEach((opt) => opt.addEventListener("click", () => choose(opt)));
+      document.addEventListener("click", (e) => {
+        if (!cs.contains(e.target)) closeList();
+      });
+      trigger.addEventListener("keydown", (e) => {
+        if (e.key === "ArrowDown" || e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          openList();
+          (opts.find((o) => o.getAttribute("aria-selected") === "true") || opts[0]).focus();
+        }
+      });
+      list.addEventListener("keydown", (e) => {
+        const i = opts.indexOf(document.activeElement);
+        if (e.key === "ArrowDown") { e.preventDefault(); (opts[i + 1] || opts[0]).focus(); }
+        else if (e.key === "ArrowUp") { e.preventDefault(); (opts[i - 1] || opts[opts.length - 1]).focus(); }
+        else if (e.key === "Enter" || e.key === " ") { e.preventDefault(); if (i > -1) choose(opts[i]); }
+        else if (e.key === "Escape") { e.stopPropagation(); closeList(); trigger.focus(); }
+      });
+    });
 
     // Clear a field's error as soon as it's edited
     form.addEventListener("input", (e) => {

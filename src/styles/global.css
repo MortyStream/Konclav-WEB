@@ -619,6 +619,9 @@ body {
 [data-field][data-invalid] select {
   border-color: rgba(251, 113, 133, 0.55);
 }
+[data-cs-trigger][aria-expanded="true"] ~ .cs-chevron {
+  transform: rotate(180deg);
+}
 .join-step {
   animation: join-step-in 360ms var(--ease-out-expo) both;
 }
