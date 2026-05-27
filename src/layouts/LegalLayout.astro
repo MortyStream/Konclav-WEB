@@ -104,4 +104,36 @@ const { title, description, heading, updated } = Astro.props;
     border: 0;
     border-top: 1px solid rgba(255, 255, 255, 0.05);
   }
+  .prose-legal blockquote {
+    margin: 1.5rem 0;
+    border-left: 2px solid var(--color-accent-500);
+    background: rgba(94, 106, 210, 0.06);
+    border-radius: 0 0.5rem 0.5rem 0;
+    padding: 0.85rem 1.1rem;
+    font-size: 0.95rem;
+  }
+  .prose-legal blockquote p:last-child {
+    margin-bottom: 0;
+  }
+  .prose-legal table {
+    display: block;
+    overflow-x: auto;
+    width: 100%;
+    margin: 1.25rem 0;
+    border-collapse: collapse;
+    font-size: 0.82rem;
+  }
+  .prose-legal th,
+  .prose-legal td {
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 0.5rem 0.7rem;
+    text-align: left;
+    vertical-align: top;
+  }
+  .prose-legal th {
+    color: var(--color-ink-50);
+    font-weight: 600;
+    background: rgba(255, 255, 255, 0.03);
+    white-space: nowrap;
+  }
 </style>

@@ -4,93 +4,281 @@ import LegalLayout from "../layouts/LegalLayout.astro";
 
 <LegalLayout
   title="Politique de confidentialité — Konclav"
-  description="Comment Konclav collecte, utilise et protège vos données personnelles."
+  description="Comment Konclav collecte, utilise et protège vos données personnelles (nLPD / RGPD)."
   heading="Politique de confidentialité"
-  updated="22 mai 2026"
+  updated="[date à fixer au lancement]"
 >
-  <h2>1. Qui sommes-nous</h2>
   <p>
-    Konclav est édité par <strong>[Raison sociale]</strong>, dont le siège est
-    situé en Suisse. Le présent document décrit comment nous collectons,
-    utilisons et protégeons les données personnelles des utilisateurs de notre
-    service.
+    La présente politique décrit la manière dont <strong>Konclav</strong>
+    (« nous ») traite les données personnelles dans le cadre de son application
+    et de son site internet. Elle est rédigée conformément à la
+    <strong>nouvelle loi fédérale suisse sur la protection des données
+    (nLPD)</strong> et, lorsqu'il s'applique, au
+    <strong>Règlement général sur la protection des données (RGPD, UE
+    2016/679)</strong>.
   </p>
 
-  <h2>2. Données collectées</h2>
-  <p>
-    Nous collectons uniquement les données strictement nécessaires au
-    fonctionnement du service :
-  </p>
+  <blockquote>
+    <p>
+      <strong>Konclav agit dans deux rôles distincts :</strong>
+    </p>
+    <p>
+      <strong>1. Pour les données que votre association saisit dans
+      l'application</strong> (membres, tâches, documents, cotisations, etc.),
+      <strong>c'est votre association qui est responsable du traitement.</strong>
+      Konclav agit comme <strong>sous-traitant</strong> : nous hébergeons et
+      traitons ces données pour son compte, selon ses instructions, dans le
+      cadre d'un contrat de sous-traitance des données.
+    </p>
+    <p>
+      <strong>2. Pour les données que nous collectons en propre</strong>
+      (compte d'administration, facturation, navigation sur le site, e-mails de
+      contact), <strong>nous sommes responsables du traitement.</strong> C'est
+      ce rôle que décrit principalement la présente politique.
+    </p>
+  </blockquote>
+
+  <h2>1. Responsable du traitement</h2>
   <ul>
-    <li>Données de compte (nom, prénom, email, association)</li>
-    <li>Contenus que vous créez (tâches, évènements, documents, messages)</li>
-    <li>Logs techniques (adresse IP, type d'appareil, date de connexion)</li>
+    <li><strong>Raison sociale :</strong> [à compléter — éditeur de Konclav]</li>
+    <li><strong>Forme juridique :</strong> [à compléter]</li>
+    <li><strong>Adresse :</strong> [à compléter], Suisse</li>
+    <li><strong>N° IDE :</strong> [à compléter — CHE-XXX.XXX.XXX]</li>
+    <li>
+      <strong>Contact protection des données :</strong>
+      <a href="mailto:contact@konclav.ch">contact@konclav.ch</a>
+    </li>
+  </ul>
+
+  <h2>2. Quelles données nous traitons et dans quel but</h2>
+
+  <h3>2.1 Données de compte et d'utilisation de l'application</h3>
+  <table>
+    <thead>
+      <tr><th>Donnée</th><th>Finalité</th><th>Base légale</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Nom, prénom, adresse e-mail</td><td>Création et gestion du compte, authentification</td><td>Exécution du contrat</td></tr>
+      <tr><td>Mot de passe (haché)</td><td>Sécurité de l'accès</td><td>Exécution du contrat</td></tr>
+      <tr><td>Téléphone, photo de profil, biographie (facultatifs)</td><td>Personnalisation du profil dans l'annuaire</td><td>Intérêt légitime / consentement</td></tr>
+      <tr><td>Rôle et appartenance à des pôles</td><td>Gestion des droits d'accès</td><td>Exécution du contrat</td></tr>
+      <tr><td>Date et heure de dernière connexion</td><td>Sécurité</td><td>Intérêt légitime</td></tr>
+      <tr><td>Jeton de notification (identifiant technique de l'appareil)</td><td>Envoi des notifications push</td><td>Consentement (système) / intérêt légitime</td></tr>
+    </tbody>
+  </table>
+
+  <h3>2.2 Données métier saisies dans l'application</h3>
+  <p>
+    Selon les fonctionnalités utilisées par votre association : tâches,
+    événements d'agenda, documents, cotisations, notes de frais (y compris
+    <strong>IBAN</strong> pour les remboursements), sondages, procès-verbaux
+    d'assemblée et <strong>signatures électroniques</strong> lors des votations.
+    Pour ces données, <strong>votre association est responsable du
+    traitement</strong> (voir l'encadré en tête de document) ; adressez vos
+    demandes les concernant directement au comité de votre association.
+  </p>
+
+  <h3>2.3 Données de facturation</h3>
+  <p>
+    L'abonnement est facturé 4 CHF par membre actif et par mois (forfait minimum
+    de 39 CHF). [à confirmer : si la facturation passe par un prestataire de
+    paiement, préciser les données concernées, le prestataire et sa
+    localisation.]
+  </p>
+
+  <h3>2.4 Données de navigation sur le site konclav.ch</h3>
+  <p>Le site vitrine traite un minimum de données :</p>
+  <ul>
+    <li>
+      <strong>Journaux serveur</strong> (adresse IP, date/heure, pages
+      consultées, type de navigateur), générés par notre hébergeur
+      <strong>Infomaniak</strong> pour la sécurité et le bon fonctionnement du
+      site ;
+    </li>
+    <li>
+      <strong>Formulaire de demande de démo :</strong> les informations que
+      vous y saisissez (nom de l'association, nom et e-mail du contact, canton,
+      etc.) sont transmises et stockées via <strong>Google Forms</strong>
+      (Google) afin de traiter votre demande ;
+    </li>
+    <li>
+      <strong>Mesure d'audience</strong> et <strong>polices d'écriture</strong> :
+      voir la section 8.
+    </li>
+  </ul>
+
+  <h2>3. Données sensibles</h2>
+  <p>
+    L'application <strong>ne collecte pas activement</strong> de catégories de
+    données sensibles au sens de l'art. 5 nLPD / art. 9 RGPD : il n'existe
+    <strong>aucun champ dédié</strong> à des données de santé, à la date de
+    naissance, à des opinions politiques, religieuses ou syndicales, ni à des
+    données biométriques d'identification.
+  </p>
+  <p>
+    Toutefois, certaines fonctionnalités comportent des <strong>champs de texte
+    libre</strong> (descriptions de tâches, documents, biographies, forums) dans
+    lesquels une association pourrait, de sa propre initiative, saisir de telles
+    données. <strong>La responsabilité du contenu saisi incombe à
+    l'association.</strong> Nous recommandons de ne pas y inscrire de données
+    sensibles sans base légale appropriée.
+  </p>
+  <p>
+    Les <strong>signatures électroniques manuscrites</strong> recueillies lors
+    des assemblées générales sont traitées pour la tenue régulière des
+    procès-verbaux ; elles ne sont accessibles qu'aux personnes habilitées de
+    l'association.
+  </p>
+
+  <h2>4. Données de mineurs</h2>
+  <p>
+    L'application <strong>ne collecte pas d'information d'âge</strong> et n'est
+    pas conçue pour recueillir directement le consentement de mineurs.
+    Lorsqu'une association encadre des mineurs (p. ex. équipes de jeunes), il lui
+    appartient, en tant que responsable du traitement, de recueillir le
+    <strong>consentement du représentant légal</strong> et de limiter les
+    données saisies. [à confirmer : âge du consentement applicable selon le pays
+    des associations clientes.]
+  </p>
+
+  <h2>5. Destinataires et sous-traitants</h2>
+  <p>
+    Nous faisons appel aux prestataires suivants, encadrés par des contrats de
+    sous-traitance :
+  </p>
+  <table>
+    <thead>
+      <tr><th>Prestataire</th><th>Rôle</th><th>Localisation</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Supabase / Amazon Web Services</td><td>Base de données, authentification, stockage de fichiers de l'application</td><td>Union européenne (Irlande)</td></tr>
+      <tr><td>Expo, Google (FCM), Apple (APNs)</td><td>Acheminement technique des notifications push</td><td>États-Unis (voir section 6)</td></tr>
+      <tr><td>Resend</td><td>Envoi d'e-mails transactionnels</td><td>[à confirmer : UE ou États-Unis selon configuration]</td></tr>
+      <tr><td>Infomaniak</td><td>Hébergement du site vitrine konclav.ch</td><td>Suisse</td></tr>
+      <tr><td>Google (Google Forms)</td><td>Réception des demandes de démo (formulaire du site)</td><td>États-Unis</td></tr>
+      <tr><td>Umami</td><td>Mesure d'audience du site, sans cookie</td><td>[à confirmer]</td></tr>
+    </tbody>
+  </table>
+  <p>
+    Nous <strong>ne vendons ni ne louons</strong> vos données. Nous
+    <strong>n'utilisons aucun outil de publicité ni de pistage comportemental
+    tiers</strong> (voir section 8).
+  </p>
+
+  <h2>6. Transferts hors de Suisse / de l'UE</h2>
+  <p>
+    Les <strong>données applicatives</strong> (base de données, fichiers) sont
+    hébergées <strong>dans l'Union européenne</strong>, et le site vitrine en
+    <strong>Suisse</strong>. La Suisse et l'UE se reconnaissent mutuellement un
+    niveau de protection adéquat ; ces traitements n'impliquent donc pas de
+    garanties contractuelles supplémentaires.
+  </p>
+  <p>
+    Certains traitements transitent par des serveurs situés <strong>aux
+    États-Unis</strong> : l'<strong>envoi des notifications push</strong> (Expo,
+    Google, Apple — données limitées à un identifiant d'appareil et au contenu de
+    la notification) et le <strong>formulaire de demande de démo</strong>
+    (Google Forms). [à confirmer : vérifier les garanties appropriées de ces
+    prestataires, p. ex. certification au Data Privacy Framework UE-US ou clauses
+    contractuelles types.]
+  </p>
+
+  <h2>7. Durées de conservation</h2>
+  <table>
+    <thead>
+      <tr><th>Données</th><th>Durée</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Compte et profil</td><td>Pendant la durée du compte ; supprimées sur demande de suppression</td></tr>
+      <tr><td>Données métier (tâches, événements…)</td><td>Selon les besoins de l'association ; supprimables par celle-ci</td></tr>
+      <tr><td>Cotisations et notes de frais</td><td>Délai légal comptable (jusqu'à 10 ans, art. 958f CO) — [à confirmer avec l'association]</td></tr>
+      <tr><td>Archive des membres supprimés</td><td>1 an, puis suppression automatique</td></tr>
+      <tr><td>Journal d'audit administrateur</td><td>[à confirmer — actuellement conservé de façon immuable]</td></tr>
+      <tr><td>Jetons de notification</td><td>Supprimés à la déconnexion</td></tr>
+    </tbody>
+  </table>
+
+  <h2>8. Cookies et traceurs</h2>
+  <p>
+    L'<strong>application mobile</strong> Konclav <strong>n'utilise aucun cookie
+    ni traceur publicitaire</strong>, ni aucun outil d'analyse comportementale
+    tiers (ni Google Analytics, ni Firebase Analytics, ni équivalent).
+  </p>
+  <p>Concernant le <strong>site internet</strong> konclav.ch :</p>
+  <ul>
+    <li>
+      aucun cookie publicitaire ni traceur comportemental ;
+    </li>
+    <li>
+      <strong>mesure d'audience</strong> via <strong>Umami</strong>, une
+      solution respectueuse de la vie privée : <strong>sans cookie</strong> et
+      sans collecte de données permettant de vous identifier (pas de profil,
+      pas de suivi entre sites) ;
+    </li>
+    <li>
+      <strong>polices d'écriture</strong> : la police Inter est chargée depuis
+      <strong>Google Fonts</strong> ; à cette occasion, votre adresse IP est
+      transmise à Google.
+    </li>
+  </ul>
+
+  <h2>9. Sécurité</h2>
+  <p>Nous mettons en œuvre des mesures techniques et organisationnelles, notamment :</p>
+  <ul>
+    <li><strong>chiffrement en transit</strong> (HTTPS/TLS) pour toutes les communications ;</li>
+    <li><strong>cloisonnement strict des données</strong> entre associations (chaque association n'accède qu'à ses propres données, via un contrôle d'accès au niveau de la base de données — <em>Row-Level Security</em>) ;</li>
+    <li><strong>contrôle d'accès par rôles</strong> (administrateur, responsable, membre) ;</li>
+    <li><strong>accès restreint</strong> aux fichiers (liens signés à durée de validité limitée) ;</li>
+    <li><strong>journal d'audit immuable</strong> des actions sensibles d'administration ;</li>
+    <li>authentification obligatoire, <strong>aucun accès anonyme</strong> aux données.</li>
+  </ul>
+
+  <h2>10. Vos droits</h2>
+  <p>Conformément à la nLPD et au RGPD, vous disposez des droits suivants :</p>
+  <ul>
+    <li><strong>accès</strong> à vos données ;</li>
+    <li><strong>rectification</strong> : vous pouvez modifier vos informations de profil directement dans l'application ;</li>
+    <li><strong>suppression</strong> : vous pouvez supprimer votre compte depuis l'application (« Profil » → « Supprimer mon compte »). Certains contenus collectifs que vous avez créés (tâches, événements, commentaires) sont <strong>conservés sous forme anonymisée</strong> pour préserver l'historique de l'association ;</li>
+    <li><strong>opposition</strong> et <strong>limitation</strong> du traitement ;</li>
+    <li><strong>portabilité</strong> (RGPD) ;</li>
+    <li>droit de <strong>retirer votre consentement</strong> à tout moment.</li>
   </ul>
   <p>
-    Nous n'utilisons <strong>aucun cookie publicitaire</strong>, aucun tracker
-    tiers (Google Analytics, Meta Pixel, etc.).
+    [à confirmer : un export self-service complet des données personnelles n'est
+    pas encore proposé ; les demandes d'accès/portabilité sont traitées
+    manuellement sur demande à
+    <a href="mailto:contact@konclav.ch">contact@konclav.ch</a>.]
   </p>
-
-  <h2>3. Finalités</h2>
   <p>
-    Vos données sont traitées exclusivement pour :
-  </p>
-  <ul>
-    <li>Vous fournir le service Konclav</li>
-    <li>Assurer la sécurité et la stabilité de la plateforme</li>
-    <li>Répondre à vos demandes de support</li>
-    <li>Respecter nos obligations légales</li>
-  </ul>
-
-  <h2>4. Hébergement</h2>
-  <p>
-    Les données sont hébergées chez un prestataire situé en
-    <strong>Union européenne</strong> (à préciser au lancement). Aucun
-    transfert hors UE n'est effectué.
-  </p>
-
-  <h2>5. Durée de conservation</h2>
-  <p>
-    Les données sont conservées tant que votre compte est actif. À la
-    suppression du compte, les données sont effacées sous 30 jours, sauf
-    obligation légale de conservation.
-  </p>
-
-  <h2>6. Vos droits</h2>
-  <p>
-    Conformément au RGPD et à la LPD suisse, vous disposez de droits sur vos
-    données :
-  </p>
-  <ul>
-    <li>Droit d'accès et de portabilité</li>
-    <li>Droit de rectification</li>
-    <li>Droit à l'effacement</li>
-    <li>Droit d'opposition et de limitation</li>
-  </ul>
-  <p>
-    Pour exercer ces droits, écrivez-nous à
+    Pour les droits portant sur des <strong>données saisies par votre
+    association</strong>, adressez-vous au comité de celle-ci (responsable du
+    traitement). Pour les données dont Konclav est responsable, écrivez à
     <a href="mailto:contact@konclav.ch">contact@konclav.ch</a>.
   </p>
 
-  <h2>7. Sécurité</h2>
+  <h2>11. Réclamation auprès de l'autorité</h2>
+  <ul>
+    <li>
+      <strong>Suisse :</strong> Préposé fédéral à la protection des données et à
+      la transparence (PFPDT), Feldeggweg 1, 3003 Berne —
+      <a href="https://www.edoeb.admin.ch" rel="noopener" target="_blank">www.edoeb.admin.ch</a>
+    </li>
+    <li>
+      <strong>Union européenne :</strong> l'autorité de contrôle de votre pays
+      de résidence (p. ex. la CNIL en France).
+    </li>
+  </ul>
+
+  <h2>12. Modifications</h2>
   <p>
-    Les données sont chiffrées au repos et en transit (TLS 1.3). Les
-    sauvegardes sont quotidiennes et chiffrées. L'accès aux données est
-    strictement limité aux personnes habilitées.
+    Nous pouvons modifier la présente politique. Toute modification substantielle
+    sera communiquée par les canaux appropriés. La date de dernière mise à jour
+    figure en tête de document.
   </p>
 
-  <h2>8. Contact</h2>
+  <h2>13. Contact</h2>
   <p>
-    Pour toute question relative à cette politique de confidentialité :
+    Pour toute question relative à la protection des données :
     <a href="mailto:contact@konclav.ch">contact@konclav.ch</a>.
-  </p>
-
-  <hr />
-
-  <p>
-    <em
-      >Ce document est un squelette et sera complété par les mentions
-      définitives au lancement officiel.</em
-    >
   </p>
 </LegalLayout>
