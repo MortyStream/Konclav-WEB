@@ -102,6 +102,11 @@ const checkIndCls =
       </div>
 
       <form data-join-form novalidate class="px-6 py-6 sm:px-8">
+        <div aria-hidden="true" style="position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden">
+          <label>Laissez ce champ vide
+            <input type="text" name="hp_website" tabindex="-1" autocomplete="off" data-join-hp />
+          </label>
+        </div>
         <!-- STEP 1 -->
         <div data-step class="join-step space-y-5">
           <header>
@@ -112,7 +117,7 @@ const checkIndCls =
           <div data-field data-required>
             <label class={labelCls} for="f-assoName">Nom de l'association <span class="text-accent-400">*</span></label>
             <input id="f-assoName" type="text" name={E.assoName} autocomplete="organization" class={inputCls} placeholder="Ex : FC Lausanne" />
-            <p class="join-error mt-1.5 text-xs text-rose-400">Ce champ est obligatoire.</p>
+            <p role="alert" class="join-error mt-1.5 text-xs text-rose-400">Ce champ est obligatoire.</p>
           </div>
 
           <div data-field data-required>
@@ -127,6 +132,7 @@ const checkIndCls =
                 data-cs-trigger
                 aria-haspopup="listbox"
                 aria-expanded="false"
+                aria-required="true"
                 aria-labelledby="canton-label"
                 class={`${inputCls} flex items-center justify-between pr-10 text-left`}
               >
@@ -159,12 +165,12 @@ const checkIndCls =
                 ))}
               </ul>
             </div>
-            <p class="join-error mt-1.5 text-xs text-rose-400">Merci de choisir un canton.</p>
+            <p role="alert" class="join-error mt-1.5 text-xs text-rose-400">Merci de choisir un canton.</p>
           </div>
 
           <div data-field>
             <span class={labelCls}>Forme juridique</span>
-            <div class="grid grid-cols-2 gap-2">
+            <div role="group" aria-label="Forme juridique" class="grid grid-cols-2 gap-2">
               {legalForms.map((opt) => (
                 <label class={optionCls}>
                   <input type="radio" name={E.legalForm} value={opt} class="peer sr-only" />
@@ -177,7 +183,7 @@ const checkIndCls =
 
           <div data-field data-required>
             <span class={labelCls}>Nombre de membres actifs <span class="text-accent-400">*</span></span>
-            <div class="grid grid-cols-2 gap-2 sm:grid-cols-3">
+            <div role="group" aria-label="Nombre de membres actifs" class="grid grid-cols-2 gap-2 sm:grid-cols-3">
               {memberCounts.map((opt) => (
                 <label class={optionCls}>
                   <input type="radio" name={E.memberCount} value={opt} class="peer sr-only" />
@@ -186,13 +192,13 @@ const checkIndCls =
                 </label>
               ))}
             </div>
-            <p class="join-error mt-1.5 text-xs text-rose-400">Merci de sélectionner une option.</p>
+            <p role="alert" class="join-error mt-1.5 text-xs text-rose-400">Merci de sélectionner une option.</p>
           </div>
 
           <div data-field data-required>
             <label class={labelCls} for="f-activity">Que fait votre association ? <span class="text-accent-400">*</span></label>
             <textarea id="f-activity" name={E.activity} rows="3" class={inputCls} placeholder="Ex : Théâtre, échecs, défense animale…"></textarea>
-            <p class="join-error mt-1.5 text-xs text-rose-400">Ce champ est obligatoire.</p>
+            <p role="alert" class="join-error mt-1.5 text-xs text-rose-400">Ce champ est obligatoire.</p>
           </div>
         </div>
 
@@ -207,24 +213,24 @@ const checkIndCls =
             <div data-field data-required>
               <label class={labelCls} for="f-firstName">Prénom <span class="text-accent-400">*</span></label>
               <input id="f-firstName" type="text" name={E.firstName} autocomplete="given-name" class={inputCls} />
-              <p class="join-error mt-1.5 text-xs text-rose-400">Obligatoire.</p>
+              <p role="alert" class="join-error mt-1.5 text-xs text-rose-400">Obligatoire.</p>
             </div>
             <div data-field data-required>
               <label class={labelCls} for="f-lastName">Nom <span class="text-accent-400">*</span></label>
               <input id="f-lastName" type="text" name={E.lastName} autocomplete="family-name" class={inputCls} />
-              <p class="join-error mt-1.5 text-xs text-rose-400">Obligatoire.</p>
+              <p role="alert" class="join-error mt-1.5 text-xs text-rose-400">Obligatoire.</p>
             </div>
           </div>
 
           <div data-field data-required>
             <label class={labelCls} for="f-email">Email <span class="text-accent-400">*</span></label>
             <input id="f-email" type="email" name={E.email} autocomplete="email" class={inputCls} placeholder="vous@votre-asso.ch" />
-            <p class="join-error mt-1.5 text-xs text-rose-400">Merci d'indiquer un email valide.</p>
+            <p role="alert" class="join-error mt-1.5 text-xs text-rose-400">Merci d'indiquer un email valide.</p>
           </div>
 
           <div data-field data-required>
             <span class={labelCls}>Rôle dans l'association <span class="text-accent-400">*</span></span>
-            <div class="grid grid-cols-2 gap-2">
+            <div role="group" aria-label="Rôle dans l'association" class="grid grid-cols-2 gap-2">
               {roles.map((opt) => (
                 <label class={optionCls}>
                   <input type="radio" name={E.role} value={opt} class="peer sr-only" />
@@ -233,7 +239,7 @@ const checkIndCls =
                 </label>
               ))}
             </div>
-            <p class="join-error mt-1.5 text-xs text-rose-400">Merci de sélectionner votre rôle.</p>
+            <p role="alert" class="join-error mt-1.5 text-xs text-rose-400">Merci de sélectionner votre rôle.</p>
           </div>
 
           <div data-field>
@@ -251,7 +257,7 @@ const checkIndCls =
 
           <div data-field>
             <span class={labelCls}>Comment avez-vous connu Konclav ?</span>
-            <div class="grid grid-cols-2 gap-2">
+            <div role="group" aria-label="Comment avez-vous connu Konclav ?" class="grid grid-cols-2 gap-2">
               {sources.map((opt) => (
                 <label class={optionCls}>
                   <input type="radio" name={E.source} value={opt} class="peer sr-only" />
@@ -264,7 +270,7 @@ const checkIndCls =
 
           <div data-field>
             <span class={labelCls}>Modules envisagés en priorité</span>
-            <div class="grid grid-cols-2 gap-2 sm:grid-cols-3">
+            <div role="group" aria-label="Modules envisagés en priorité" class="grid grid-cols-2 gap-2 sm:grid-cols-3">
               {modules.map((opt) => (
                 <label class={optionCls}>
                   <input type="checkbox" name={E.modules} value={opt} class="peer sr-only" />
@@ -296,12 +302,16 @@ const checkIndCls =
                 J'accepte que Konclav me recontacte par email au sujet de ma demande. <span class="text-accent-400">*</span>
               </span>
             </label>
-            <p class="join-error mt-1.5 text-xs text-rose-400">Vous devez accepter pour envoyer la demande.</p>
+            <p role="alert" class="join-error mt-1.5 text-xs text-rose-400">Vous devez accepter pour envoyer la demande.</p>
           </div>
 
           <p class="text-xs leading-relaxed text-ink-500">
             Vos réponses servent uniquement à qualifier votre demande. Aucun email
-            marketing, aucune revente. Vous pouvez demander la suppression à tout moment.
+            marketing, aucune revente. Le formulaire est traité via Google Forms
+            (Google, États-Unis) ; détails et droits dans notre <a
+              href="/confidentialite" class="link-underline text-ink-400"
+              >politique de confidentialité</a
+            >. Vous pouvez demander la suppression à tout moment.
           </p>
         </div>
 
@@ -335,6 +345,9 @@ const checkIndCls =
             <svg viewBox="0 0 16 16" fill="none" class="h-4 w-4" aria-hidden="true"><path d="M14 2 7 9M14 2l-4.5 12-2.5-5-5-2.5L14 2Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>
           </button>
         </div>
+        <p data-join-error role="alert" hidden class="mt-4 text-center text-sm text-rose-400">
+          L'envoi a échoué. Réessayez, ou écrivez-nous à <a href="mailto:contact@konclav.ch" class="underline">contact@konclav.ch</a>.
+        </p>
       </form>
 
       <!-- Success -->
@@ -410,10 +423,13 @@ const checkIndCls =
         if (text) ok = text.value.trim() !== "" && text.checkValidity();
         else if (radios.length) ok = Array.from(radios).some((r) => r.checked);
         else if (checks.length) ok = Array.from(checks).some((c) => c.checked);
+        const ctrl = text || (radios.length ? radios[0] : null) || (checks.length ? checks[0] : null);
         if (ok) {
           field.removeAttribute("data-invalid");
+          if (ctrl) ctrl.removeAttribute("aria-invalid");
         } else {
           field.setAttribute("data-invalid", "");
+          if (ctrl) ctrl.setAttribute("aria-invalid", "true");
           if (!firstInvalid) firstInvalid = field;
         }
       });
@@ -467,7 +483,17 @@ const checkIndCls =
     modal.querySelectorAll("[data-join-close]").forEach((b) => b.addEventListener("click", closeModal));
     backdrop && backdrop.addEventListener("click", closeModal);
     document.addEventListener("keydown", (e) => {
-      if (e.key === "Escape" && !modal.classList.contains("hidden")) closeModal();
+      if (modal.classList.contains("hidden")) return;
+      if (e.key === "Escape") { closeModal(); return; }
+      if (e.key === "Tab") {
+        const sel = 'a[href], button:not([disabled]), input:not([disabled]):not([type=hidden]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+        const f = Array.from(panel.querySelectorAll(sel)).filter((el) => el.offsetParent !== null);
+        if (!f.length) return;
+        const first = f[0];
+        const last = f[f.length - 1];
+        if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+        else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+      }
     });
 
     nextBtn.addEventListener("click", () => {
@@ -539,20 +565,32 @@ const checkIndCls =
       if (field) field.removeAttribute("data-invalid");
     });
 
+    const errorEl = modal.querySelector("[data-join-error]");
+    const hp = form.querySelector("[data-join-hp]");
+
     form.addEventListener("submit", (e) => {
       e.preventDefault();
       if (!validateStep(current)) return;
 
+      // Honeypot rempli = bot : on simule le succès sans rien envoyer.
+      if (hp && hp.value) { showSuccess(); return; }
+
       submitBtn.disabled = true;
+      if (errorEl) errorEl.hidden = true;
       if (submitLabel) submitLabel.textContent = "Envoi…";
 
       const fd = new FormData(form);
+      fd.delete("hp_website");
       fd.append("fvv", "1");
       if (PAGE_HISTORY) fd.append("pageHistory", PAGE_HISTORY);
 
       fetch(ACTION, { method: "POST", mode: "no-cors", body: fd })
         .then(() => showSuccess())
-        .catch(() => showSuccess());
+        .catch(() => {
+          submitBtn.disabled = false;
+          if (submitLabel) submitLabel.textContent = "Envoyer la demande";
+          if (errorEl) errorEl.hidden = false;
+        });
     });
 
     function showSuccess() {
