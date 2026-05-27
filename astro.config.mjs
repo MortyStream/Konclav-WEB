@@ -9,7 +9,7 @@ export default defineConfig({
   site: "https://konclav.ch",
   integrations: [
     sitemap({
-      filter: (page) => !page.endsWith("/404/"),
+      filter: (page) => !page.endsWith("/404/") && !page.endsWith("/sous-traitance/"),
     }),
   ],
   vite: {
