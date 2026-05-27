@@ -30,8 +30,8 @@ app.use((req, res, next) => {
     [
       "default-src 'self'",
       "script-src 'self' 'unsafe-inline' https://cloud.umami.is",
-      "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-      "font-src 'self' https://fonts.gstatic.com data:",
+      "style-src 'self' 'unsafe-inline'",
+      "font-src 'self' data:",
       "img-src 'self' data:",
       "connect-src 'self' https://cloud.umami.is",
       "form-action 'self' https://docs.google.com",

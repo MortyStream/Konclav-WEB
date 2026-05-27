@@ -49,6 +49,7 @@ html {
     "ss03" 1,
     "calt" 1;
   font-variant-ligatures: contextual;
+  scroll-behavior: smooth;
   scroll-padding-top: 5rem;
 }
 

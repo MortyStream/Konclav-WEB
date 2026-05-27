@@ -39,7 +39,7 @@ const captions = [
   description="Konclav en images. Présentez-nous votre association pour demander un accès — on étudie chaque demande sous 48h ouvrées."
 >
   <Navbar />
-  <main>
+  <main id="main">
     <!-- Mini hero -->
     <section class="relative isolate overflow-hidden px-6 pt-40 pb-8 sm:pt-44">
       <div class="mx-auto max-w-3xl text-center">
@@ -84,7 +84,7 @@ const captions = [
         >
           {
             screens.map((s, i) => (
-              <PhoneShot src={s.src} alt={s.alt} delay={i * 90} />
+              <PhoneShot src={s.src} alt={s.alt} delay={i * 90} priority={i === 0} />
             ))
           }
         </div>
@@ -130,7 +130,7 @@ const captions = [
     >
       <div class="mx-auto max-w-4xl">
         <div data-reveal class="mx-auto max-w-2xl text-center">
-          <p class="text-xs font-medium uppercase tracking-[0.18em] text-accent-500">Demander une démo</p>
+          <p class="text-xs font-medium uppercase tracking-[0.18em] text-accent-400">Demander une démo</p>
           <h2
             data-split-text
             class="display-section mt-4 text-balance text-ink-50"

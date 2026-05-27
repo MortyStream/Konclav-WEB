@@ -8,6 +8,7 @@ interface Props {
   zIndex?: number;
   float?: "" | "float" | "float-delay" | "float-slow" | "float-late";
   hoverScale?: boolean;
+  priority?: boolean;
 }
 
 const {
@@ -19,6 +20,7 @@ const {
   zIndex = 0,
   float = "",
   hoverScale = true,
+  priority = false,
 } = Astro.props;
 
 const floatClass = float ? `animate-${float}` : "";
@@ -45,7 +47,8 @@ const hoverClass = hoverScale ? "hover:scale-[1.03]" : "";
             alt={alt}
             width="720"
             height="1560"
-            loading="lazy"
+            loading={priority ? "eager" : "lazy"}
+            fetchpriority={priority ? "high" : undefined}
             decoding="async"
             class="h-full w-full object-cover object-top"
           />
