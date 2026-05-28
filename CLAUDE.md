@@ -87,7 +87,7 @@ public/
 
 Site fonctionnellement complet. Deux campagnes d'audit hostile (5 puis 4 personas en parallèle) ont produit ~8 commits de corrections couvrant :
 
-- **Honnêteté marketing** : claims absolus retirés (« 0 tracker » / « jamais hors UE » / « TVA incluse » / « synchro Google et Apple ») reformulés en versions vraies (Umami divulgué, transferts US documentés, prix nets, export iCal)
+- **Honnêteté marketing** : claims absolus retirés (« 0 tracker » / « jamais hors UE » / « TVA incluse » / « synchro Google et Apple ») reformulés en versions vraies (Umami divulgué, transferts US documentés, prix nets)
 - **Sécurité** : en-têtes complets dans `server.js` (CSP, HSTS, COOP/CORP, Permissions-Policy verrouillée, X-Robots-Tag pour DPA/404), `.htaccess` legacy supprimé, compression + graceful shutdown, honeypot anti-spam sur le formulaire
 - **Conformité légale** : 4 pages nLPD/RGPD/DPA complètes, info Google Forms (US) au point de collecte, base précontractuelle au lieu du faux consentement
 - **A11y** : `<noscript>` anti-page-blanche, skip-link, focus-trap robuste (modal + menu mobile), contrastes AA (accent-400 pour texte), `role="alert"`, `aria-required`, formulaire complet
@@ -99,7 +99,6 @@ Composants supprimés au passage : `screens/`, `bento/`, `PhoneFrame.astro` (jam
 
 Les pages légales sont remplies avec les vraies infos (Kévin Perret, Sion, `contact@konclav.ch`, statut personne physique non assujettie TVA). Restent :
 
-- **`MAGIC_API_KEY`** (variable d'env locale) : régénérer la clé sur 21st.dev (l'ancienne est dans l'historique git). `.mcp.json` lit déjà `${MAGIC_API_KEY}`.
 - **Tester pour de vrai le formulaire de démo** une fois déployé : les `entry.*` Google Forms ont été déclarés « placeholders » dans le code initial — confirmer qu'ils tombent dans la bonne feuille (envoyer une demande test → vérifier la Sheet).
 - **Date des pages légales** : actuellement `27 mai 2026` dans les 4 pages, à rebumper si édition avant le lancement.
 - **OG image** : régénérer si le H1 change (script non versionné, cf. section dédiée).
@@ -165,7 +164,7 @@ Autres skills disponibles : `design-system`, `design`, `brand`, `banner-design`,
 
 ## MCP servers (`.mcp.json`)
 
-- **magic** (`@21st-dev/magic`) : génération de composants React via natural language. `.mcp.json` lit la clé depuis la variable d'env `MAGIC_API_KEY` (à régler en local). Comme on est en Astro, usage = générer le React puis l'adapter en `.astro`. Pas critique pour le quotidien, plus pour scaffold rapide.
+Aucun pour le moment — le serveur magic 21st-dev a été retiré, il n'apportait rien à un projet Astro statique.
 
 ## Conventions code
 
