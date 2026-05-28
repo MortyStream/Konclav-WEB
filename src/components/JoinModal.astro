@@ -99,6 +99,13 @@ const checkIndCls =
             style="width: 25%;"
           ></div>
         </div>
+        <p class="mt-4 text-[11px] leading-snug text-ink-500">
+          Formulaire hébergé chez <strong>Google Forms</strong> (Google,
+          États-Unis). Vos réponses servent uniquement à qualifier votre
+          demande — pas de marketing, pas de revente. Responsable : Kévin
+          Perret (Sion, Suisse). Détails et droits dans la
+          <a href="/confidentialite" class="underline hover:text-ink-400">politique de confidentialité</a>.
+        </p>
       </div>
 
       <form data-join-form novalidate class="px-6 py-6 sm:px-8">
@@ -294,15 +301,16 @@ const checkIndCls =
             <p class="mt-1 text-sm text-ink-400">{steps[3].sub}</p>
           </header>
 
-          <div data-field data-required>
-            <label class="flex cursor-pointer items-start gap-3 rounded-xl border border-white/10 bg-white/[0.02] p-4 transition-colors hover:border-white/20 has-[:checked]:border-accent-500/60 has-[:checked]:bg-accent-500/[0.06]">
-              <input type="checkbox" name={E.consent} value="Oui" class="peer sr-only" />
-              <span class={`mt-0.5 ${checkIndCls}`}></span>
-              <span class="text-sm leading-snug text-ink-200">
-                J'accepte que Konclav me recontacte par email au sujet de ma demande. <span class="text-accent-400">*</span>
-              </span>
-            </label>
-            <p role="alert" class="join-error mt-1.5 text-xs text-rose-400">Vous devez accepter pour envoyer la demande.</p>
+          <div data-field>
+            <input type="hidden" name={E.consent} value="Oui" />
+            <p class="rounded-xl border border-white/10 bg-white/[0.02] p-4 text-sm leading-snug text-ink-400">
+              En envoyant ce formulaire, vous confirmez votre demande d'être
+              recontacté par Konclav, par e-mail, au sujet de votre demande de
+              démo. Base légale : <strong class="text-ink-50">mesure
+              précontractuelle prise à votre demande</strong> (art. 31 al. 2
+              let. a nLPD ; art. 6 §1 b RGPD). Aucun e-mail marketing ne vous
+              sera adressé sans consentement séparé.
+            </p>
           </div>
 
           <p class="text-xs leading-relaxed text-ink-500">

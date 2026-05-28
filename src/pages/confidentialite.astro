@@ -58,10 +58,11 @@ import LegalLayout from "../layouts/LegalLayout.astro";
     <tbody>
       <tr><td>Nom, prénom, adresse e-mail</td><td>Création et gestion du compte, authentification</td><td>Exécution du contrat</td></tr>
       <tr><td>Mot de passe (haché)</td><td>Sécurité de l'accès</td><td>Exécution du contrat</td></tr>
-      <tr><td>Téléphone, photo de profil, biographie (facultatifs)</td><td>Personnalisation du profil dans l'annuaire</td><td>Intérêt légitime / consentement</td></tr>
+      <tr><td>Jetons d'authentification Supabase (JWT, refresh)</td><td>Maintien de la session authentifiée</td><td>Exécution du contrat</td></tr>
+      <tr><td>Téléphone, photo de profil, biographie (facultatifs)</td><td>Personnalisation du profil dans l'annuaire</td><td>Consentement (saisie libre par le membre, révocable à tout moment dans le profil)</td></tr>
       <tr><td>Rôle et appartenance à des pôles</td><td>Gestion des droits d'accès</td><td>Exécution du contrat</td></tr>
       <tr><td>Date et heure de dernière connexion</td><td>Sécurité</td><td>Intérêt légitime</td></tr>
-      <tr><td>Jeton de notification (identifiant technique de l'appareil)</td><td>Envoi des notifications push</td><td>Consentement (système) / intérêt légitime</td></tr>
+      <tr><td>Jeton de notification (identifiant technique de l'appareil)</td><td>Envoi des notifications push fonctionnelles</td><td>Exécution du contrat ; activation des notifications par le membre dans les réglages du système d'exploitation</td></tr>
     </tbody>
   </table>
 
@@ -91,8 +92,10 @@ import LegalLayout from "../layouts/LegalLayout.astro";
     <li>
       <strong>Journaux serveur</strong> (adresse IP, date/heure, pages
       consultées, type de navigateur), générés par notre hébergeur
-      <strong>Infomaniak</strong> pour la sécurité et le bon fonctionnement du
-      site ;
+      <strong>Infomaniak</strong> (Suisse) pour la sécurité et le bon
+      fonctionnement du site. <strong>Base légale :</strong> intérêt légitime
+      à la sécurité du système (art. 31 al. 2 let. d nLPD ; art. 6 §1 f RGPD).
+      <strong>Durée :</strong> 30 jours maximum (cf. section 7) ;
     </li>
     <li>
       <strong>Formulaire de demande de démo :</strong> les informations que
@@ -133,10 +136,21 @@ import LegalLayout from "../layouts/LegalLayout.astro";
   <p>
     L'application <strong>ne collecte pas d'information d'âge</strong> et n'est
     pas conçue pour recueillir directement le consentement de mineurs.
-    Lorsqu'une association encadre des mineurs (p. ex. équipes de jeunes), il lui
-    appartient, en tant que responsable du traitement, de recueillir le
-    <strong>consentement du représentant légal</strong> et de limiter les
-    données saisies.
+    Lorsqu'une association encadre des mineurs (p. ex. équipes de jeunes), il
+    lui appartient, en tant que responsable du traitement, de recueillir
+    <strong>par écrit le consentement du représentant légal</strong> avant
+    l'ouverture d'un compte au nom d'un mineur, et de limiter les données
+    saisies au strict nécessaire. À titre indicatif, l'âge à partir duquel un
+    mineur peut consentir seul à un traitement dans le contexte des services
+    de la société de l'information est de <strong>16 ans en droit
+    européen</strong> ; la pratique suisse retient généralement
+    <strong>15 ans</strong>. En dessous de cet âge, le consentement parental
+    est requis.
+  </p>
+  <p>
+    Sur demande adressée à
+    <a href="mailto:contact@konclav.ch">contact@konclav.ch</a>, Konclav fournit
+    à l'association un modèle d'autorisation parentale.
   </p>
 
   <h2>5. Destinataires et sous-traitants</h2>
@@ -188,12 +202,15 @@ import LegalLayout from "../layouts/LegalLayout.astro";
       <tr><th>Données</th><th>Durée</th></tr>
     </thead>
     <tbody>
-      <tr><td>Compte et profil</td><td>Pendant la durée du compte ; supprimées sur demande de suppression</td></tr>
+      <tr><td>Compte et profil</td><td>Pendant la durée du compte ; supprimées <strong>sous 30 jours</strong> après suppression du compte ou fin du contrat de l'association</td></tr>
       <tr><td>Données métier (tâches, événements…)</td><td>Selon les besoins de l'association ; supprimables par celle-ci</td></tr>
       <tr><td>Cotisations et notes de frais</td><td>Selon les obligations comptables de l'association (jusqu'à 10 ans, art. 958f CO)</td></tr>
       <tr><td>Archive des membres supprimés</td><td>1 an, puis suppression automatique</td></tr>
-      <tr><td>Journal d'audit administrateur</td><td>Conservé de façon immuable, à des fins de sécurité et de traçabilité</td></tr>
+      <tr><td>Journal d'audit administrateur (actions sensibles)</td><td>Conservé de façon immuable pendant <strong>3 ans</strong>, puis purgé par lot ; conservé plus longtemps en cas de procédure judiciaire en cours</td></tr>
       <tr><td>Jetons de notification</td><td>Supprimés à la déconnexion</td></tr>
+      <tr><td>Jetons d'authentification Supabase</td><td>Durée de vie technique (rotation automatique) ; révocables à la déconnexion</td></tr>
+      <tr><td>Journaux serveur web (site konclav.ch)</td><td>30 jours maximum, puis suppression ou agrégation anonyme ; conservés plus longtemps uniquement en cas d'incident de sécurité documenté</td></tr>
+      <tr><td>E-mails reçus à contact@konclav.ch</td><td>3 ans après le dernier échange, puis suppression ; conservés plus longtemps si nécessaires à la défense d'une réclamation</td></tr>
     </tbody>
   </table>
 
@@ -215,9 +232,10 @@ import LegalLayout from "../layouts/LegalLayout.astro";
       pas de suivi entre sites) ;
     </li>
     <li>
-      <strong>polices d'écriture</strong> : la police Inter est chargée depuis
-      <strong>Google Fonts</strong> ; à cette occasion, votre adresse IP est
-      transmise à Google.
+      <strong>polices d'écriture</strong> : la police Inter est
+      <strong>auto-hébergée</strong> sur konclav.ch (paquet
+      <code>@fontsource/inter</code>) — aucun appel à Google Fonts, aucune
+      adresse IP transmise à Google.
     </li>
   </ul>
 
@@ -229,7 +247,7 @@ import LegalLayout from "../layouts/LegalLayout.astro";
     <li><strong>contrôle d'accès par rôles</strong> (administrateur, responsable, membre) ;</li>
     <li><strong>accès restreint</strong> aux fichiers (liens signés à durée de validité limitée) ;</li>
     <li><strong>journal d'audit immuable</strong> des actions sensibles d'administration ;</li>
-    <li>authentification obligatoire, <strong>aucun accès anonyme</strong> aux données.</li>
+    <li>authentification obligatoire pour accéder aux <strong>données de l'application</strong> ; aucun accès anonyme aux données d'une association. La consultation du site marketing konclav.ch reste publique.</li>
   </ul>
 
   <h2>10. Vos droits</h2>
@@ -240,7 +258,12 @@ import LegalLayout from "../layouts/LegalLayout.astro";
     <li><strong>suppression</strong> : vous pouvez supprimer votre compte depuis l'application (« Profil » → « Supprimer mon compte »). Certains contenus collectifs que vous avez créés (tâches, événements, commentaires) sont <strong>conservés sous forme anonymisée</strong> pour préserver l'historique de l'association ;</li>
     <li><strong>opposition</strong> et <strong>limitation</strong> du traitement ;</li>
     <li><strong>portabilité</strong> (RGPD) ;</li>
-    <li>droit de <strong>retirer votre consentement</strong> à tout moment.</li>
+    <li>
+      droit de <strong>retirer votre consentement</strong> à tout moment pour
+      les traitements fondés sur celui-ci (en supprimant le contenu des champs
+      facultatifs de votre profil — téléphone, photo, biographie) ; le retrait
+      n'affecte pas la licéité des traitements antérieurs.
+    </li>
   </ul>
   <p>
     Un export self-service complet n'étant pas encore proposé, les demandes
