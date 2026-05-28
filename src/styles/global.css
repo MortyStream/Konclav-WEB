@@ -516,13 +516,6 @@ body {
 .bento:hover::before {
   opacity: 1;
 }
-.bento-feature {
-  background:
-    linear-gradient(180deg, rgba(94, 106, 210, 0.04), rgba(94, 106, 210, 0)),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.025), rgba(255, 255, 255, 0)),
-    rgb(15, 16, 17);
-}
-
 /* ============================================================
    V2 — SHIMMER on CTA primaries (subtle moving light)
    ============================================================ */
@@ -593,18 +586,6 @@ body {
   background-size: 64px 64px;
   mask-image: radial-gradient(ellipse 70% 60% at center, #000, transparent 80%);
   -webkit-mask-image: radial-gradient(ellipse 70% 60% at center, #000, transparent 80%);
-}
-
-/* ============================================================
-   V2 — SCROLL FADE EDGES (for embedded mockups)
-   ============================================================ */
-.fade-bottom {
-  mask-image: linear-gradient(180deg, #000 0%, #000 70%, transparent 100%);
-  -webkit-mask-image: linear-gradient(180deg, #000 0%, #000 70%, transparent 100%);
-}
-.fade-right {
-  mask-image: linear-gradient(90deg, #000 0%, #000 80%, transparent 100%);
-  -webkit-mask-image: linear-gradient(90deg, #000 0%, #000 80%, transparent 100%);
 }
 
 /* ============================================================
@@ -746,14 +727,3 @@ body {
   display: none;
 }
 
-/* ============================================================
-   V2 — TILT PASSIVE float (subtle rotation breathing)
-   ============================================================ */
-@keyframes tilt-breathe {
-  0%, 100% { transform: rotate(0deg)   translateY(0); }
-  50%      { transform: rotate(-0.4deg) translateY(-6px); }
-}
-.tilt-breathe { animation: tilt-breathe 7s ease-in-out infinite; }
-@media (prefers-reduced-motion: reduce) {
-  .tilt-breathe { animation: none; }
-}

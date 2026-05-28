@@ -1,9 +1,11 @@
 ---
 import "../styles/global.css";
-import "@fontsource/inter/400.css";
-import "@fontsource/inter/500.css";
-import "@fontsource/inter/600.css";
-import "@fontsource/inter/700.css";
+import "@fontsource/inter/latin-400.css";
+import "@fontsource/inter/latin-500.css";
+import "@fontsource/inter/latin-600.css";
+import "@fontsource/inter/latin-700.css";
+import "@fontsource/inter/latin-300-italic.css";
+import "@fontsource/inter/latin-400-italic.css";
 import JoinModal from "../components/JoinModal.astro";
 
 interface Props {
@@ -81,6 +83,7 @@ const imageUrl = new URL(image, Astro.site ?? Astro.url.origin).toString();
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
     <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="preconnect" href="https://cloud.umami.is" crossorigin />
 
     <!-- Umami — mesure d'audience sans cookie -->
     <script
