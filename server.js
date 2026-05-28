@@ -1,11 +1,92 @@
 import express from "express";
 import compression from "compression";
 import path from "node:path";
+import crypto from "node:crypto";
 import { fileURLToPath } from "node:url";
+import { readFileSync, readdirSync, statSync, existsSync } from "node:fs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const distPath = path.join(__dirname, "dist");
 const port = process.env.PORT || 3000;
+
+// At startup, collect SHA-256 hashes of every inline <script> body in dist/**/*.html.
+// CSP script-src then allows only those exact contents — no 'unsafe-inline' needed.
+function collectInlineScriptHashes(root) {
+  const hashes = new Set();
+  if (!existsSync(root)) return hashes;
+  const tagRe = /<script\b([^>]*)>([\s\S]*?)<\/script>/gi;
+  const walk = (dir) => {
+    for (const entry of readdirSync(dir)) {
+      const full = path.join(dir, entry);
+      const st = statSync(full);
+      if (st.isDirectory()) {
+        walk(full);
+        continue;
+      }
+      if (!entry.endsWith(".html")) continue;
+      const html = readFileSync(full, "utf8");
+      let m;
+      while ((m = tagRe.exec(html)) !== null) {
+        const attrs = m[1] || "";
+        const body = m[2] || "";
+        if (/\ssrc\s*=/.test(attrs)) continue; // external script — covered by src allowlist
+        if (!body) continue;
+        const hash = crypto.createHash("sha256").update(body, "utf8").digest("base64");
+        hashes.add(`'sha256-${hash}'`);
+      }
+    }
+  };
+  walk(root);
+  return hashes;
+}
+
+const scriptHashes = Array.from(collectInlineScriptHashes(distPath));
+console.log(`CSP: ${scriptHashes.length} inline-script hash(es) loaded`);
+
+const csp = [
+  "default-src 'self'",
+  `script-src 'self' ${scriptHashes.join(" ")} https://cloud.umami.is`.trim().replace(/\s+/g, " "),
+  "style-src 'self' 'unsafe-inline'",
+  "font-src 'self' data:",
+  "img-src 'self' data:",
+  "connect-src 'self' https://cloud.umami.is",
+  "form-action 'self' https://docs.google.com/forms/",
+  "frame-ancestors 'none'",
+  "base-uri 'self'",
+  "object-src 'none'",
+  "worker-src 'none'",
+  "manifest-src 'self'",
+  "child-src 'none'",
+  "upgrade-insecure-requests",
+].join("; ");
+
+const permissionsPolicy = [
+  "accelerometer=()",
+  "ambient-light-sensor=()",
+  "autoplay=()",
+  "battery=()",
+  "camera=()",
+  "display-capture=()",
+  "encrypted-media=()",
+  "fullscreen=(self)",
+  "geolocation=()",
+  "gyroscope=()",
+  "hid=()",
+  "idle-detection=()",
+  "magnetometer=()",
+  "microphone=()",
+  "midi=()",
+  "payment=()",
+  "picture-in-picture=()",
+  "publickey-credentials-get=()",
+  "screen-wake-lock=()",
+  "serial=()",
+  "usb=()",
+  "web-share=()",
+  "xr-spatial-tracking=()",
+  "browsing-topics=()",
+  "interest-cohort=()",
+].join(", ");
 
 const app = express();
 
@@ -22,59 +103,12 @@ app.use((req, res, next) => {
   res.setHeader("Cross-Origin-Opener-Policy", "same-origin");
   res.setHeader("Cross-Origin-Resource-Policy", "same-origin");
   res.setHeader("Origin-Agent-Cluster", "?1");
-  res.setHeader(
-    "Permissions-Policy",
-    [
-      "accelerometer=()",
-      "ambient-light-sensor=()",
-      "autoplay=()",
-      "battery=()",
-      "camera=()",
-      "display-capture=()",
-      "encrypted-media=()",
-      "fullscreen=(self)",
-      "geolocation=()",
-      "gyroscope=()",
-      "hid=()",
-      "idle-detection=()",
-      "magnetometer=()",
-      "microphone=()",
-      "midi=()",
-      "payment=()",
-      "picture-in-picture=()",
-      "publickey-credentials-get=()",
-      "screen-wake-lock=()",
-      "serial=()",
-      "usb=()",
-      "web-share=()",
-      "xr-spatial-tracking=()",
-      "browsing-topics=()",
-      "interest-cohort=()",
-    ].join(", ")
-  );
+  res.setHeader("Permissions-Policy", permissionsPolicy);
   res.setHeader(
     "Strict-Transport-Security",
     "max-age=63072000; includeSubDomains; preload"
   );
-  res.setHeader(
-    "Content-Security-Policy",
-    [
-      "default-src 'self'",
-      "script-src 'self' 'unsafe-inline' https://cloud.umami.is",
-      "style-src 'self' 'unsafe-inline'",
-      "font-src 'self' data:",
-      "img-src 'self' data:",
-      "connect-src 'self' https://cloud.umami.is",
-      "form-action 'self' https://docs.google.com/forms/",
-      "frame-ancestors 'none'",
-      "base-uri 'self'",
-      "object-src 'none'",
-      "worker-src 'none'",
-      "manifest-src 'self'",
-      "child-src 'none'",
-      "upgrade-insecure-requests",
-    ].join("; ")
-  );
+  res.setHeader("Content-Security-Policy", csp);
   if (req.path.startsWith("/sous-traitance") || req.path.startsWith("/404")) {
     res.setHeader("X-Robots-Tag", "noindex, nofollow");
   }
