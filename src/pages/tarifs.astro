@@ -99,7 +99,7 @@ const faq = [
           data-reveal
           class="mb-8 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.03] px-3 py-1 text-xs text-ink-400"
         >
-          <span class="live-dot"></span>
+          <span class="h-1.5 w-1.5 rounded-full bg-accent-500"></span>
           Tarifs
         </div>
         <h1
@@ -135,7 +135,7 @@ const faq = [
                 style={`transition-delay: ${i * 100}ms`}
                 class={`group relative overflow-hidden rounded-2xl border p-8 transition-colors ${
                   plan.featured
-                    ? "border-accent-500/40 bg-gradient-to-br from-ink-900 to-ink-950"
+                    ? "border-accent-500/50 bg-gradient-to-br from-accent-500/[0.08] via-white/[0.03] to-ink-900"
                     : "border-white/10 bg-white/[0.02] hover:border-white/15 hover:bg-white/[0.035]"
                 }`}
               >
@@ -225,7 +225,7 @@ const faq = [
           <h2
             data-reveal
             data-split-text
-            class="mt-3 text-balance text-3xl font-semibold leading-tight tracking-tight text-ink-50 sm:text-4xl"
+            class="display-section mt-3 text-balance text-ink-50"
           >
             La même base, pour tout le monde.
           </h2>
@@ -266,7 +266,7 @@ const faq = [
           <h2
             data-reveal
             data-split-text
-            class="mt-3 text-balance text-3xl font-semibold leading-tight tracking-tight text-ink-50 sm:text-4xl"
+            class="display-section mt-3 text-balance text-ink-50"
           >
             Tout ce qu'on nous demande.
           </h2>
@@ -325,7 +325,7 @@ const faq = [
 
           <h2
             data-split-text
-            class="text-balance text-3xl font-semibold leading-tight tracking-tight text-ink-50 sm:text-4xl"
+            class="display-section text-balance text-ink-50"
           >
             Pas sûr du plan qu'il vous faut ?
           </h2>

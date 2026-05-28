@@ -111,17 +111,40 @@ const imageUrl = new URL(image, Astro.site ?? Astro.url.origin).toString();
 
     <script is:inline>
       (function () {
-        const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        const reducedMQ = window.matchMedia('(prefers-reduced-motion: reduce)');
+        let reduced = reducedMQ.matches;
+        if (reducedMQ.addEventListener) reducedMQ.addEventListener('change', (e) => { reduced = e.matches; });
         const supportsHover = window.matchMedia('(hover: hover)').matches;
 
-        // Split-text — wrap words in <span class="word"> so CSS stagger can animate them
+        // Split-text — wrap text nodes in <span class="word"> while preserving nested elements (e.g. .italic-display)
         document.querySelectorAll('[data-split-text]').forEach((el) => {
-          const text = (el.textContent || '').trim();
-          if (!text) return;
-          const words = text.split(/\s+/);
-          el.innerHTML = words
-            .map((w, i) => `<span class="word" style="--word-i:${i}">${w}</span>`)
-            .join(' ');
+          let wi = 0;
+          const wrapText = (node) => {
+            const text = node.nodeValue || '';
+            if (!text.trim()) return null;
+            const frag = document.createDocumentFragment();
+            text.split(/(\s+)/).forEach((tok) => {
+              if (!tok) return;
+              if (/^\s+$/.test(tok)) { frag.appendChild(document.createTextNode(tok)); return; }
+              const span = document.createElement('span');
+              span.className = 'word';
+              span.style.setProperty('--word-i', wi++);
+              span.textContent = tok;
+              frag.appendChild(span);
+            });
+            return frag;
+          };
+          const walk = (parent) => {
+            Array.from(parent.childNodes).forEach((n) => {
+              if (n.nodeType === 3) {
+                const f = wrapText(n);
+                if (f) parent.replaceChild(f, n);
+              } else if (n.nodeType === 1 && !n.classList.contains('word') && !n.classList.contains('italic-display')) {
+                walk(n);
+              }
+            });
+          };
+          walk(el);
         });
 
         // Reveal au scroll (toggle .is-visible)
@@ -301,41 +324,6 @@ const imageUrl = new URL(image, Astro.site ?? Astro.url.origin).toString();
           });
         }
 
-        // V2 — Counter animation (count up from 0 to data-counter on reveal)
-        const counters = document.querySelectorAll('[data-counter]');
-        if (counters.length && !reduced && 'IntersectionObserver' in window) {
-          const fmt = new Intl.NumberFormat('fr-CH');
-          const countIO = new IntersectionObserver((entries) => {
-            for (const entry of entries) {
-              if (!entry.isIntersecting) continue;
-              const el = entry.target;
-              const target = parseFloat(el.dataset.counter || '0');
-              const dur = parseInt(el.dataset.counterDuration || '1400', 10);
-              const suffix = el.dataset.counterSuffix || '';
-              const prefix = el.dataset.counterPrefix || '';
-              const decimals = parseInt(el.dataset.counterDecimals || '0', 10);
-              const t0 = performance.now();
-              const step = (now) => {
-                const t = Math.min(1, (now - t0) / dur);
-                const eased = 1 - Math.pow(1 - t, 3);
-                const v = target * eased;
-                el.textContent = prefix + (decimals > 0 ? v.toFixed(decimals) : fmt.format(Math.round(v))) + suffix;
-                if (t < 1) requestAnimationFrame(step);
-              };
-              requestAnimationFrame(step);
-              countIO.unobserve(el);
-            }
-          }, { threshold: 0.4 });
-          counters.forEach((el) => countIO.observe(el));
-        } else if (counters.length) {
-          counters.forEach((el) => {
-            const target = parseFloat(el.dataset.counter || '0');
-            const decimals = parseInt(el.dataset.counterDecimals || '0', 10);
-            const suffix = el.dataset.counterSuffix || '';
-            const prefix = el.dataset.counterPrefix || '';
-            el.textContent = prefix + (decimals > 0 ? target.toFixed(decimals) : new Intl.NumberFormat('fr-CH').format(target)) + suffix;
-          });
-        }
       })();
     </script>
   </body>

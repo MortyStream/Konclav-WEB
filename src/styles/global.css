@@ -6,12 +6,15 @@
   --color-ink-900: #0f1011;
   --color-ink-800: #111214;
   --color-ink-50:  #f4f4f5;
+  --color-ink-200: #e4e4e7;
+  --color-ink-300: #d4d4d8;
   --color-ink-400: #a1a1aa;
   --color-ink-500: #8b8b94;   /* WCAG AA on ink-950: 5.1:1 (was #71717a, 4.3:1 — failed) */
 
   /* Accent Linear */
   --color-accent-500: #5e6ad2;
   --color-accent-400: #7170ff;
+  --color-accent-300: #9b9bff;
 
   /* Shadows */
   --shadow-cta: 0 18px 40px -12px rgba(94, 106, 210, 0.7);
@@ -478,10 +481,6 @@ body {
 /* ============================================================
    V2 — COUNTER REVEAL (smooth count-up via CSS via JS data update)
    ============================================================ */
-[data-counter] {
-  font-variant-numeric: tabular-nums;
-  font-feature-settings: "tnum" 1;
-}
 
 /* ============================================================
    V2 — BENTO CARDS
@@ -550,6 +549,8 @@ body {
 .cta-shimmer:focus-visible::after {
   transform: translateX(100%);
 }
+.cta-shimmer:disabled::after,
+.cta-shimmer:disabled:hover::after { display: none; }
 @media (prefers-reduced-motion: reduce) {
   .cta-shimmer::after { display: none; }
 }
@@ -613,11 +614,24 @@ body {
   display: none;
 }
 [data-field][data-invalid] .join-error {
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+.join-error::before {
+  content: "";
+  display: inline-block;
+  width: 0.875rem;
+  height: 0.875rem;
+  flex-shrink: 0;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%23fb7185' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'><circle cx='8' cy='8' r='6.5'/><path d='M8 5v3M8 11h.01'/></svg>");
+  background-size: contain;
+  background-repeat: no-repeat;
 }
 [data-field][data-invalid] input:not([type="radio"]):not([type="checkbox"]),
 [data-field][data-invalid] textarea,
-[data-field][data-invalid] select {
+[data-field][data-invalid] select,
+[data-field][data-invalid] [data-cs-trigger] {
   border-color: rgba(251, 113, 133, 0.55);
 }
 [data-cs-trigger][aria-expanded="true"] ~ .cs-chevron {

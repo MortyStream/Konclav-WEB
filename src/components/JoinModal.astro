@@ -75,7 +75,7 @@ const checkIndCls =
         type="button"
         data-join-close
         aria-label="Fermer"
-        class="absolute right-4 top-4 z-10 inline-flex h-9 w-9 items-center justify-center rounded-lg border border-white/10 bg-white/[0.03] text-ink-400 transition-colors hover:border-white/20 hover:text-ink-50"
+        class="absolute right-3 top-3 z-10 inline-flex h-11 w-11 items-center justify-center rounded-lg border border-white/10 bg-white/[0.03] text-ink-400 transition-colors hover:border-white/20 hover:text-ink-50"
       >
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" class="h-4.5 w-4.5" aria-hidden="true">
           <path d="M6 6l12 12M18 6l-12 12" />
@@ -123,7 +123,7 @@ const checkIndCls =
 
           <div data-field data-required>
             <label class={labelCls} for="f-assoName">Nom de l'association <span class="text-accent-400">*</span></label>
-            <input id="f-assoName" type="text" name={E.assoName} autocomplete="organization" class={inputCls} placeholder="Ex : FC Lausanne" />
+            <input id="f-assoName" type="text" name={E.assoName} autocomplete="organization" required aria-required="true" class={inputCls} placeholder="Ex : FC Lausanne" />
             <p role="alert" class="join-error mt-1.5 text-xs text-rose-400">Ce champ est obligatoire.</p>
           </div>
 
@@ -204,7 +204,7 @@ const checkIndCls =
 
           <div data-field data-required>
             <label class={labelCls} for="f-activity">Que fait votre association ? <span class="text-accent-400">*</span></label>
-            <textarea id="f-activity" name={E.activity} rows="3" class={inputCls} placeholder="Ex : Théâtre, échecs, défense animale…"></textarea>
+            <textarea id="f-activity" name={E.activity} rows="3" required aria-required="true" class={inputCls} placeholder="Ex : Théâtre, échecs, défense animale…"></textarea>
             <p role="alert" class="join-error mt-1.5 text-xs text-rose-400">Ce champ est obligatoire.</p>
           </div>
         </div>
@@ -219,19 +219,19 @@ const checkIndCls =
           <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div data-field data-required>
               <label class={labelCls} for="f-firstName">Prénom <span class="text-accent-400">*</span></label>
-              <input id="f-firstName" type="text" name={E.firstName} autocomplete="given-name" class={inputCls} />
+              <input id="f-firstName" type="text" name={E.firstName} autocomplete="given-name" required aria-required="true" class={inputCls} />
               <p role="alert" class="join-error mt-1.5 text-xs text-rose-400">Obligatoire.</p>
             </div>
             <div data-field data-required>
               <label class={labelCls} for="f-lastName">Nom <span class="text-accent-400">*</span></label>
-              <input id="f-lastName" type="text" name={E.lastName} autocomplete="family-name" class={inputCls} />
+              <input id="f-lastName" type="text" name={E.lastName} autocomplete="family-name" required aria-required="true" class={inputCls} />
               <p role="alert" class="join-error mt-1.5 text-xs text-rose-400">Obligatoire.</p>
             </div>
           </div>
 
           <div data-field data-required>
             <label class={labelCls} for="f-email">Email <span class="text-accent-400">*</span></label>
-            <input id="f-email" type="email" name={E.email} autocomplete="email" class={inputCls} placeholder="vous@votre-asso.ch" />
+            <input id="f-email" type="email" name={E.email} autocomplete="email" required aria-required="true" class={inputCls} placeholder="vous@votre-asso.ch" />
             <p role="alert" class="join-error mt-1.5 text-xs text-rose-400">Merci d'indiquer un email valide.</p>
           </div>
 
@@ -347,7 +347,7 @@ const checkIndCls =
             type="submit"
             data-join-submit
             hidden
-            class="cta-shimmer group/cta inline-flex items-center gap-1.5 rounded-xl bg-accent-500 px-6 py-3 text-sm font-semibold text-white shadow-[var(--shadow-cta)] transition-colors hover:bg-accent-400"
+            class="cta-shimmer group/cta inline-flex items-center gap-1.5 rounded-xl bg-accent-500 px-6 py-3 text-sm font-semibold text-white shadow-[var(--shadow-cta)] transition-colors hover:bg-accent-400 disabled:cursor-not-allowed disabled:opacity-60 disabled:shadow-none"
           >
             <span data-join-submit-label>Envoyer la demande</span>
             <svg viewBox="0 0 16 16" fill="none" class="h-4 w-4" aria-hidden="true"><path d="M14 2 7 9M14 2l-4.5 12-2.5-5-5-2.5L14 2Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>
@@ -499,6 +499,7 @@ const checkIndCls =
         if (!f.length) return;
         const first = f[0];
         const last = f[f.length - 1];
+        if (!f.includes(document.activeElement)) { e.preventDefault(); first.focus(); return; }
         if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
         else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
       }
