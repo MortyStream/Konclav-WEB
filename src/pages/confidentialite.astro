@@ -60,6 +60,8 @@ import LegalLayout from "../layouts/LegalLayout.astro";
       <tr><td>Mot de passe (haché)</td><td>Sécurité de l'accès</td><td>Exécution du contrat</td></tr>
       <tr><td>Jetons d'authentification Supabase (JWT, refresh)</td><td>Maintien de la session authentifiée</td><td>Exécution du contrat</td></tr>
       <tr><td>Téléphone, photo de profil, biographie (facultatifs)</td><td>Personnalisation du profil dans l'annuaire</td><td>Consentement (saisie libre par le membre, révocable à tout moment dans le profil)</td></tr>
+      <tr><td>Date de naissance</td><td>Gestion des membres (vérification d'âge / éligibilité) et affichage dans l'annuaire interne de l'association — visible des autres membres de la même association</td><td>Exécution du contrat</td></tr>
+      <tr><td>Adresse postale</td><td>Gestion administrative des membres (registre des membres, correspondance de l'association) — accès limité au membre concerné et au comité de l'association</td><td>Exécution du contrat</td></tr>
       <tr><td>Rôle et appartenance à des pôles</td><td>Gestion des droits d'accès</td><td>Exécution du contrat</td></tr>
       <tr><td>Date et heure de dernière connexion</td><td>Sécurité</td><td>Intérêt légitime</td></tr>
       <tr><td>Jeton de notification (identifiant technique de l'appareil)</td><td>Envoi des notifications push fonctionnelles</td><td>Exécution du contrat ; activation des notifications par le membre dans les réglages du système d'exploitation</td></tr>
@@ -163,7 +165,7 @@ import LegalLayout from "../layouts/LegalLayout.astro";
       <tr><th>Prestataire</th><th>Rôle</th><th>Localisation</th></tr>
     </thead>
     <tbody>
-      <tr><td>Supabase / Amazon Web Services</td><td>Base de données, authentification, stockage de fichiers de l'application</td><td>Union européenne (Irlande)</td></tr>
+      <tr><td>Supabase</td><td>Base de données, authentification, stockage de fichiers de l'application</td><td>Suisse (Zurich)</td></tr>
       <tr><td>Expo, Google (FCM), Apple (APNs)</td><td>Acheminement technique des notifications push</td><td>États-Unis (voir section 6)</td></tr>
       <tr><td>Resend</td><td>Envoi d'e-mails transactionnels de l'application</td><td>États-Unis (voir section 6)</td></tr>
       <tr><td>Infomaniak</td><td>Hébergement du site vitrine konclav.ch</td><td>Suisse</td></tr>
@@ -179,11 +181,9 @@ import LegalLayout from "../layouts/LegalLayout.astro";
 
   <h2>6. Transferts hors de Suisse / de l'UE</h2>
   <p>
-    Les <strong>données applicatives</strong> (base de données, fichiers) sont
-    hébergées <strong>dans l'Union européenne</strong>, et le site vitrine en
-    <strong>Suisse</strong>. La Suisse et l'UE se reconnaissent mutuellement un
-    niveau de protection adéquat ; ces traitements n'impliquent donc pas de
-    garanties contractuelles supplémentaires.
+    Les <strong>données applicatives</strong> (base de données, fichiers) et
+    le site vitrine sont hébergés <strong>en Suisse</strong>. Le traitement
+    principal n'implique aucun transfert hors de Suisse.
   </p>
   <p>
     Certains traitements transitent par des serveurs situés <strong>aux
