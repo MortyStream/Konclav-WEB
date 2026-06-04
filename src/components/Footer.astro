@@ -1,18 +1,8 @@
 ---
-import Logo from "./Logo.astro";
-
-const productLinks = [
-  { href: "/#features", label: "Fonctionnalités" },
-  { href: "/#security", label: "Sécurité" },
-  { href: "/tarifs", label: "Tarifs" },
-  { href: "/demo", label: "Demander une démo" },
-  { href: "/#faq", label: "FAQ" },
-];
-
 const legalLinks = [
   { href: "/confidentialite", label: "Confidentialité" },
   { href: "/conditions", label: "Conditions" },
-  { href: "/sous-traitance", label: "Sous-traitance des données" },
+  { href: "/sous-traitance", label: "Sous-traitance" },
   { href: "/suppression-compte", label: "Suppression de compte" },
   { href: "/mentions-legales", label: "Mentions légales" },
 ];
@@ -20,63 +10,30 @@ const legalLinks = [
 const year = new Date().getFullYear();
 ---
 
-<footer class="border-t border-white/5 px-6 py-12">
-  <div class="mx-auto max-w-6xl">
-    <div
-      class="flex flex-col gap-8 md:flex-row md:items-center md:justify-between"
-    >
-      <a
-        href="/"
-        class="group flex items-center gap-2 text-base font-semibold tracking-tight text-ink-50"
+<footer class="border-t border-white/5 px-6 py-10">
+  <div
+    class="mx-auto flex max-w-6xl flex-col gap-4 md:flex-row md:items-center md:justify-between"
+  >
+    <p class="text-xs text-ink-500">
+      © {year} Konclav. Fait en Suisse.
+    </p>
+    <nav aria-label="Liens légaux">
+      <ul
+        class="flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-ink-500"
       >
-        <Logo class="h-7 w-7 transition-transform duration-300 ease-out group-hover:scale-110 group-hover:rotate-3" />
-        Konclav
-      </a>
-
-      <nav aria-label="Liens produit">
-        <ul
-          class="flex flex-wrap items-center gap-x-6 gap-y-3 text-sm text-ink-400"
-        >
-          {
-            productLinks.map((link) => (
-              <li>
-                <a
-                  href={link.href}
-                  class="link-underline inline-block py-1.5 -my-1.5 transition-colors hover:text-ink-50"
-                >
-                  {link.label}
-                </a>
-              </li>
-            ))
-          }
-        </ul>
-      </nav>
-    </div>
-
-    <div
-      class="mt-10 flex flex-col gap-4 border-t border-white/5 pt-6 md:flex-row md:items-center md:justify-between"
-    >
-      <p class="text-xs text-ink-500">
-        © {year} Konclav. Fait en Suisse.
-      </p>
-      <nav aria-label="Liens légaux">
-        <ul
-          class="flex flex-wrap items-center gap-x-6 gap-y-2 text-xs text-ink-500"
-        >
-          {
-            legalLinks.map((link) => (
-              <li>
-                <a
-                  href={link.href}
-                  class="link-underline inline-block py-1.5 -my-1.5 transition-colors hover:text-ink-50"
-                >
-                  {link.label}
-                </a>
-              </li>
-            ))
-          }
-        </ul>
-      </nav>
-    </div>
+        {
+          legalLinks.map((link) => (
+            <li>
+              <a
+                href={link.href}
+                class="link-underline inline-block py-1.5 -my-1.5 transition-colors hover:text-ink-50"
+              >
+                {link.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
   </div>
 </footer>
