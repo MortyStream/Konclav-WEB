@@ -283,16 +283,16 @@ body {
 .feature-trio__side {
   position: relative;
   z-index: 10;
-  filter: brightness(0.58) saturate(0.9);
+  filter: brightness(0.72) saturate(0.95);
   transition:
     filter 600ms var(--ease-out-expo),
     transform 600ms var(--ease-out-expo);
 }
 .feature-trio__side--left {
-  transform: translate(44%, 24px) rotate(-7deg) scale(0.84);
+  transform: translate(30%, 18px) rotate(-6deg) scale(0.86);
 }
 .feature-trio__side--right {
-  transform: translate(-44%, 24px) rotate(7deg) scale(0.84);
+  transform: translate(-30%, 18px) rotate(6deg) scale(0.86);
 }
 @media (prefers-reduced-motion: reduce) {
   .feature-trio__side {
