@@ -10,6 +10,15 @@ const badgeStyles: Record<string, string> = {
   rose: "border-rose-400/30 bg-rose-400/10 text-rose-300",
 };
 
+const haloColors: Record<string, string> = {
+  accent: "rgba(94,106,210,0.55)",
+  amber: "rgba(251,191,36,0.45)",
+  sky: "rgba(56,189,248,0.45)",
+  fuchsia: "rgba(217,70,239,0.45)",
+  emerald: "rgba(74,222,128,0.45)",
+  rose: "rgba(244,63,94,0.45)",
+};
+
 const tabs = [
   {
     tab: "Tâches",
@@ -68,7 +77,7 @@ const tabs = [
 ];
 ---
 
-<section id="features" class="relative px-6 py-32 sm:py-40">
+<section id="features" class="relative px-6 pt-32 pb-24 sm:pt-40 sm:pb-32">
   <div class="mx-auto max-w-6xl">
     <div class="mx-auto max-w-3xl text-center">
       <p data-reveal class="text-xs font-medium uppercase tracking-[0.18em] text-accent-400">
@@ -79,7 +88,7 @@ const tabs = [
         data-split-text
         class="display-section mt-4 text-balance text-ink-50"
       >
-        Toute votre asso, onglet par onglet.
+        Toute votre asso, écran par écran.
       </h2>
       <p
         data-reveal
@@ -90,80 +99,143 @@ const tabs = [
       </p>
     </div>
 
-    <div data-feature-tabs class="mt-14">
-      <!-- Tablist -->
+    <!-- ============================================
+         MOBILE : carousel cinéma plein-écran
+         ============================================ -->
+    <div data-feature-carousel class="mt-16 md:hidden">
       <div
-        role="tablist"
-        aria-label="Fonctionnalités de Konclav"
-        data-reveal
-        class="-mx-6 flex gap-2 overflow-x-auto px-6 pb-2 no-scrollbar sm:flex-wrap sm:justify-center"
+        data-carousel-track
+        class="-mx-6 flex snap-x snap-mandatory gap-6 overflow-x-auto px-6 pb-2 no-scrollbar"
       >
         {
           tabs.map((t, i) => (
-            <button
-              type="button"
-              role="tab"
-              id={`feat-tab-${i}`}
-              aria-controls={`feat-panel-${i}`}
-              aria-selected={i === 0 ? "true" : "false"}
-              tabindex={i === 0 ? 0 : -1}
-              class="feature-tab shrink-0 rounded-full border border-white/10 px-4 py-2 text-sm font-medium text-ink-400 transition-colors hover:border-white/20 hover:text-ink-50 aria-selected:border-accent-500/50 aria-selected:bg-accent-500/10 aria-selected:text-ink-50"
+            <article
+              data-carousel-item
+              data-index={i}
+              class="flex w-[88%] shrink-0 snap-center flex-col items-center"
             >
-              {t.tab}
-            </button>
-          ))
-        }
-      </div>
-
-      <!-- Panels -->
-      <div class="mt-10">
-        {
-          tabs.map((t, i) => (
-            <div
-              role="tabpanel"
-              id={`feat-panel-${i}`}
-              aria-labelledby={`feat-tab-${i}`}
-              hidden={i !== 0}
-              class="feature-panel grid items-center gap-10 md:grid-cols-2 md:gap-16"
-            >
-              <div>
+              <div class="relative">
+                <div
+                  aria-hidden="true"
+                  class="pointer-events-none absolute -inset-12 -z-10 rounded-full opacity-60 blur-3xl"
+                  style={`background: radial-gradient(closest-side, ${haloColors[t.color]}, transparent 70%);`}
+                />
+                <PhoneShot src={t.src} alt={t.alt} reveal={false} hoverScale={false} priority={i === 0} />
+              </div>
+              <div class="mt-8 text-center">
                 <span
                   class={`inline-block rounded-md border px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider ${badgeStyles[t.color]}`}
                 >
                   {t.tab}
                 </span>
-                <h3 class="mt-4 text-2xl font-semibold leading-tight tracking-tight text-ink-50 sm:text-3xl">
+                <h3 class="mt-3 text-xl font-semibold leading-tight tracking-tight text-ink-50">
                   {t.title}
                 </h3>
-                <p class="mt-3 max-w-md text-sm leading-relaxed text-ink-400 sm:text-base">
+                <p class="mx-auto mt-2 max-w-sm text-sm leading-relaxed text-ink-400">
                   {t.desc}
                 </p>
-                <ul class="mt-6 space-y-2.5">
-                  {t.points.map((pt) => (
-                    <li class="flex items-center gap-2.5 text-sm text-ink-300">
-                      <svg
-                        viewBox="0 0 16 16"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="1.75"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        class="h-4 w-4 shrink-0 text-accent-400"
-                        aria-hidden="true"
-                      >
-                        <path d="m3.5 8.5 3 3 6-7" />
-                      </svg>
-                      {pt}
-                    </li>
-                  ))}
-                </ul>
               </div>
-              <div class="flex justify-center md:order-last">
-                <PhoneShot src={t.src} alt={t.alt} reveal={false} priority={i === 0} hoverScale={false} />
-              </div>
-            </div>
+            </article>
           ))
         }
+      </div>
+
+      <!-- Pagination dots -->
+      <div
+        class="mt-8 flex justify-center gap-2"
+        role="tablist"
+        aria-label="Naviguer entre les fonctionnalités"
+      >
+        {
+          tabs.map((t, i) => (
+            <button
+              type="button"
+              data-dot
+              data-index={i}
+              aria-label={`Aller à ${t.tab}`}
+              aria-selected={i === 0 ? "true" : "false"}
+              class="dot h-1.5 rounded-full transition-all duration-300 aria-selected:bg-ink-50"
+              style={`width: ${i === 0 ? "1.5rem" : "0.375rem"}; background-color: ${i === 0 ? "" : "rgba(255,255,255,0.2)"};`}
+            />
+          ))
+        }
+      </div>
+    </div>
+
+    <!-- ============================================
+         DESKTOP : sticky scroll storytelling
+         ============================================ -->
+    <div
+      data-feature-sticky
+      class="mt-20 hidden md:grid md:grid-cols-2 md:gap-12 lg:gap-20"
+    >
+      <!-- LEFT COLUMN : sections scroll naturellement -->
+      <div>
+        {
+          tabs.map((t, i) => (
+            <section
+              data-feature-section
+              data-index={i}
+              class="flex min-h-[88vh] flex-col justify-center"
+            >
+              <span
+                class={`inline-block self-start rounded-md border px-2.5 py-1 text-[10px] font-medium uppercase tracking-wider ${badgeStyles[t.color]}`}
+              >
+                {t.tab}
+              </span>
+              <h3 class="mt-5 text-3xl font-semibold leading-[1.1] tracking-tight text-ink-50 lg:text-4xl">
+                {t.title}
+              </h3>
+              <p class="mt-5 max-w-md text-base leading-relaxed text-ink-400 lg:text-lg">
+                {t.desc}
+              </p>
+              <ul class="mt-8 space-y-3">
+                {t.points.map((pt) => (
+                  <li class="flex items-start gap-2.5 text-sm text-ink-300 lg:text-base">
+                    <svg
+                      viewBox="0 0 16 16"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="1.75"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      class="mt-0.5 h-4 w-4 shrink-0 text-accent-400"
+                      aria-hidden="true"
+                    >
+                      <path d="m3.5 8.5 3 3 6-7" />
+                    </svg>
+                    {pt}
+                  </li>
+                ))}
+              </ul>
+            </section>
+          ))
+        }
+      </div>
+
+      <!-- RIGHT COLUMN : phone sticky qui morph -->
+      <div aria-hidden="true" class="relative">
+        <div class="sticky top-0 flex h-screen items-center justify-center">
+          <div class="relative h-[540px] w-[260px]">
+            {
+              tabs.map((t, i) => (
+                <div
+                  data-feature-image
+                  data-index={i}
+                  class="absolute inset-0 transition-all duration-700 ease-out"
+                  style={`opacity: ${i === 0 ? "1" : "0"}; transform: scale(${i === 0 ? "1" : "0.96"});`}
+                >
+                  <div
+                    aria-hidden="true"
+                    class="pointer-events-none absolute -inset-16 -z-10 rounded-full opacity-55 blur-3xl"
+                    style={`background: radial-gradient(closest-side, ${haloColors[t.color]}, transparent 70%);`}
+                  />
+                  <PhoneShot src={t.src} alt={t.alt} reveal={false} hoverScale={false} priority={true} />
+                </div>
+              ))
+            }
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -171,32 +243,68 @@ const tabs = [
 
 <script is:inline>
   (function () {
-    const root = document.querySelector("[data-feature-tabs]");
-    if (!root) return;
-    const tabs = Array.from(root.querySelectorAll('[role="tab"]'));
-    const panels = Array.from(root.querySelectorAll('[role="tabpanel"]'));
-    function select(i, focus) {
-      tabs.forEach((t, idx) => {
-        const on = idx === i;
-        t.setAttribute("aria-selected", on ? "true" : "false");
-        t.tabIndex = on ? 0 : -1;
-        if (on && focus) t.focus();
-      });
-      panels.forEach((p, idx) => (p.hidden = idx !== i));
+    // === DESKTOP: sticky scroll storytelling ===
+    const sticky = document.querySelector("[data-feature-sticky]");
+    if (sticky) {
+      const sections = Array.from(sticky.querySelectorAll("[data-feature-section]"));
+      const images = Array.from(sticky.querySelectorAll("[data-feature-image]"));
+      let activeIdx = 0;
+      const activate = (i) => {
+        if (i === activeIdx) return;
+        activeIdx = i;
+        images.forEach((img, idx) => {
+          const on = idx === i;
+          img.style.opacity = on ? "1" : "0";
+          img.style.transform = on ? "scale(1)" : "scale(0.96)";
+        });
+      };
+      const visible = new Set();
+      const io = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((e) => {
+            const i = parseInt(e.target.getAttribute("data-index"), 10);
+            if (e.isIntersecting) visible.add(i);
+            else visible.delete(i);
+          });
+          if (visible.size > 0) activate(Math.min(...visible));
+        },
+        { rootMargin: "-45% 0px -45% 0px", threshold: 0 }
+      );
+      sections.forEach((s) => io.observe(s));
     }
-    tabs.forEach((t, i) => {
-      t.addEventListener("click", () => select(i, false));
-      t.addEventListener("keydown", (e) => {
-        let n = null;
-        if (e.key === "ArrowRight" || e.key === "ArrowDown") n = (i + 1) % tabs.length;
-        else if (e.key === "ArrowLeft" || e.key === "ArrowUp") n = (i - 1 + tabs.length) % tabs.length;
-        else if (e.key === "Home") n = 0;
-        else if (e.key === "End") n = tabs.length - 1;
-        if (n !== null) {
-          e.preventDefault();
-          select(n, true);
-        }
+
+    // === MOBILE: cinema carousel dots ===
+    const carousel = document.querySelector("[data-feature-carousel]");
+    if (carousel) {
+      const track = carousel.querySelector("[data-carousel-track]");
+      const items = Array.from(carousel.querySelectorAll("[data-carousel-item]"));
+      const dots = Array.from(carousel.querySelectorAll("[data-dot]"));
+      const setActive = (i) => {
+        dots.forEach((d, idx) => {
+          const on = idx === i;
+          d.setAttribute("aria-selected", on ? "true" : "false");
+          d.style.width = on ? "1.5rem" : "0.375rem";
+          d.style.backgroundColor = on ? "" : "rgba(255,255,255,0.2)";
+        });
+      };
+      const cio = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((e) => {
+            if (e.intersectionRatio > 0.6) {
+              const i = parseInt(e.target.getAttribute("data-index"), 10);
+              setActive(i);
+            }
+          });
+        },
+        { root: track, threshold: [0.6, 0.9] }
+      );
+      items.forEach((it) => cio.observe(it));
+      // Dot click → scroll to item
+      dots.forEach((d, i) => {
+        d.addEventListener("click", () => {
+          items[i].scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
+        });
       });
-    });
+    }
   })();
 </script>

@@ -589,28 +589,6 @@ body {
 }
 
 /* ============================================================
-   FEATURE TABS — fade-in du panneau actif au changement d'onglet
-   ============================================================ */
-[data-feature-tabs] [role="tabpanel"]:not([hidden]) {
-  animation: feature-panel-in 380ms var(--ease-out-expo) both;
-}
-@keyframes feature-panel-in {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-  to {
-    opacity: 1;
-    transform: none;
-  }
-}
-@media (prefers-reduced-motion: reduce) {
-  [data-feature-tabs] [role="tabpanel"]:not([hidden]) {
-    animation: none;
-  }
-}
-
-/* ============================================================
    JOIN MODAL — wizard form (errors + step transition)
    ============================================================ */
 .join-error {
