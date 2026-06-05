@@ -248,7 +248,7 @@ body {
   will-change: transform;
 }
 [data-feature-chapter].is-hero .feature-shot-inner {
-  transform: translate3d(0, calc(var(--cp) * -34px), 0) scale(1.32);
+  transform: translate3d(0, calc(var(--cp) * -34px), 0) scale(1.22);
 }
 [data-feature-chapter].is-hero .feature-halo {
   transform: translate3d(0, calc(var(--cp) * 110px), 0);
@@ -258,7 +258,7 @@ body {
     transform: scale(1.18);
   }
   [data-feature-chapter].is-hero .feature-shot-inner {
-    transform: scale(1.32);
+    transform: scale(1.22);
   }
   [data-feature-chapter] .feature-halo {
     transform: none;
@@ -496,8 +496,8 @@ body {
   letter-spacing: -0.035em;
 }
 .display-feature {
-  font-size: clamp(2.5rem, 7vw, 6rem);
-  line-height: 0.96;
+  font-size: clamp(2.5rem, 6vw, 5.25rem);
+  line-height: 1.0;
   font-weight: 700;
   letter-spacing: -0.045em;
 }
