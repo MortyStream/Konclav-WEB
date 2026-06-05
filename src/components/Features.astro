@@ -9,14 +9,45 @@ const badgeStyles: Record<string, string> = {
   emerald: "border-emerald-400/30 bg-emerald-400/10 text-emerald-300",
   rose: "border-rose-400/30 bg-rose-400/10 text-rose-300",
 };
-
+const textColors: Record<string, string> = {
+  accent: "text-accent-400",
+  amber: "text-amber-300",
+  sky: "text-sky-300",
+  fuchsia: "text-fuchsia-300",
+  emerald: "text-emerald-300",
+  rose: "text-rose-300",
+};
 const haloColors: Record<string, string> = {
-  accent: "rgba(94,106,210,0.55)",
-  amber: "rgba(251,191,36,0.45)",
-  sky: "rgba(56,189,248,0.45)",
-  fuchsia: "rgba(217,70,239,0.45)",
-  emerald: "rgba(74,222,128,0.45)",
-  rose: "rgba(244,63,94,0.45)",
+  accent: "rgba(94,106,210,0.50)",
+  amber: "rgba(251,191,36,0.40)",
+  sky: "rgba(56,189,248,0.40)",
+  fuchsia: "rgba(217,70,239,0.40)",
+  emerald: "rgba(74,222,128,0.40)",
+  rose: "rgba(244,63,94,0.40)",
+};
+const solidColors: Record<string, string> = {
+  accent: "#7170ff",
+  amber: "#fbbf24",
+  sky: "#38bdf8",
+  fuchsia: "#e879f9",
+  emerald: "#4ade80",
+  rose: "#fb7185",
+};
+const shadowColors: Record<string, string> = {
+  accent: "rgba(94,106,210,0.38)",
+  amber: "rgba(251,191,36,0.30)",
+  sky: "rgba(56,189,248,0.30)",
+  fuchsia: "rgba(217,70,239,0.30)",
+  emerald: "rgba(74,222,128,0.30)",
+  rose: "rgba(244,63,94,0.24)",
+};
+const captionTint: Record<string, string> = {
+  accent: "rgba(94,106,210,0.07)",
+  amber: "rgba(251,191,36,0.06)",
+  sky: "rgba(56,189,248,0.06)",
+  fuchsia: "rgba(217,70,239,0.06)",
+  emerald: "rgba(74,222,128,0.06)",
+  rose: "rgba(244,63,94,0.06)",
 };
 
 const tabs = [
@@ -25,7 +56,7 @@ const tabs = [
     color: "accent",
     title: "Des tâches qui passent par une validation.",
     desc: "Assignez, fixez une échéance, suivez l'avancement. Et pour les dépenses, un vrai circuit d'approbation : chaque achat passe par un responsable avant d'être engagé.",
-    points: ["Attribution & échéances", "Validation des dépenses (approuver / rejeter)", "Priorités et rappels"],
+    points: ["Attribution & échéances", "Validation des dépenses", "Priorités et rappels"],
     src: "/app/feat-taches.webp",
     alt: "Konclav — détail d'une tâche avec circuit de validation Approuver / Rejeter",
   },
@@ -52,7 +83,7 @@ const tabs = [
     color: "fuchsia",
     title: "Statuts, PV, contrats — classés par pôle.",
     desc: "La mémoire de l'association au même endroit. Comité, sportif, communication, logistique : chacun son espace, recherche instantanée.",
-    points: ["Classé par pôle", "Statuts, PV, contrats, sponsoring", "Recherche instantanée"],
+    points: ["Classé par pôle", "Statuts, PV, contrats", "Recherche instantanée"],
     src: "/app/feat-documents.webp",
     alt: "Konclav — documents et dossiers classés par pôle",
   },
@@ -75,9 +106,11 @@ const tabs = [
     alt: "Konclav — confirmation de présence à l'AG par signature électronique",
   },
 ];
+const N = tabs.length;
+const shortLabels = ["Tâches", "Agenda", "Annuaire", "Documents", "Finances", "AG"];
 ---
 
-<section id="features" class="relative px-6 pt-32 pb-24 sm:pt-40 sm:pb-32">
+<section id="features" class="relative px-6 pt-32 sm:pt-40">
   <div class="mx-auto max-w-6xl">
     <div class="mx-auto max-w-3xl text-center">
       <p data-reveal class="text-xs font-medium uppercase tracking-[0.18em] text-accent-400">
@@ -98,140 +131,134 @@ const tabs = [
         espace de l'app, pensé pour le quotidien d'une association.
       </p>
     </div>
+  </div>
 
-    <!-- ============================================
-         MOBILE : carousel cinéma plein-écran
-         ============================================ -->
-    <div data-feature-carousel class="mt-16 md:hidden">
-      <div
-        data-carousel-track
-        class="-mx-6 flex snap-x snap-mandatory gap-6 overflow-x-auto px-6 pb-2 no-scrollbar"
-      >
-        {
-          tabs.map((t, i) => (
-            <article
-              data-carousel-item
-              data-index={i}
-              class="flex w-[88%] shrink-0 snap-center flex-col items-center"
-            >
-              <div class="relative">
-                <div
-                  aria-hidden="true"
-                  class="pointer-events-none absolute -inset-12 -z-10 rounded-full opacity-60 blur-3xl"
-                  style={`background: radial-gradient(closest-side, ${haloColors[t.color]}, transparent 70%);`}
-                />
-                <PhoneShot src={t.src} alt={t.alt} reveal={false} hoverScale={false} priority={i === 0} />
-              </div>
-              <div class="mt-8 text-center">
-                <span
-                  class={`inline-block rounded-md border px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider ${badgeStyles[t.color]}`}
-                >
-                  {t.tab}
-                </span>
-                <h3 class="mt-3 text-xl font-semibold leading-tight tracking-tight text-ink-50">
-                  {t.title}
-                </h3>
-                <p class="mx-auto mt-2 max-w-sm text-sm leading-relaxed text-ink-400">
-                  {t.desc}
-                </p>
-              </div>
-            </article>
-          ))
-        }
-      </div>
-
-      <!-- Pagination dots -->
-      <div
-        class="mt-8 flex justify-center gap-2"
-        role="tablist"
-        aria-label="Naviguer entre les fonctionnalités"
-      >
-        {
-          tabs.map((t, i) => (
-            <button
-              type="button"
-              data-dot
-              data-index={i}
-              aria-label={`Aller à ${t.tab}`}
-              aria-selected={i === 0 ? "true" : "false"}
-              class="dot h-1.5 rounded-full transition-all duration-300 aria-selected:bg-ink-50"
-              style={`width: ${i === 0 ? "1.5rem" : "0.375rem"}; background-color: ${i === 0 ? "" : "rgba(255,255,255,0.2)"};`}
-            />
-          ))
-        }
-      </div>
-    </div>
-
-    <!-- ============================================
-         DESKTOP : sticky scroll storytelling
-         ============================================ -->
+  <!-- ============================================
+       MOBILE : carousel cinéma plein-écran
+       ============================================ -->
+  <div data-feature-carousel class="mx-auto mt-16 max-w-6xl pb-24 md:hidden">
     <div
-      data-feature-sticky
-      class="mt-20 hidden md:grid md:grid-cols-2 md:gap-12 lg:gap-20"
+      data-carousel-track
+      class="-mx-6 flex snap-x snap-mandatory gap-6 overflow-x-auto px-6 pb-2 no-scrollbar"
     >
-      <!-- LEFT COLUMN : sections scroll naturellement -->
-      <div>
-        {
-          tabs.map((t, i) => (
-            <section
-              data-feature-section
-              data-index={i}
-              class="flex min-h-[88vh] flex-col justify-center"
-            >
-              <span
-                class={`inline-block self-start rounded-md border px-2.5 py-1 text-[10px] font-medium uppercase tracking-wider ${badgeStyles[t.color]}`}
-              >
+      {
+        tabs.map((t, i) => (
+          <article
+            data-carousel-item
+            data-index={i}
+            class="flex w-[88%] shrink-0 snap-center flex-col items-center"
+          >
+            <div class="relative">
+              <div
+                aria-hidden="true"
+                class="pointer-events-none absolute -inset-12 -z-10 rounded-full opacity-60 blur-3xl"
+                style={`background: radial-gradient(closest-side, ${haloColors[t.color]}, transparent 70%);`}
+              />
+              <PhoneShot src={t.src} alt={t.alt} reveal={false} hoverScale={false} priority={i === 0} />
+            </div>
+            <div class="mt-8 text-center">
+              <span class={`inline-block rounded-md border px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider ${badgeStyles[t.color]}`}>
                 {t.tab}
               </span>
-              <h3 class="mt-5 text-3xl font-semibold leading-[1.1] tracking-tight text-ink-50 lg:text-4xl">
+              <h3 class="mt-3 text-xl font-semibold leading-tight tracking-tight text-ink-50">
                 {t.title}
               </h3>
-              <p class="mt-5 max-w-md text-base leading-relaxed text-ink-400 lg:text-lg">
+              <p class="mx-auto mt-2 max-w-sm text-sm leading-relaxed text-ink-400">
                 {t.desc}
               </p>
-              <ul class="mt-8 space-y-3">
-                {t.points.map((pt) => (
-                  <li class="flex items-start gap-2.5 text-sm text-ink-300 lg:text-base">
-                    <svg
-                      viewBox="0 0 16 16"
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-width="1.75"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      class="mt-0.5 h-4 w-4 shrink-0 text-accent-400"
-                      aria-hidden="true"
-                    >
-                      <path d="m3.5 8.5 3 3 6-7" />
-                    </svg>
-                    {pt}
-                  </li>
-                ))}
-              </ul>
-            </section>
-          ))
-        }
-      </div>
+            </div>
+          </article>
+        ))
+      }
+    </div>
+    <div class="mt-8 flex justify-center gap-2" role="tablist" aria-label="Fonctionnalités">
+      {
+        tabs.map((t, i) => (
+          <button
+            type="button"
+            data-dot
+            data-index={i}
+            aria-label={`Aller à ${t.tab}`}
+            aria-selected={i === 0 ? "true" : "false"}
+            class="dot h-1.5 rounded-full transition-all duration-300"
+            style={`width: ${i === 0 ? "1.5rem" : "0.375rem"}; background-color: ${i === 0 ? "var(--color-ink-50)" : "rgba(255,255,255,0.2)"};`}
+          />
+        ))
+      }
+    </div>
+  </div>
 
-      <!-- RIGHT COLUMN : phone sticky qui morph -->
-      <div aria-hidden="true" class="relative">
-        <div class="sticky top-0 flex h-screen items-center justify-center">
-          <div class="relative h-[540px] w-[260px]">
+  <!-- ============================================
+       DESKTOP : scène glass pinnée + crossfade
+       (rendu statique empilé par défaut ; enrichi par JS)
+       ============================================ -->
+  <div data-feature-scroller class="feature-scroller relative mt-16 hidden md:block">
+    <div class="feature-stage-wrap">
+      <div class="mx-auto w-full max-w-6xl">
+        <div class="feature-stage relative overflow-hidden rounded-[2rem] border border-white/10 bg-gradient-to-b from-white/[0.045] via-white/[0.015] to-transparent">
+          <div aria-hidden="true" class="pointer-events-none absolute inset-0 -z-10 grid-bg opacity-40"></div>
+
+          <div class="feature-slides relative">
             {
               tabs.map((t, i) => (
-                <div
-                  data-feature-image
-                  data-index={i}
-                  class="absolute inset-0 transition-all duration-700 ease-out"
-                  style={`opacity: ${i === 0 ? "1" : "0"}; transform: scale(${i === 0 ? "1" : "0.96"});`}
-                >
-                  <div
-                    aria-hidden="true"
-                    class="pointer-events-none absolute -inset-16 -z-10 rounded-full opacity-55 blur-3xl"
-                    style={`background: radial-gradient(closest-side, ${haloColors[t.color]}, transparent 70%);`}
-                  />
-                  <PhoneShot src={t.src} alt={t.alt} reveal={false} hoverScale={false} priority={true} />
+                <div data-slide data-index={i} class={`feature-slide${i === 0 ? " is-active" : ""}`}>
+                  <div class="grid h-full items-center lg:grid-cols-[1.15fr_1fr]">
+                    <!-- device -->
+                    <div class="relative flex min-h-[600px] items-center justify-center p-6">
+                      <div
+                        aria-hidden="true"
+                        class="pointer-events-none absolute left-1/2 top-1/2 -z-10 h-[540px] w-[540px] -translate-x-1/2 -translate-y-1/2 rounded-full opacity-90 blur-3xl"
+                        style={`background: radial-gradient(closest-side, ${haloColors[t.color]}, transparent 72%);`}
+                      />
+                      <div
+                        class="feature-shot-inner scale-[1.16]"
+                        style={`filter: drop-shadow(0 38px 70px ${shadowColors[t.color]});`}
+                      >
+                        <PhoneShot src={t.src} alt={t.alt} reveal={false} hoverScale={false} priority={true} />
+                      </div>
+                    </div>
+                    <!-- caption -->
+                    <div
+                      class="flex flex-col justify-center border-t border-white/[0.06] p-8 sm:p-12 lg:border-t-0"
+                      style={`background: linear-gradient(to right, ${captionTint[t.color]}, transparent 32%);`}
+                    >
+                      <span class={`text-xs font-semibold uppercase tracking-[0.16em] ${textColors[t.color]}`}>
+                        {t.tab}
+                      </span>
+                      <h3 class="mt-4 text-4xl font-semibold leading-[1.05] tracking-tight text-ink-50 text-balance lg:text-5xl">
+                        {t.title}
+                      </h3>
+                      <p class="mt-6 max-w-md text-base leading-relaxed text-ink-400 lg:text-lg">
+                        {t.desc}
+                      </p>
+                      <ul class="mt-8 space-y-3.5">
+                        {t.points.map((pt) => (
+                          <li class="flex items-start gap-3 text-sm text-ink-200 lg:text-base">
+                            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class={`mt-0.5 h-4 w-4 shrink-0 ${textColors[t.color]}`} aria-hidden="true">
+                              <path d="m3.5 8.5 3 3 6-7" />
+                            </svg>
+                            {pt}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
                 </div>
+              ))
+            }
+          </div>
+
+          <div class="feature-segs absolute inset-x-0 bottom-0 gap-3 px-8 pb-6 sm:px-12">
+            {
+              tabs.map((t, i) => (
+                <button type="button" data-seg data-index={i} aria-label={`Aller à ${t.tab}`} class="group flex flex-1 flex-col gap-2 text-left">
+                  <span class="h-[3px] overflow-hidden rounded-full bg-white/10">
+                    <span data-seg-fill class="block h-full w-full origin-left scale-x-0 rounded-full transition-transform duration-500 ease-out" style={`background-color: ${solidColors[t.color]};`} />
+                  </span>
+                  <span data-seg-label class="truncate text-[11px] font-medium text-ink-500 transition-colors group-hover:text-ink-300">
+                    {shortLabels[i]}
+                  </span>
+                </button>
               ))
             }
           </div>
@@ -243,68 +270,87 @@ const tabs = [
 
 <script is:inline>
   (function () {
-    // === DESKTOP: sticky scroll storytelling ===
-    const sticky = document.querySelector("[data-feature-sticky]");
-    if (sticky) {
-      const sections = Array.from(sticky.querySelectorAll("[data-feature-section]"));
-      const images = Array.from(sticky.querySelectorAll("[data-feature-image]"));
-      let activeIdx = 0;
-      const activate = (i) => {
-        if (i === activeIdx) return;
-        activeIdx = i;
-        images.forEach((img, idx) => {
-          const on = idx === i;
-          img.style.opacity = on ? "1" : "0";
-          img.style.transform = on ? "scale(1)" : "scale(0.96)";
-        });
-      };
-      const visible = new Set();
-      const io = new IntersectionObserver(
-        (entries) => {
-          entries.forEach((e) => {
-            const i = parseInt(e.target.getAttribute("data-index"), 10);
-            if (e.isIntersecting) visible.add(i);
-            else visible.delete(i);
-          });
-          if (visible.size > 0) activate(Math.min(...visible));
-        },
-        { rootMargin: "-45% 0px -45% 0px", threshold: 0 }
-      );
-      sections.forEach((s) => io.observe(s));
-    }
-
-    // === MOBILE: cinema carousel dots ===
+    // ===== MOBILE carousel dots =====
     const carousel = document.querySelector("[data-feature-carousel]");
     if (carousel) {
       const track = carousel.querySelector("[data-carousel-track]");
       const items = Array.from(carousel.querySelectorAll("[data-carousel-item]"));
       const dots = Array.from(carousel.querySelectorAll("[data-dot]"));
-      const setActive = (i) => {
+      const setDot = (i) =>
         dots.forEach((d, idx) => {
           const on = idx === i;
           d.setAttribute("aria-selected", on ? "true" : "false");
           d.style.width = on ? "1.5rem" : "0.375rem";
-          d.style.backgroundColor = on ? "" : "rgba(255,255,255,0.2)";
+          d.style.backgroundColor = on ? "var(--color-ink-50)" : "rgba(255,255,255,0.2)";
         });
-      };
       const cio = new IntersectionObserver(
-        (entries) => {
+        (entries) =>
           entries.forEach((e) => {
-            if (e.intersectionRatio > 0.6) {
-              const i = parseInt(e.target.getAttribute("data-index"), 10);
-              setActive(i);
-            }
-          });
-        },
+            if (e.intersectionRatio > 0.6) setDot(parseInt(e.target.getAttribute("data-index"), 10));
+          }),
         { root: track, threshold: [0.6, 0.9] }
       );
       items.forEach((it) => cio.observe(it));
-      // Dot click → scroll to item
-      dots.forEach((d, i) => {
-        d.addEventListener("click", () => {
-          items[i].scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
-        });
-      });
+      dots.forEach((d, i) =>
+        d.addEventListener("click", () =>
+          items[i].scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" })
+        )
+      );
     }
+
+    // ===== DESKTOP pinned crossfade =====
+    const scroller = document.querySelector("[data-feature-scroller]");
+    if (!scroller) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return; // keep static stacked
+
+    const slides = Array.from(scroller.querySelectorAll("[data-slide]"));
+    const fills = Array.from(scroller.querySelectorAll("[data-seg-fill]"));
+    const segs = Array.from(scroller.querySelectorAll("[data-seg]"));
+    const labels = Array.from(scroller.querySelectorAll("[data-seg-label]"));
+    const N = slides.length;
+
+    scroller.classList.add("is-enhanced");
+    scroller.style.height = N * 90 + "vh";
+
+    // Pré-décoder les 6 captures pour éviter tout flash au crossfade
+    slides.forEach((s) => {
+      const img = s.querySelector("img");
+      if (img && img.decode) img.decode().catch(() => {});
+    });
+
+    let active = -1;
+    const setActive = (i) => {
+      if (i === active) return;
+      active = i;
+      slides.forEach((s, idx) => s.classList.toggle("is-active", idx === i));
+      fills.forEach((f, idx) => (f.style.transform = idx === i ? "scaleX(1)" : "scaleX(0)"));
+      labels.forEach((l, idx) => (l.style.color = idx === i ? "var(--color-ink-50)" : ""));
+    };
+
+    let ticking = false;
+    const onScroll = () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => {
+        ticking = false;
+        const rect = scroller.getBoundingClientRect();
+        const total = scroller.offsetHeight - window.innerHeight;
+        const scrolled = Math.min(Math.max(-rect.top, 0), total);
+        const p = total > 0 ? scrolled / total : 0;
+        let idx = Math.floor(p * N + 0.0001);
+        if (idx > N - 1) idx = N - 1;
+        if (idx < 0) idx = 0;
+        setActive(idx);
+      });
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    onScroll();
+
+    segs.forEach((s, i) =>
+      s.addEventListener("click", () => {
+        const total = scroller.offsetHeight - window.innerHeight;
+        window.scrollTo({ top: scroller.offsetTop + ((i + 0.5) / N) * total, behavior: "smooth" });
+      })
+    );
   })();
 </script>
