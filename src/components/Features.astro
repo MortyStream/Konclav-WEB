@@ -213,10 +213,22 @@ const tabs = [
                 <div
                   data-reveal
                   style="transition-delay: 160ms"
-                  class="mt-24 flex justify-center"
+                  class="feature-trio mt-24"
                 >
+                  <!-- Côté gauche : votation en direct -->
+                  <div class="feature-trio__side feature-trio__side--left hidden lg:block">
+                    <PhoneShot
+                      src="/app/feat-ag-votation.webp"
+                      alt="Konclav — AG en cours : présence, quorum et votation Pour / Contre / Blanc en direct"
+                      reveal={false}
+                      hoverScale={false}
+                      priority={false}
+                    />
+                  </div>
+
+                  <!-- Centre : signature de présence -->
                   <div
-                    class="feature-shot-inner"
+                    class="feature-shot-inner feature-trio__center"
                     style={`filter: drop-shadow(0 60px 100px ${shadowColors[t.color]});`}
                   >
                     <PhoneShot
@@ -225,6 +237,17 @@ const tabs = [
                       reveal={false}
                       hoverScale={false}
                       priority={true}
+                    />
+                  </div>
+
+                  <!-- Côté droit : élections / scrutins -->
+                  <div class="feature-trio__side feature-trio__side--right hidden lg:block">
+                    <PhoneShot
+                      src="/app/feat-ag-election.webp"
+                      alt="Konclav — élections de l'AG : scrutin pour un poste avec candidats et vote blanc"
+                      reveal={false}
+                      hoverScale={false}
+                      priority={false}
                     />
                   </div>
                 </div>

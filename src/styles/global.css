@@ -266,6 +266,41 @@ body {
 }
 
 /* ============================================================
+   HERO AG TRIO — phone central en avant, flanqué de 2 écrans
+   inclinés et atténués (éventail). Le centre garde son scale +
+   parallax ; les côtés sont en profondeur, statiques.
+   ============================================================ */
+.feature-trio {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.feature-trio__center {
+  position: relative;
+  z-index: 20;
+}
+.feature-trio__side {
+  position: relative;
+  z-index: 10;
+  filter: brightness(0.58) saturate(0.9);
+  transition:
+    filter 600ms var(--ease-out-expo),
+    transform 600ms var(--ease-out-expo);
+}
+.feature-trio__side--left {
+  transform: translate(44%, 24px) rotate(-7deg) scale(0.84);
+}
+.feature-trio__side--right {
+  transform: translate(-44%, 24px) rotate(7deg) scale(0.84);
+}
+@media (prefers-reduced-motion: reduce) {
+  .feature-trio__side {
+    transition: none;
+  }
+}
+
+/* ============================================================
    MAGNETIC — boutons qui attirent le curseur
    ============================================================ */
 [data-magnetic] {
