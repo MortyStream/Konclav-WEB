@@ -181,17 +181,6 @@ const tabs = [
               <div class="grid items-center gap-12 lg:grid-cols-2 lg:gap-20">
                 <!-- Phone column -->
                 <div data-reveal class={`relative flex justify-center ${phoneOnLeft ? "" : "lg:order-last"}`}>
-                  <!-- Ghost background number (Apple iPhone Pro pattern) -->
-                  <span
-                    aria-hidden="true"
-                    class={`pointer-events-none absolute -z-10 select-none font-black leading-[0.85] tracking-tighter text-white/[0.06] ${
-                      phoneOnLeft ? "-left-12 -top-16" : "-right-12 -top-16"
-                    }`}
-                    style="font-size: clamp(12rem, 20vw, 20rem);"
-                  >
-                    0{i + 1}
-                  </span>
-
                   <div
                     class="feature-shot-inner scale-[1.18]"
                     style={`filter: drop-shadow(0 40px 70px ${shadowColors[t.color]});`}
