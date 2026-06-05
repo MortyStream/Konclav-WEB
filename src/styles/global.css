@@ -681,6 +681,30 @@ body {
 }
 
 /* ============================================================
+   PHONE GLASS — reflet spéculaire sur la vitre (device realism).
+   Statique partout ; sur les [data-feature-chapter] le reflet
+   glisse avec --cp (scroll-driven), façon lumière qui balaie.
+   ============================================================ */
+.phone-glare {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  pointer-events: none;
+  background: linear-gradient(
+    122deg,
+    rgba(255, 255, 255, 0.13) 0%,
+    rgba(255, 255, 255, 0.05) 14%,
+    transparent 34%,
+    transparent 66%,
+    rgba(255, 255, 255, 0.04) 82%,
+    transparent 100%
+  );
+  background-size: 100% 220%;
+  background-position: 0 calc(50% - var(--cp, 0) * 32%);
+  mix-blend-mode: screen;
+}
+
+/* ============================================================
    PHONE SHOWCASE — hero cluster "main de cartes" (survol fluide)
    --fit = échelle globale (responsive) ; chaque tel est posé via
    --x/--y (px natifs, mis à l'échelle), --r rotation, --z, --s.
