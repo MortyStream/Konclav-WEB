@@ -157,20 +157,123 @@ const tabs = [
   </div>
 
   <!-- ============================================
-       DESKTOP : 6 chapitres éditoriaux, asymétriques.
-       Pas de carte, pas de pin, pas de navigateur.
-       Juste le scroll qui raconte.
+       DESKTOP : 5 chapitres éditoriaux alternés + 1 hero final.
+       Scroll → halo + phone bougent à des vitesses différentes
+       via --cp (chapter progress, -1 → +1) calculé en JS.
        ============================================ -->
   <div class="hidden md:block">
     {
       tabs.map((t, i) => {
+        const isHero = i === tabs.length - 1;
         const phoneOnLeft = i % 2 === 0;
+
+        if (isHero) {
+          return (
+            <article
+              data-feature-chapter
+              class="is-hero relative overflow-hidden px-6 py-36 lg:py-48"
+            >
+              <!-- Hero halo : XL, centré, plus saturé -->
+              <div aria-hidden="true" class="pointer-events-none absolute inset-0 -z-10">
+                <div
+                  class="feature-halo absolute left-1/2 top-1/2 h-[1100px] w-[1100px] -translate-x-1/2 -translate-y-1/2 rounded-full opacity-55 blur-3xl"
+                  style={`background: radial-gradient(closest-side, ${haloColors[t.color]}, transparent 70%);`}
+                />
+                <div
+                  class="absolute left-1/2 top-1/2 h-[420px] w-[420px] -translate-x-1/2 -translate-y-1/2 rounded-full opacity-35 blur-2xl"
+                  style={`background: radial-gradient(closest-side, ${haloColors[t.color]}, transparent 60%);`}
+                />
+              </div>
+
+              <!-- Hairline divider — marque la rupture avec les chapitres précédents -->
+              <div
+                aria-hidden="true"
+                class="absolute inset-x-0 top-0 mx-auto h-px max-w-[60%]"
+                style="background: linear-gradient(90deg, transparent, rgba(255,255,255,0.10) 30%, rgba(255,255,255,0.10) 70%, transparent);"
+              />
+
+              <div class="mx-auto max-w-5xl text-center">
+                <p
+                  data-reveal
+                  class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.03] px-3 py-1 text-[11px] font-medium uppercase tracking-[0.18em] text-accent-400"
+                >
+                  <span class="h-1.5 w-1.5 rounded-full" style="background: rgba(244,63,94,0.85);" />
+                  {t.tab}
+                </p>
+
+                <h3
+                  data-reveal
+                  data-split-text
+                  style="transition-delay: 80ms"
+                  class="display-feature mt-8 text-balance text-ink-50"
+                >
+                  L'assemblée générale, <span class="italic-display">dans votre poche.</span>
+                </h3>
+
+                <div
+                  data-reveal
+                  style="transition-delay: 160ms"
+                  class="mt-16 flex justify-center"
+                >
+                  <div
+                    class="feature-shot-inner"
+                    style={`filter: drop-shadow(0 60px 100px ${shadowColors[t.color]});`}
+                  >
+                    <PhoneShot
+                      src={t.src}
+                      alt={t.alt}
+                      reveal={false}
+                      hoverScale={false}
+                      priority={true}
+                    />
+                  </div>
+                </div>
+
+                <p
+                  data-reveal
+                  style="transition-delay: 240ms"
+                  class="mx-auto mt-20 max-w-2xl text-pretty text-lg leading-relaxed text-ink-300 lg:text-xl"
+                >
+                  {t.desc}
+                </p>
+
+                <ul
+                  data-reveal
+                  style="transition-delay: 320ms"
+                  class="mx-auto mt-12 flex flex-wrap justify-center gap-x-10 gap-y-4"
+                >
+                  {t.points.map((pt) => (
+                    <li class="flex items-center gap-2.5 text-base text-ink-200 lg:text-lg">
+                      <svg
+                        viewBox="0 0 16 16"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        class="h-4 w-4 shrink-0 text-accent-400"
+                        aria-hidden="true"
+                      >
+                        <path d="m3.5 8.5 3 3 6-7" />
+                      </svg>
+                      {pt}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </article>
+          );
+        }
+
         return (
-          <article class="feature-spread relative px-6 py-24 lg:py-32">
-            <!-- Halo ambient -->
+          <article
+            data-feature-chapter
+            class="relative px-6 py-24 lg:py-32"
+          >
+            <!-- Halo ambient (parallaxé) -->
             <div aria-hidden="true" class="pointer-events-none absolute inset-0 -z-10">
               <div
-                class={`absolute top-1/2 h-[720px] w-[720px] -translate-y-1/2 rounded-full opacity-40 blur-3xl ${
+                class={`feature-halo absolute top-1/2 h-[720px] w-[720px] -translate-y-1/2 rounded-full opacity-40 blur-3xl ${
                   phoneOnLeft ? "left-[6%]" : "right-[6%]"
                 }`}
                 style={`background: radial-gradient(closest-side, ${haloColors[t.color]}, transparent 70%);`}
@@ -179,10 +282,10 @@ const tabs = [
 
             <div class="mx-auto max-w-6xl">
               <div class="grid items-center gap-12 lg:grid-cols-2 lg:gap-20">
-                <!-- Phone column -->
+                <!-- Phone column (parallaxé) -->
                 <div data-reveal class={`relative flex justify-center ${phoneOnLeft ? "" : "lg:order-last"}`}>
                   <div
-                    class="feature-shot-inner scale-[1.18]"
+                    class="feature-shot-inner"
                     style={`filter: drop-shadow(0 40px 70px ${shadowColors[t.color]});`}
                   >
                     <PhoneShot
@@ -237,6 +340,45 @@ const tabs = [
 
 <script is:inline>
   (function () {
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    // ===== DESKTOP : scroll-driven --cp (-1 → +1) per chapter =====
+    // Cheap rAF loop: only chapters currently in/near viewport get updates.
+    const chapters = Array.from(document.querySelectorAll('[data-feature-chapter]'));
+    if (chapters.length && !reduced) {
+      const active = new Set();
+      const io = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((e) => {
+            if (e.isIntersecting) active.add(e.target);
+            else active.delete(e.target);
+          });
+          if (active.size) schedule();
+        },
+        { rootMargin: '20% 0px 20% 0px' }
+      );
+      chapters.forEach((c) => io.observe(c));
+
+      let ticking = false;
+      const update = () => {
+        const vh = window.innerHeight;
+        active.forEach((ch) => {
+          const rect = ch.getBoundingClientRect();
+          const centerOffset = (rect.top + rect.height / 2) - vh / 2;
+          const range = (rect.height + vh) / 2;
+          const p = Math.max(-1, Math.min(1, centerOffset / range));
+          ch.style.setProperty('--cp', p.toFixed(3));
+        });
+        ticking = false;
+      };
+      const schedule = () => {
+        if (!ticking) { requestAnimationFrame(update); ticking = true; }
+      };
+      window.addEventListener('scroll', schedule, { passive: true });
+      window.addEventListener('resize', schedule, { passive: true });
+      update();
+    }
+
     // ===== MOBILE carousel dots (inchangé) =====
     const carousel = document.querySelector("[data-feature-carousel]");
     if (!carousel) return;

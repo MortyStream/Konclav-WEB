@@ -232,6 +232,40 @@ body {
 }
 
 /* ============================================================
+   FEATURE CHAPTERS — per-chapter scroll progress (-1 → +1)
+   Used by Features.astro to drive subtle parallax on the phone
+   and the colored halo. JS sets --cp on each [data-feature-chapter].
+   ============================================================ */
+[data-feature-chapter] {
+  --cp: 0;
+}
+[data-feature-chapter] .feature-shot-inner {
+  transform: translate3d(0, calc(var(--cp) * -22px), 0) scale(1.18);
+  will-change: transform;
+}
+[data-feature-chapter] .feature-halo {
+  transform: translate3d(0, calc(var(--cp) * 64px), 0);
+  will-change: transform;
+}
+[data-feature-chapter].is-hero .feature-shot-inner {
+  transform: translate3d(0, calc(var(--cp) * -34px), 0) scale(1.32);
+}
+[data-feature-chapter].is-hero .feature-halo {
+  transform: translate3d(0, calc(var(--cp) * 110px), 0);
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-feature-chapter] .feature-shot-inner {
+    transform: scale(1.18);
+  }
+  [data-feature-chapter].is-hero .feature-shot-inner {
+    transform: scale(1.32);
+  }
+  [data-feature-chapter] .feature-halo {
+    transform: none;
+  }
+}
+
+/* ============================================================
    MAGNETIC — boutons qui attirent le curseur
    ============================================================ */
 [data-magnetic] {
@@ -460,6 +494,12 @@ body {
   line-height: 1;
   font-weight: 700;
   letter-spacing: -0.035em;
+}
+.display-feature {
+  font-size: clamp(2.5rem, 7vw, 6rem);
+  line-height: 0.96;
+  font-weight: 700;
+  letter-spacing: -0.045em;
 }
 .display-stat {
   font-size: clamp(3.5rem, 10vw, 8rem);
