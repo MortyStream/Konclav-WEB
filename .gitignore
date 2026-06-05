@@ -26,3 +26,6 @@ pnpm-debug.log*
 # Python bytecode (skills with Python scripts)
 __pycache__/
 *.pyc
+
+# temp working files (Drive screenshot downloads, intermediate assets)
+tmp-android/
