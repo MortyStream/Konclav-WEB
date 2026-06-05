@@ -3,47 +3,67 @@ import PhoneShot from "./PhoneShot.astro";
 
 const badgeStyles: Record<string, string> = {
   accent: "border-accent-500/30 bg-accent-500/10 text-accent-400",
+  amber: "border-amber-400/30 bg-amber-400/10 text-amber-300",
+  sky: "border-sky-400/30 bg-sky-400/10 text-sky-300",
+  fuchsia: "border-fuchsia-400/30 bg-fuchsia-400/10 text-fuchsia-300",
   emerald: "border-emerald-400/30 bg-emerald-400/10 text-emerald-300",
   rose: "border-rose-400/30 bg-rose-400/10 text-rose-300",
-  sky: "border-sky-400/30 bg-sky-400/10 text-sky-300",
 };
 
-const features = [
+const tabs = [
   {
-    badge: "Tâches",
+    tab: "Tâches",
     color: "accent",
-    title: "Du chaos du PV à la clarté du sprint.",
-    desc: "À faire / En cours / Fait, attribution, deadlines. Et un vrai circuit de validation : chaque dépense passe par un responsable.",
-    points: ["Attribution & échéances", "Validation des dépenses", "Étiquettes par équipe"],
-    src: "/app/tache.webp",
-    alt: "Konclav — détail d'une tâche avec validation Approuver / Rejeter",
+    title: "Des tâches qui passent par une validation.",
+    desc: "Assignez, fixez une échéance, suivez l'avancement. Et pour les dépenses, un vrai circuit d'approbation : chaque achat passe par un responsable avant d'être engagé.",
+    points: ["Attribution & échéances", "Validation des dépenses (approuver / rejeter)", "Priorités et rappels"],
+    src: "/app/feat-taches.webp",
+    alt: "Konclav — détail d'une tâche avec circuit de validation Approuver / Rejeter",
   },
   {
-    badge: "Agenda",
-    color: "emerald",
-    title: "Tous les rendez-vous, au même endroit.",
-    desc: "Vues mois, semaine et jour. Événements par équipe, lieux, participants — et rappels avant l'heure.",
-    points: ["Vues mois / semaine / jour", "Par équipe et par pôle", "Rappels et invitations"],
-    src: "/app/agenda-semaine.webp",
-    alt: "Konclav — agenda, vue semaine des entraînements",
+    tab: "Calendrier",
+    color: "amber",
+    title: "Tous les événements, par équipe.",
+    desc: "Vues mois, semaine et jour. Entraînements, répétitions, matchs ou réunions — chaque événement avec son lieu et ses participants.",
+    points: ["Vues mois / semaine / jour", "Événements par équipe et par pôle", "Lieux et participants"],
+    src: "/app/feat-calendrier.webp",
+    alt: "Konclav — calendrier de l'association, vue mois",
   },
   {
-    badge: "Documents",
-    color: "rose",
-    title: "La Bible documentaire.",
-    desc: "Statuts, PV, contrats, règlements — classés par pôle. Recherche instantanée, fichiers et liens, tout au même endroit.",
-    points: ["Classé par pôle", "Recherche instantanée", "Fichiers & liens externes"],
-    src: "/app/documents.webp",
-    alt: "Konclav — documents et dossiers de l'association",
-  },
-  {
-    badge: "Membres",
+    tab: "Annuaire",
     color: "sky",
-    title: "L'annuaire et toute la vie interne.",
-    desc: "Annuaire avec rôles (comité, responsables de pôle), cotisations, notes de frais, sondages et réunions.",
-    points: ["Annuaire & rôles", "Cotisations & notes de frais", "Sondages & réunions"],
-    src: "/app/annuaire.webp",
-    alt: "Konclav — annuaire des membres et rôles",
+    title: "Qui fait quoi, en un coup d'œil.",
+    desc: "Tous les membres, leurs rôles et leurs pôles au même endroit. Le comité voit qui s'est connecté et qui reste à intégrer.",
+    points: ["Rôles & pôles", "Recherche instantanée", "Profils et coordonnées"],
+    src: "/app/feat-annuaire.webp",
+    alt: "Konclav — annuaire des membres avec rôles et pôles",
+  },
+  {
+    tab: "Documents",
+    color: "fuchsia",
+    title: "Statuts, PV, contrats — classés par pôle.",
+    desc: "La mémoire de l'association au même endroit. Comité, sportif, communication, logistique : chacun son espace, recherche instantanée.",
+    points: ["Classé par pôle", "Statuts, PV, contrats, sponsoring", "Recherche instantanée"],
+    src: "/app/feat-documents.webp",
+    alt: "Konclav — documents et dossiers classés par pôle",
+  },
+  {
+    tab: "Cotisations & finances",
+    color: "emerald",
+    title: "La trésorerie, sans tableur.",
+    desc: "Cotisations encaissées, frais remboursés, balance de l'année — en direct. Le trésorier voit ce qu'il reste à recouvrer et les notes à traiter, sans ouvrir Excel.",
+    points: ["Suivi des cotisations", "Notes de frais & remboursements", "Balance et flux mensuels"],
+    src: "/app/feat-finances.webp",
+    alt: "Konclav — tableau de bord financier : balance, cotisations, frais remboursés",
+  },
+  {
+    tab: "AG & signatures",
+    color: "rose",
+    title: "L'assemblée générale, dans votre poche.",
+    desc: "Démarrez une AG : les membres confirment leur présence par signature électronique, votent les ordres du jour, et le procès-verbal est archivé — horodaté et conservé.",
+    points: ["Signature électronique de présence", "Votations en direct", "PV archivé automatiquement"],
+    src: "/app/feat-ag.webp",
+    alt: "Konclav — confirmation de présence à l'AG par signature électronique",
   },
 ];
 ---
@@ -59,62 +79,124 @@ const features = [
         data-split-text
         class="display-section mt-4 text-balance text-ink-50"
       >
-        Quatre outils, une seule app.
+        Toute votre asso, onglet par onglet.
       </h2>
       <p
         data-reveal
         class="mx-auto mt-5 max-w-xl text-pretty text-base leading-relaxed text-ink-400 sm:text-lg"
       >
-        Pensé pour la vie quotidienne d'une association — du comité aux
-        bénévoles, du mobile au desktop.
+        Tâches, agenda, annuaire, documents, finances, assemblées — chaque
+        espace de l'app, pensé pour le quotidien d'une association.
       </p>
     </div>
 
-    <div class="mt-20 space-y-6 sm:space-y-8">
-      {
-        features.map((f, i) => (
-          <article
-            data-reveal
-            class="bento relative grid items-center gap-8 p-7 sm:p-10 md:grid-cols-2 md:gap-12"
-          >
-            <div class={i % 2 === 1 ? "md:order-2" : ""}>
-              <span
-                class={`inline-block rounded-md border px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider ${badgeStyles[f.color]}`}
-              >
-                {f.badge}
-              </span>
-              <h3 class="mt-4 text-2xl font-semibold leading-tight tracking-tight text-ink-50 sm:text-3xl">
-                {f.title}
-              </h3>
-              <p class="mt-3 max-w-md text-sm leading-relaxed text-ink-400 sm:text-base">
-                {f.desc}
-              </p>
-              <ul class="mt-6 space-y-2.5">
-                {f.points.map((pt) => (
-                  <li class="flex items-center gap-2.5 text-sm text-ink-300">
-                    <svg
-                      viewBox="0 0 16 16"
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-width="1.75"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      class="h-4 w-4 shrink-0 text-accent-400"
-                      aria-hidden="true"
-                    >
-                      <path d="m3.5 8.5 3 3 6-7" />
-                    </svg>
-                    {pt}
-                  </li>
-                ))}
-              </ul>
+    <div data-feature-tabs class="mt-14">
+      <!-- Tablist -->
+      <div
+        role="tablist"
+        aria-label="Fonctionnalités de Konclav"
+        data-reveal
+        class="-mx-6 flex gap-2 overflow-x-auto px-6 pb-2 no-scrollbar sm:flex-wrap sm:justify-center"
+      >
+        {
+          tabs.map((t, i) => (
+            <button
+              type="button"
+              role="tab"
+              id={`feat-tab-${i}`}
+              aria-controls={`feat-panel-${i}`}
+              aria-selected={i === 0 ? "true" : "false"}
+              tabindex={i === 0 ? 0 : -1}
+              class="feature-tab shrink-0 rounded-full border border-white/10 px-4 py-2 text-sm font-medium text-ink-400 transition-colors hover:border-white/20 hover:text-ink-50 aria-selected:border-accent-500/50 aria-selected:bg-accent-500/10 aria-selected:text-ink-50"
+            >
+              {t.tab}
+            </button>
+          ))
+        }
+      </div>
+
+      <!-- Panels -->
+      <div class="mt-10">
+        {
+          tabs.map((t, i) => (
+            <div
+              role="tabpanel"
+              id={`feat-panel-${i}`}
+              aria-labelledby={`feat-tab-${i}`}
+              hidden={i !== 0}
+              class="feature-panel grid items-center gap-10 md:grid-cols-2 md:gap-16"
+            >
+              <div>
+                <span
+                  class={`inline-block rounded-md border px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider ${badgeStyles[t.color]}`}
+                >
+                  {t.tab}
+                </span>
+                <h3 class="mt-4 text-2xl font-semibold leading-tight tracking-tight text-ink-50 sm:text-3xl">
+                  {t.title}
+                </h3>
+                <p class="mt-3 max-w-md text-sm leading-relaxed text-ink-400 sm:text-base">
+                  {t.desc}
+                </p>
+                <ul class="mt-6 space-y-2.5">
+                  {t.points.map((pt) => (
+                    <li class="flex items-center gap-2.5 text-sm text-ink-300">
+                      <svg
+                        viewBox="0 0 16 16"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="1.75"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        class="h-4 w-4 shrink-0 text-accent-400"
+                        aria-hidden="true"
+                      >
+                        <path d="m3.5 8.5 3 3 6-7" />
+                      </svg>
+                      {pt}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <div class="flex justify-center md:order-last">
+                <PhoneShot src={t.src} alt={t.alt} reveal={false} priority={i === 0} hoverScale={false} />
+              </div>
             </div>
-            <div class={`flex justify-center ${i % 2 === 1 ? "md:order-1" : ""}`}>
-              <PhoneShot src={f.src} alt={f.alt} />
-            </div>
-          </article>
-        ))
-      }
+          ))
+        }
+      </div>
     </div>
   </div>
 </section>
+
+<script is:inline>
+  (function () {
+    const root = document.querySelector("[data-feature-tabs]");
+    if (!root) return;
+    const tabs = Array.from(root.querySelectorAll('[role="tab"]'));
+    const panels = Array.from(root.querySelectorAll('[role="tabpanel"]'));
+    function select(i, focus) {
+      tabs.forEach((t, idx) => {
+        const on = idx === i;
+        t.setAttribute("aria-selected", on ? "true" : "false");
+        t.tabIndex = on ? 0 : -1;
+        if (on && focus) t.focus();
+      });
+      panels.forEach((p, idx) => (p.hidden = idx !== i));
+    }
+    tabs.forEach((t, i) => {
+      t.addEventListener("click", () => select(i, false));
+      t.addEventListener("keydown", (e) => {
+        let n = null;
+        if (e.key === "ArrowRight" || e.key === "ArrowDown") n = (i + 1) % tabs.length;
+        else if (e.key === "ArrowLeft" || e.key === "ArrowUp") n = (i - 1 + tabs.length) % tabs.length;
+        else if (e.key === "Home") n = 0;
+        else if (e.key === "End") n = tabs.length - 1;
+        if (n !== null) {
+          e.preventDefault();
+          select(n, true);
+        }
+      });
+    });
+  })();
+</script>

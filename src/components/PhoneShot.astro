@@ -9,6 +9,7 @@ interface Props {
   float?: "" | "float" | "float-delay" | "float-slow" | "float-late";
   hoverScale?: boolean;
   priority?: boolean;
+  reveal?: boolean;
 }
 
 const {
@@ -21,6 +22,7 @@ const {
   float = "",
   hoverScale = true,
   priority = false,
+  reveal = true,
 } = Astro.props;
 
 const floatClass = float ? `animate-${float}` : "";
@@ -28,7 +30,7 @@ const hoverClass = hoverScale ? "hover:scale-[1.03]" : "";
 ---
 
 <div
-  data-reveal
+  data-reveal={reveal ? "" : undefined}
   style={`transition-delay: ${delay}ms; z-index: ${zIndex};`}
   class="relative shrink-0 snap-center"
 >
