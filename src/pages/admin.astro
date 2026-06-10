@@ -1,0 +1,358 @@
+---
+import Layout from "../layouts/Layout.astro";
+import Logo from "../components/Logo.astro";
+// Cockpit admin — page cachée (noindex, hors sitemap, aucun lien public).
+// Auth Supabase + RLS : la base ne répond qu'au compte contact@konclav.ch.
+// Vanilla fetch (pas de supabase-js) pour rester dans la CSP stricte.
+const SUPABASE_URL = "https://ehbdngidjrkhfrprfgqg.supabase.co";
+const PUBLISHABLE_KEY = "sb_publishable_VALB2_pMZ2GjMNP3mmyChg_y-vuitny";
+const ADMIN_EMAIL = "contact@konclav.ch";
+---
+
+<Layout title="Cockpit — Konclav" description="Espace d'administration Konclav." noindex={true}>
+  <main
+    id="main"
+    class="mx-auto min-h-dvh w-full max-w-5xl px-6 pb-24 pt-10"
+    data-cockpit
+    data-url={SUPABASE_URL}
+    data-key={PUBLISHABLE_KEY}
+    data-admin={ADMIN_EMAIL}
+  >
+    <!-- Header -->
+    <header class="flex items-center justify-between border-b border-white/[0.06] pb-6">
+      <a href="/" class="flex items-center gap-2 text-base font-semibold tracking-tight text-ink-50">
+        <Logo class="h-7 w-7" />
+        Konclav <span class="rounded-md border border-accent-500/40 bg-accent-500/10 px-2 py-0.5 text-[11px] font-medium text-accent-300">Cockpit</span>
+      </a>
+      <button
+        type="button"
+        data-ck-logout
+        hidden
+        class="rounded-lg border border-white/10 bg-white/[0.02] px-4 py-2 text-xs font-medium text-ink-400 transition-colors hover:border-white/20 hover:text-ink-50"
+      >
+        Se déconnecter
+      </button>
+    </header>
+
+    <!-- ===== LOGIN ===== -->
+    <section data-ck-login class="mx-auto mt-20 max-w-sm">
+      <h1 class="text-center text-2xl font-semibold tracking-tight text-ink-50">Espace admin</h1>
+      <p class="mt-2 text-center text-sm text-ink-400">Réservé à l'exploitant de Konclav.</p>
+      <form data-ck-login-form class="mt-8 space-y-4">
+        <div>
+          <label for="ck-email" class="mb-2 block text-sm font-medium text-ink-50">Email</label>
+          <input
+            id="ck-email"
+            type="email"
+            autocomplete="username"
+            value={ADMIN_EMAIL}
+            required
+            class="w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-ink-50 placeholder:text-ink-500 focus:border-accent-500/50 focus:outline-none focus:ring-2 focus:ring-accent-500/20"
+          />
+        </div>
+        <div>
+          <label for="ck-password" class="mb-2 block text-sm font-medium text-ink-50">Mot de passe</label>
+          <input
+            id="ck-password"
+            type="password"
+            autocomplete="current-password"
+            required
+            class="w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-ink-50 focus:border-accent-500/50 focus:outline-none focus:ring-2 focus:ring-accent-500/20"
+          />
+        </div>
+        <button
+          type="submit"
+          data-ck-login-btn
+          class="cta-shimmer w-full rounded-xl bg-accent-500 px-5 py-3 text-sm font-semibold text-white shadow-[var(--shadow-cta)] transition-colors hover:bg-accent-400 disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          Se connecter
+        </button>
+        <p data-ck-login-error role="alert" hidden class="text-center text-sm text-rose-400"></p>
+      </form>
+    </section>
+
+    <!-- ===== APP ===== -->
+    <section data-ck-app hidden>
+      <!-- Stats -->
+      <div class="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-4" data-ck-stats></div>
+
+      <!-- Filtres -->
+      <div class="mt-8 flex flex-wrap items-center gap-2" data-ck-filters role="group" aria-label="Filtrer par statut"></div>
+
+      <!-- Liste -->
+      <div class="mt-6 space-y-3" data-ck-list aria-live="polite"></div>
+      <p data-ck-empty hidden class="mt-12 text-center text-sm text-ink-500">Aucune demande pour ce filtre.</p>
+    </section>
+  </main>
+</Layout>
+
+<script is:inline>
+  (function () {
+    const root = document.querySelector("[data-cockpit]");
+    if (!root) return;
+    const U = root.dataset.url;
+    const K = root.dataset.key;
+    const ADMIN = root.dataset.admin;
+
+    const loginView = root.querySelector("[data-ck-login]");
+    const appView = root.querySelector("[data-ck-app]");
+    const loginForm = root.querySelector("[data-ck-login-form]");
+    const loginBtn = root.querySelector("[data-ck-login-btn]");
+    const loginError = root.querySelector("[data-ck-login-error]");
+    const logoutBtn = root.querySelector("[data-ck-logout]");
+    const statsEl = root.querySelector("[data-ck-stats]");
+    const filtersEl = root.querySelector("[data-ck-filters]");
+    const listEl = root.querySelector("[data-ck-list]");
+    const emptyEl = root.querySelector("[data-ck-empty]");
+
+    const STATUSES = [
+      { value: "new", label: "Nouveau", color: "#7170ff" },
+      { value: "contacted", label: "Contacté", color: "#fbbf24" },
+      { value: "converted", label: "Converti", color: "#4ade80" },
+      { value: "declined", label: "Refusé", color: "#8b8b94" },
+    ];
+    const statusOf = (v) => STATUSES.find((s) => s.value === v) || { value: v, label: v, color: "#8b8b94" };
+
+    let leads = [];
+    let filter = "all";
+
+    const esc = (s) =>
+      String(s ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+
+    // ---- Auth (REST, sans librairie) ----
+    const store = {
+      get at() { return sessionStorage.getItem("ck_at"); },
+      get rt() { return sessionStorage.getItem("ck_rt"); },
+      set(at, rt) { sessionStorage.setItem("ck_at", at); sessionStorage.setItem("ck_rt", rt); },
+      clear() { sessionStorage.removeItem("ck_at"); sessionStorage.removeItem("ck_rt"); },
+    };
+
+    function jwtEmail(token) {
+      try { return JSON.parse(atob(token.split(".")[1])).email || ""; } catch { return ""; }
+    }
+
+    async function authRequest(grant, body) {
+      const res = await fetch(U + "/auth/v1/token?grant_type=" + grant, {
+        method: "POST",
+        headers: { apikey: K, "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error_description || data.msg || "Échec de connexion");
+      return data;
+    }
+
+    async function refreshSession() {
+      if (!store.rt) return false;
+      try {
+        const data = await authRequest("refresh_token", { refresh_token: store.rt });
+        store.set(data.access_token, data.refresh_token);
+        return true;
+      } catch { store.clear(); return false; }
+    }
+
+    async function api(path, opts = {}, retried = false) {
+      const res = await fetch(U + "/rest/v1/" + path, {
+        ...opts,
+        headers: {
+          apikey: K,
+          Authorization: "Bearer " + store.at,
+          "Content-Type": "application/json",
+          ...(opts.headers || {}),
+        },
+      });
+      if (res.status === 401 && !retried && (await refreshSession())) {
+        return api(path, opts, true);
+      }
+      if (res.status === 401) { showLogin(); throw new Error("Session expirée"); }
+      if (!res.ok) throw new Error("HTTP " + res.status);
+      return res;
+    }
+
+    // ---- Vues ----
+    function showLogin() {
+      store.clear();
+      appView.hidden = true;
+      logoutBtn.hidden = true;
+      loginView.hidden = false;
+    }
+    async function showApp() {
+      loginView.hidden = true;
+      appView.hidden = false;
+      logoutBtn.hidden = false;
+      await loadLeads();
+    }
+
+    // ---- Data ----
+    async function loadLeads() {
+      listEl.innerHTML = '<p class="py-10 text-center text-sm text-ink-500">Chargement…</p>';
+      try {
+        const res = await api("leads?select=*&order=created_at.desc");
+        leads = await res.json();
+        render();
+      } catch (e) {
+        listEl.innerHTML = '<p class="py-10 text-center text-sm text-rose-400">Erreur de chargement. Rechargez la page.</p>';
+      }
+    }
+
+    async function patchLead(id, body) {
+      await api("leads?id=eq." + encodeURIComponent(id), {
+        method: "PATCH",
+        headers: { Prefer: "return=minimal" },
+        body: JSON.stringify(body),
+      });
+    }
+
+    // ---- Render ----
+    function render() {
+      const counts = { all: leads.length };
+      STATUSES.forEach((s) => { counts[s.value] = leads.filter((l) => l.status === s.value).length; });
+
+      statsEl.innerHTML = [["Total", counts.all, "#f4f4f5"]]
+        .concat(STATUSES.map((s) => [s.label + "s", counts[s.value], s.color]))
+        .slice(0, 4)
+        .map(
+          ([label, n, color]) =>
+            '<div class="rounded-2xl border border-white/10 bg-white/[0.02] p-4">' +
+            '<p class="text-2xl font-semibold tabular-nums" style="color:' + color + '">' + n + "</p>" +
+            '<p class="mt-0.5 text-xs text-ink-500">' + esc(label) + "</p></div>"
+        )
+        .join("");
+
+      filtersEl.innerHTML = [{ value: "all", label: "Tous" }]
+        .concat(STATUSES)
+        .map((s) => {
+          const on = filter === s.value;
+          return (
+            '<button type="button" data-filter="' + s.value + '" class="rounded-full border px-3.5 py-1.5 text-xs font-medium transition-colors ' +
+            (on ? "border-accent-500/60 bg-accent-500/15 text-ink-50" : "border-white/10 bg-white/[0.02] text-ink-400 hover:border-white/20 hover:text-ink-50") +
+            '">' + esc(s.label) + (s.value === "all" ? "" : " · " + (counts[s.value] || 0)) + "</button>"
+          );
+        })
+        .join("");
+
+      const shown = filter === "all" ? leads : leads.filter((l) => l.status === filter);
+      emptyEl.hidden = shown.length > 0;
+      listEl.innerHTML = shown.map(cardHtml).join("");
+    }
+
+    function cardHtml(l) {
+      const st = statusOf(l.status);
+      const date = new Date(l.created_at).toLocaleDateString("fr-CH", { day: "2-digit", month: "short", year: "numeric" });
+      const options = STATUSES.map(
+        (s) => '<option value="' + s.value + '"' + (s.value === l.status ? " selected" : "") + ">" + s.label + "</option>"
+      ).join("");
+      const modules = Array.isArray(l.modules) && l.modules.length
+        ? l.modules.map((m) => '<span class="rounded-md border border-white/10 bg-white/[0.03] px-2 py-0.5 text-[11px] text-ink-300">' + esc(m) + "</span>").join(" ")
+        : '<span class="text-ink-500">—</span>';
+
+      return (
+        '<details class="group rounded-2xl border border-white/10 bg-white/[0.02] transition-colors hover:border-white/15" data-lead="' + esc(l.id) + '">' +
+        '<summary class="flex cursor-pointer flex-wrap items-center gap-x-4 gap-y-2 px-5 py-4 [&::-webkit-details-marker]:hidden">' +
+        '<span class="h-2 w-2 shrink-0 rounded-full" style="background:' + st.color + '"></span>' +
+        '<span class="min-w-0 flex-1"><span class="block truncate text-sm font-semibold text-ink-50">' + esc(l.asso_name) + "</span>" +
+        '<span class="block text-xs text-ink-500">' + esc(l.canton) + " · " + esc(l.member_count) + " membres · " + date + "</span></span>" +
+        '<span class="text-xs text-ink-400">' + esc(l.first_name + " " + l.last_name) + "</span>" +
+        '<select data-status class="rounded-lg border border-white/10 bg-ink-900 px-2.5 py-1.5 text-xs text-ink-50 focus:border-accent-500/50 focus:outline-none">' + options + "</select>" +
+        "</summary>" +
+        '<div class="space-y-4 border-t border-white/[0.06] px-5 py-4 text-sm">' +
+        '<p><span class="text-ink-500">Contact :</span> <a class="text-accent-300 underline decoration-accent-500/40 underline-offset-2" href="mailto:' + esc(l.email) + '">' + esc(l.email) + "</a>" +
+        (l.phone ? ' · <span class="text-ink-200">' + esc(l.phone) + "</span>" : "") +
+        ' · <span class="text-ink-400">' + esc(l.role) + "</span></p>" +
+        '<p><span class="text-ink-500">Activité :</span> <span class="text-ink-200">' + esc(l.activity) + "</span></p>" +
+        (l.needs ? '<p><span class="text-ink-500">Besoins :</span> <span class="text-ink-200">' + esc(l.needs) + "</span></p>" : "") +
+        '<p class="flex flex-wrap items-center gap-1.5"><span class="text-ink-500">Modules :</span> ' + modules + "</p>" +
+        (l.legal_form || l.source
+          ? '<p class="text-xs text-ink-500">' + esc([l.legal_form, l.source && "via " + l.source].filter(Boolean).join(" · ")) + "</p>"
+          : "") +
+        '<div><label class="mb-1.5 block text-xs font-medium text-ink-400">Notes internes</label>' +
+        '<textarea data-notes rows="2" class="w-full rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2 text-sm text-ink-50 focus:border-accent-500/50 focus:outline-none">' + esc(l.notes || "") + "</textarea>" +
+        '<button type="button" data-save-notes class="mt-2 rounded-lg border border-white/10 bg-white/[0.02] px-3.5 py-1.5 text-xs font-medium text-ink-50 transition-colors hover:border-white/20">Enregistrer la note</button>' +
+        '<span data-saved hidden class="ml-2 text-xs text-emerald-400">Enregistré ✓</span></div>' +
+        "</div></details>"
+      );
+    }
+
+    // ---- Events ----
+    loginForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      loginBtn.disabled = true;
+      loginError.hidden = true;
+      try {
+        const email = document.getElementById("ck-email").value.trim();
+        const password = document.getElementById("ck-password").value;
+        const data = await authRequest("password", { email, password });
+        if (jwtEmail(data.access_token) !== ADMIN) {
+          throw new Error("Ce compte n'a pas accès au cockpit.");
+        }
+        store.set(data.access_token, data.refresh_token);
+        await showApp();
+      } catch (err) {
+        loginError.textContent = err.message || "Échec de connexion.";
+        loginError.hidden = false;
+      } finally {
+        loginBtn.disabled = false;
+      }
+    });
+
+    logoutBtn.addEventListener("click", showLogin);
+
+    filtersEl.addEventListener("click", (e) => {
+      const btn = e.target.closest("[data-filter]");
+      if (!btn) return;
+      filter = btn.dataset.filter;
+      render();
+    });
+
+    listEl.addEventListener("click", (e) => {
+      // Le <select> vit dans le <summary> : ne pas toggle l'accordéon en cliquant dessus
+      if (e.target.closest("[data-status]")) { e.preventDefault(); e.stopPropagation(); }
+      const saveBtn = e.target.closest("[data-save-notes]");
+      if (saveBtn) {
+        const card = saveBtn.closest("[data-lead]");
+        const id = card.dataset.lead;
+        const notes = card.querySelector("[data-notes]").value;
+        saveBtn.disabled = true;
+        patchLead(id, { notes })
+          .then(() => {
+            const lead = leads.find((l) => l.id === id);
+            if (lead) lead.notes = notes;
+            const ok = card.querySelector("[data-saved]");
+            ok.hidden = false;
+            setTimeout(() => { ok.hidden = true; }, 2000);
+          })
+          .catch(() => alert("Échec de l'enregistrement."))
+          .finally(() => { saveBtn.disabled = false; });
+      }
+    });
+
+    listEl.addEventListener("change", (e) => {
+      const sel = e.target.closest("[data-status]");
+      if (!sel) return;
+      const card = sel.closest("[data-lead]");
+      const id = card.dataset.lead;
+      const prev = (leads.find((l) => l.id === id) || {}).status;
+      patchLead(id, { status: sel.value })
+        .then(() => {
+          const lead = leads.find((l) => l.id === id);
+          if (lead) lead.status = sel.value;
+          render();
+        })
+        .catch(() => { sel.value = prev; alert("Échec du changement de statut."); });
+    });
+
+    // ---- Boot : session existante ? ----
+    (async () => {
+      if (store.at && jwtEmail(store.at) === ADMIN) { await showApp(); return; }
+      if (await refreshSession()) {
+        if (jwtEmail(store.at) === ADMIN) { await showApp(); return; }
+      }
+      showLogin();
+    })();
+  })();
+</script>

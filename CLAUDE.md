@@ -65,6 +65,7 @@ src/
     CTAButton.astro       # bouton CTA réutilisable (primary/secondary, joinOpen)
   pages/
     index.astro
+    admin.astro           # Cockpit admin (noindex, hors sitemap, aucun lien) — auth Supabase + RLS email
     inscription.astro     # carrousel d'écrans + CTA inscription (ex-demo.astro ; redirect 301 /demo → /inscription dans server.js)
     tarifs.astro          # Pack fondateurs + 2 plans + simulateur + inclus + FAQ + CTA
     404.astro             # noindex
@@ -143,7 +144,8 @@ Le formulaire d'inscription n'utilise PLUS Google Forms. Architecture :
 - **Table `public.leads`** : propriété de CE repo. RLS activée, AUCUNE policy (deny-by-default), accès service_role uniquement. Un `comment on table` le documente en base. L'app mobile ne doit ni lire ni écrire dedans — et réciproquement, ce repo ne touche à AUCUNE autre table.
 - **Edge Function `website-lead-submit`** (verify_jwt=false) : valide (honeypot `website`, rate-limit IP 1/60s, caps longueur), insert dans `leads`, mail récap à `contact@konclav.ch` via Resend (`RESEND_API_KEY` déjà en secret, domaine vérifié, pattern copié de `send-bug-email`).
 - **CSP** : `connect-src` inclut `https://ehbdngidjrkhfrprfgqg.supabase.co` dans `server.js`.
-- Les leads se consultent dans Supabase Studio (table `leads`). Piste ouverte : cockpit admin dédié (lecture leads/clients, factures QR suisses) — chantier séparé.
+- **Cockpit admin Phase A** : `konclav.ch/admin` (page statique vanilla JS, clé publishable). Migration `cockpit_admin_leads_access` : grants select + update(status, notes) à `authenticated`, policies RLS limitées à l'email `contact@konclav.ch`. Le compte auth doit être créé À LA MAIN dans le dashboard (Auth → Add user). Pas d'insert/delete depuis le cockpit.
+- Phases suivantes du cockpit : B = registre clients + factures QR suisses (PDF), C = provisionnement assos (à coordonner avec la conv de l'app).
 
 ## Régénérer l'OG image
 

@@ -114,7 +114,11 @@ app.use((req, res, next) => {
     "max-age=63072000; includeSubDomains; preload"
   );
   res.setHeader("Content-Security-Policy", csp);
-  if (req.path.startsWith("/sous-traitance") || req.path.startsWith("/404")) {
+  if (
+    req.path.startsWith("/sous-traitance") ||
+    req.path.startsWith("/404") ||
+    req.path.startsWith("/admin")
+  ) {
     res.setHeader("X-Robots-Tag", "noindex, nofollow");
   }
   next();
