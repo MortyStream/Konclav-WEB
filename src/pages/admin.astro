@@ -71,6 +71,48 @@ const ADMIN_EMAIL = "contact@konclav.ch";
       </form>
     </section>
 
+    <!-- ===== CHANGEMENT DE MOT DE PASSE FORCÉ (compte créé avec mdp temporaire) ===== -->
+    <section data-ck-change hidden class="mx-auto mt-20 max-w-sm">
+      <h1 class="text-center text-2xl font-semibold tracking-tight text-ink-50">Nouveau mot de passe</h1>
+      <p class="mt-2 text-center text-sm text-ink-400">
+        Votre mot de passe actuel est temporaire. Choisissez-en un définitif —
+        il n'est connu que de vous.
+      </p>
+      <form data-ck-change-form class="mt-8 space-y-4">
+        <div>
+          <label for="ck-newpw" class="mb-2 block text-sm font-medium text-ink-50">Nouveau mot de passe</label>
+          <input
+            id="ck-newpw"
+            type="password"
+            autocomplete="new-password"
+            minlength="12"
+            required
+            class="w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-ink-50 focus:border-accent-500/50 focus:outline-none focus:ring-2 focus:ring-accent-500/20"
+          />
+          <p class="mt-1.5 text-xs text-ink-500">12 caractères minimum.</p>
+        </div>
+        <div>
+          <label for="ck-newpw2" class="mb-2 block text-sm font-medium text-ink-50">Confirmez-le</label>
+          <input
+            id="ck-newpw2"
+            type="password"
+            autocomplete="new-password"
+            minlength="12"
+            required
+            class="w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-ink-50 focus:border-accent-500/50 focus:outline-none focus:ring-2 focus:ring-accent-500/20"
+          />
+        </div>
+        <button
+          type="submit"
+          data-ck-change-btn
+          class="cta-shimmer w-full rounded-xl bg-accent-500 px-5 py-3 text-sm font-semibold text-white shadow-[var(--shadow-cta)] transition-colors hover:bg-accent-400 disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          Enregistrer et entrer
+        </button>
+        <p data-ck-change-error role="alert" hidden class="text-center text-sm text-rose-400"></p>
+      </form>
+    </section>
+
     <!-- ===== APP ===== -->
     <section data-ck-app hidden>
       <!-- Stats -->
@@ -95,6 +137,10 @@ const ADMIN_EMAIL = "contact@konclav.ch";
     const ADMIN = root.dataset.admin;
 
     const loginView = root.querySelector("[data-ck-login]");
+    const changeView = root.querySelector("[data-ck-change]");
+    const changeForm = root.querySelector("[data-ck-change-form]");
+    const changeBtn = root.querySelector("[data-ck-change-btn]");
+    const changeError = root.querySelector("[data-ck-change-error]");
     const appView = root.querySelector("[data-ck-app]");
     const loginForm = root.querySelector("[data-ck-login-form]");
     const loginBtn = root.querySelector("[data-ck-login-btn]");
@@ -178,14 +224,41 @@ const ADMIN_EMAIL = "contact@konclav.ch";
     function showLogin() {
       store.clear();
       appView.hidden = true;
+      changeView.hidden = true;
       logoutBtn.hidden = true;
       loginView.hidden = false;
     }
+    function showChange() {
+      loginView.hidden = true;
+      appView.hidden = true;
+      changeView.hidden = false;
+      logoutBtn.hidden = false;
+      document.getElementById("ck-newpw").focus();
+    }
     async function showApp() {
       loginView.hidden = true;
+      changeView.hidden = true;
       appView.hidden = false;
       logoutBtn.hidden = false;
       await loadLeads();
+    }
+
+    async function fetchUser() {
+      const res = await fetch(U + "/auth/v1/user", {
+        headers: { apikey: K, Authorization: "Bearer " + store.at },
+      });
+      if (!res.ok) return null;
+      return res.json();
+    }
+
+    // Route post-auth : mot de passe temporaire → écran de changement forcé
+    async function enter() {
+      const user = await fetchUser();
+      if (user && user.user_metadata && user.user_metadata.temp_password === true) {
+        showChange();
+      } else {
+        await showApp();
+      }
     }
 
     // ---- Data ----
@@ -291,12 +364,49 @@ const ADMIN_EMAIL = "contact@konclav.ch";
           throw new Error("Ce compte n'a pas accès au cockpit.");
         }
         store.set(data.access_token, data.refresh_token);
-        await showApp();
+        await enter();
       } catch (err) {
         loginError.textContent = err.message || "Échec de connexion.";
         loginError.hidden = false;
       } finally {
         loginBtn.disabled = false;
+      }
+    });
+
+    changeForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const pw = document.getElementById("ck-newpw").value;
+      const pw2 = document.getElementById("ck-newpw2").value;
+      changeError.hidden = true;
+      if (pw.length < 12) {
+        changeError.textContent = "12 caractères minimum.";
+        changeError.hidden = false;
+        return;
+      }
+      if (pw !== pw2) {
+        changeError.textContent = "Les deux mots de passe ne correspondent pas.";
+        changeError.hidden = false;
+        return;
+      }
+      changeBtn.disabled = true;
+      try {
+        const res = await fetch(U + "/auth/v1/user", {
+          method: "PUT",
+          headers: {
+            apikey: K,
+            Authorization: "Bearer " + store.at,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ password: pw, data: { temp_password: false } }),
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(data.error_description || data.msg || "Échec du changement.");
+        await showApp();
+      } catch (err) {
+        changeError.textContent = err.message || "Échec du changement.";
+        changeError.hidden = false;
+      } finally {
+        changeBtn.disabled = false;
       }
     });
 
@@ -348,9 +458,9 @@ const ADMIN_EMAIL = "contact@konclav.ch";
 
     // ---- Boot : session existante ? ----
     (async () => {
-      if (store.at && jwtEmail(store.at) === ADMIN) { await showApp(); return; }
+      if (store.at && jwtEmail(store.at) === ADMIN) { await enter(); return; }
       if (await refreshSession()) {
-        if (jwtEmail(store.at) === ADMIN) { await showApp(); return; }
+        if (jwtEmail(store.at) === ADMIN) { await enter(); return; }
       }
       showLogin();
     })();
