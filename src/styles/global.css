@@ -122,34 +122,7 @@ body {
   }
 }
 
-/* Cursor spotlight — halo accent qui suit la souris sur les surfaces marquées */
-[data-spotlight] {
-  position: relative;
-  isolation: isolate;
-}
-[data-spotlight]::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  border-radius: inherit;
-  background: radial-gradient(
-    600px circle at var(--mx, 50%) var(--my, 50%),
-    rgba(94, 106, 210, 0.10),
-    transparent 40%
-  );
-  opacity: 0;
-  transition: opacity 350ms cubic-bezier(0.16, 1, 0.3, 1);
-  pointer-events: none;
-}
-[data-spotlight]:hover::before {
-  opacity: 1;
-}
-@media (prefers-reduced-motion: reduce), (hover: none) {
-  [data-spotlight]::before {
-    display: none;
-  }
-}
+/* Cursor spotlight — supprimé : effet jugé superflu (audit 10/06/2026) */
 
 /* View Transitions — fade doux entre pages */
 @view-transition {
@@ -300,29 +273,7 @@ body {
   }
 }
 
-/* ============================================================
-   MAGNETIC — boutons qui attirent le curseur
-   ============================================================ */
-[data-magnetic] {
-  transition: transform 380ms var(--ease-out-expo);
-  will-change: transform;
-}
-@media (prefers-reduced-motion: reduce), (hover: none) {
-  [data-magnetic] { transform: none !important; }
-}
-
-/* ============================================================
-   TILT 3D — cards qui s'inclinent au mousemove
-   ============================================================ */
-[data-tilt] {
-  transform: perspective(1100px) rotateX(var(--tx, 0deg)) rotateY(var(--ty, 0deg));
-  transition: transform 420ms var(--ease-out-expo);
-  transform-style: preserve-3d;
-  will-change: transform;
-}
-@media (prefers-reduced-motion: reduce), (hover: none) {
-  [data-tilt] { transform: none; }
-}
+/* MAGNETIC + TILT 3D — supprimés (audit 10/06/2026) */
 
 /* ============================================================
    GRADIENT BORDER — conic anime au hover (cards premium)
@@ -379,23 +330,7 @@ body {
   box-shadow: 0 8px 30px -10px rgba(94, 106, 210, 0.45);
 }
 
-/* ============================================================
-   SVG DRAW-ON-SCROLL — paths se tracent quand le wrapper devient visible
-   ============================================================ */
-[data-draw] path {
-  stroke-dasharray: var(--len, 1000);
-  stroke-dashoffset: var(--len, 1000);
-  transition: stroke-dashoffset 1600ms var(--ease-out-expo);
-}
-[data-draw].is-visible path {
-  stroke-dashoffset: 0;
-}
-@media (prefers-reduced-motion: reduce) {
-  [data-draw] path {
-    stroke-dashoffset: 0;
-    transition: none;
-  }
-}
+/* SVG DRAW-ON-SCROLL — supprimé (audit 10/06/2026) */
 
 /* ============================================================
    FLOAT — animation Y subtile (phones, halos)
@@ -517,12 +452,6 @@ body {
   line-height: 0.95;
   font-weight: 700;
   letter-spacing: -0.045em;
-}
-.display-manifesto {
-  font-size: clamp(3rem, 12vw, 10rem);
-  line-height: 0.88;
-  font-weight: 800;
-  letter-spacing: -0.055em;
 }
 .display-section {
   font-size: clamp(2.25rem, 5.5vw, 4.5rem);

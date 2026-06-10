@@ -96,6 +96,11 @@ app.set("etag", "strong");
 
 app.use(compression());
 
+// Redirection permanente : ancien lien /demo → /inscription
+app.get(/^\/demo\/?$/, (req, res) => {
+  res.redirect(301, "/inscription/");
+});
+
 app.use((req, res, next) => {
   res.setHeader("X-Content-Type-Options", "nosniff");
   res.setHeader("X-Frame-Options", "DENY");

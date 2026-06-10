@@ -151,7 +151,7 @@ const imageUrl = new URL(image, Astro.site ?? Astro.url.origin).toString();
         });
 
         // Reveal au scroll (toggle .is-visible)
-        const revealEls = document.querySelectorAll('[data-reveal], [data-split-text], [data-draw]');
+        const revealEls = document.querySelectorAll('[data-reveal], [data-split-text]');
         if (revealEls.length) {
           if (reduced || !('IntersectionObserver' in window)) {
             revealEls.forEach((el) => el.classList.add('is-visible'));
@@ -169,28 +169,6 @@ const imageUrl = new URL(image, Astro.site ?? Astro.url.origin).toString();
             );
             revealEls.forEach((el) => io.observe(el));
           }
-        }
-
-        // SVG draw-on-scroll — compute each path's total length so CSS can dash it
-        document.querySelectorAll('[data-draw]').forEach((wrap) => {
-          wrap.querySelectorAll('path').forEach((p) => {
-            if (typeof p.getTotalLength === 'function') {
-              p.style.setProperty('--len', p.getTotalLength());
-            }
-          });
-        });
-
-        // Cursor spotlight — délégué sur document
-        if (supportsHover && !reduced) {
-          document.addEventListener('mousemove', (e) => {
-            const target = e.target && e.target.closest
-              ? e.target.closest('[data-spotlight]')
-              : null;
-            if (!target) return;
-            const rect = target.getBoundingClientRect();
-            target.style.setProperty('--mx', e.clientX - rect.left + 'px');
-            target.style.setProperty('--my', e.clientY - rect.top + 'px');
-          }, { passive: true });
         }
 
         // Parallax — éléments avec data-parallax="0.3" se translatent au scroll
@@ -212,51 +190,6 @@ const imageUrl = new URL(image, Astro.site ?? Astro.url.origin).toString();
             }
           }, { passive: true });
           update();
-        }
-
-        // Magnetic — boutons attirent le curseur dans un rayon de 100px
-        if (supportsHover && !reduced) {
-          document.querySelectorAll('[data-magnetic]').forEach((btn) => {
-            const radius = 110;
-            const strength = 0.32;
-            const reset = () => { btn.style.transform = ''; };
-            btn.addEventListener('mousemove', (e) => {
-              const rect = btn.getBoundingClientRect();
-              const cx = rect.left + rect.width / 2;
-              const cy = rect.top + rect.height / 2;
-              const dx = e.clientX - cx;
-              const dy = e.clientY - cy;
-              const dist = Math.hypot(dx, dy);
-              if (dist < radius) {
-                btn.style.transform = `translate3d(${dx * strength}px, ${dy * strength}px, 0)`;
-              } else {
-                reset();
-              }
-            });
-            btn.addEventListener('mouseleave', reset);
-            btn.addEventListener('blur', reset);
-          });
-        }
-
-        // Tilt 3D — cards qui s'inclinent vers le curseur (max 5°)
-        if (supportsHover && !reduced) {
-          document.querySelectorAll('[data-tilt]').forEach((el) => {
-            const max = 5;
-            const reset = () => {
-              el.style.setProperty('--tx', '0deg');
-              el.style.setProperty('--ty', '0deg');
-            };
-            el.addEventListener('mousemove', (e) => {
-              const rect = el.getBoundingClientRect();
-              const px = (e.clientX - rect.left) / rect.width;
-              const py = (e.clientY - rect.top) / rect.height;
-              const ry = (px - 0.5) * max * 2;
-              const rx = (0.5 - py) * max * 2;
-              el.style.setProperty('--ty', ry.toFixed(2) + 'deg');
-              el.style.setProperty('--tx', rx.toFixed(2) + 'deg');
-            });
-            el.addEventListener('mouseleave', reset);
-          });
         }
 
         // Nav scroll shadow

@@ -13,11 +13,11 @@ const plans = [
     priceUnit: "/ membre actif / mois",
     floor: "Forfait minimum 39 CHF / mois",
     featured: true,
-    cta: { href: "/demo", label: "Réserver une démo", joinOpen: true },
+    cta: { href: "/inscription", label: "S'inscrire", joinOpen: true },
     features: [
       "Tâches Kanban illimitées",
       "Agenda partagé multi-équipes",
-      "Bible documentaire (PV, statuts, contrats)",
+      "Documents (PV, statuts, contrats)",
       "Notifications push mobile",
       "Membres et rôles illimités",
       "Support par email sous 48h ouvrées",
@@ -34,8 +34,6 @@ const plans = [
     features: [
       "Tout ce qui est dans Konclav",
       "Onboarding personnalisé",
-      "Intégrations SSO / annuaire",
-      "Domaine personnalisé",
       "Engagement annuel négociable",
       "Support prioritaire",
     ],
@@ -87,7 +85,7 @@ const faq = [
 
 <Layout
   title="Tarifs — Konclav"
-  description="Un tarif simple, pensé pour les associations. 4 CHF par membre actif par mois. Sans engagement, hébergé en UE."
+  description="Un tarif simple, pensé pour les associations. 4 CHF par membre actif par mois. Sans engagement, hébergé en Suisse."
 >
   <Navbar />
   <main id="main">
@@ -129,8 +127,6 @@ const faq = [
             plans.map((plan, i) => (
               <article
                 data-reveal
-                data-spotlight
-                data-tilt
                 data-gradient-border
                 style={`transition-delay: ${i * 100}ms`}
                 class={`group relative overflow-hidden rounded-2xl border p-8 transition-colors ${
@@ -236,7 +232,6 @@ const faq = [
             included.map((item, i) => (
               <div
                 data-reveal
-                data-spotlight
                 style={`transition-delay: ${i * 80}ms`}
                 class="group rounded-2xl border border-white/10 bg-white/[0.02] p-6 transition-colors hover:border-white/15"
               >
@@ -319,7 +314,6 @@ const faq = [
       <div class="mx-auto max-w-4xl">
         <div
           data-reveal
-          data-spotlight
           class="relative isolate overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-ink-900 to-ink-950 px-8 py-16 text-center sm:px-12 sm:py-20"
         >
 
@@ -339,12 +333,11 @@ const faq = [
             class="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row"
           >
             <a
-              href="/demo"
+              href="/inscription"
               data-join-open
-              data-magnetic
               class="cta-shimmer group/cta inline-flex items-center justify-center gap-1.5 rounded-xl bg-accent-500 px-7 py-4 text-sm font-semibold text-white shadow-[var(--shadow-cta)] transition-colors hover:bg-accent-400"
             >
-              Réserver ma démo
+              S'inscrire
               <svg
                 viewBox="0 0 16 16"
                 fill="none"
