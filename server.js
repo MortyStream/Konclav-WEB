@@ -45,11 +45,11 @@ console.log(`CSP: ${scriptHashes.length} inline-script hash(es) loaded`);
 
 const csp = [
   "default-src 'self'",
-  `script-src 'self' ${scriptHashes.join(" ")} https://cloud.umami.is`.trim().replace(/\s+/g, " "),
+  `script-src 'self' ${scriptHashes.join(" ")}`.trim().replace(/\s+/g, " "),
   "style-src 'self' 'unsafe-inline'",
   "font-src 'self' data:",
   "img-src 'self' data:",
-  "connect-src 'self' https://cloud.umami.is https://ehbdngidjrkhfrprfgqg.supabase.co",
+  "connect-src 'self' https://ehbdngidjrkhfrprfgqg.supabase.co",
   "form-action 'self'",
   "frame-ancestors 'none'",
   "base-uri 'self'",

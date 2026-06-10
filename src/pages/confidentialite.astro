@@ -167,11 +167,10 @@ import LegalLayout from "../layouts/LegalLayout.astro";
       <tr><th>Prestataire</th><th>Rôle</th><th>Localisation</th></tr>
     </thead>
     <tbody>
-      <tr><td>Supabase</td><td>Base de données, authentification, stockage de fichiers de l'application ; demandes d'inscription du site</td><td>Suisse (Zurich)</td></tr>
+      <tr><td>Supabase</td><td>Base de données, authentification, stockage de fichiers de l'application ; demandes d'inscription et mesure d'audience anonyme du site</td><td>Suisse (Zurich)</td></tr>
       <tr><td>Expo, Google (FCM), Apple (APNs)</td><td>Acheminement technique des notifications push</td><td>États-Unis (voir section 6)</td></tr>
       <tr><td>Resend</td><td>Envoi d'e-mails transactionnels de l'application</td><td>États-Unis (voir section 6)</td></tr>
       <tr><td>Infomaniak</td><td>Hébergement du site vitrine konclav.ch</td><td>Suisse</td></tr>
-      <tr><td>Umami</td><td>Mesure d'audience du site, sans cookie</td><td>Union européenne</td></tr>
     </tbody>
   </table>
   <p>
@@ -212,6 +211,7 @@ import LegalLayout from "../layouts/LegalLayout.astro";
       <tr><td>Jetons d'authentification Supabase</td><td>Durée de vie technique (rotation automatique) ; révocables à la déconnexion</td></tr>
       <tr><td>Journaux serveur web (site konclav.ch)</td><td>30 jours maximum, puis suppression ou agrégation anonyme ; conservés plus longtemps uniquement en cas d'incident de sécurité documenté</td></tr>
       <tr><td>Demandes d'inscription (formulaire du site)</td><td>12 mois après le dernier échange si la demande n'aboutit pas, puis suppression</td></tr>
+      <tr><td>Mesure d'audience du site (données anonymes, non personnelles)</td><td>13 mois, puis suppression automatique</td></tr>
       <tr><td>E-mails reçus à contact@konclav.ch</td><td>3 ans après le dernier échange, puis suppression ; conservés plus longtemps si nécessaires à la défense d'une réclamation</td></tr>
     </tbody>
   </table>
@@ -228,10 +228,14 @@ import LegalLayout from "../layouts/LegalLayout.astro";
       aucun cookie publicitaire ni traceur comportemental ;
     </li>
     <li>
-      <strong>mesure d'audience</strong> via <strong>Umami</strong>, une
-      solution respectueuse de la vie privée : <strong>sans cookie</strong> et
-      sans collecte de données permettant de vous identifier (pas de profil,
-      pas de suivi entre sites) ;
+      <strong>mesure d'audience interne</strong>, développée par nos soins et
+      hébergée sur notre infrastructure <strong>en Suisse</strong> (Supabase,
+      Zurich) : <strong>sans cookie</strong>, sans identifiant durable et sans
+      collecte de données permettant de vous identifier. Votre adresse IP et
+      votre navigateur ne sont <strong>jamais enregistrés</strong> — ils
+      servent uniquement à calculer une empreinte anonyme irréversible,
+      renouvelée chaque jour, qui rend impossible tout suivi au-delà de
+      24&nbsp;heures (pas de profil, pas de suivi entre sites) ;
     </li>
     <li>
       <strong>polices d'écriture</strong> : la police Inter est

@@ -83,14 +83,42 @@ const imageUrl = new URL(image, Astro.site ?? Astro.url.origin).toString();
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
     <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-    <link rel="preconnect" href="https://cloud.umami.is" crossorigin />
-
-    <!-- Umami — mesure d'audience sans cookie -->
-    <script
-      defer
-      src="https://cloud.umami.is/script.js"
-      data-website-id="e72a2f9e-8a7e-42ad-9062-4488bcd0a0c9"
-    ></script>
+    <!-- Mesure d'audience interne — Supabase Zurich, sans cookie, hash quotidien irréversible -->
+    <script is:inline>
+      (function () {
+        var EP = "https://ehbdngidjrkhfrprfgqg.supabase.co/functions/v1/website-track";
+        function send(eventName) {
+          if (navigator.webdriver) return;
+          if (location.pathname.indexOf("/admin") === 0) return;
+          var sid = null;
+          try {
+            sid = sessionStorage.getItem("k_sid");
+            if (!sid) { sid = crypto.randomUUID(); sessionStorage.setItem("k_sid", sid); }
+          } catch (e) {}
+          var tz = "";
+          try { tz = Intl.DateTimeFormat().resolvedOptions().timeZone || ""; } catch (e) {}
+          var body = {
+            p: location.pathname,
+            r: document.referrer || "",
+            tz: tz,
+            l: navigator.language || "",
+            w: (screen && screen.width) || 0,
+            s: sid,
+          };
+          if (eventName) body.e = eventName;
+          try {
+            fetch(EP, {
+              method: "POST",
+              keepalive: true,
+              headers: { "Content-Type": "text/plain" },
+              body: JSON.stringify(body),
+            }).catch(function () {});
+          } catch (e) {}
+        }
+        window.konclavTrack = function (name) { send(String(name || "").slice(0, 50)); };
+        send(null);
+      })();
+    </script>
 
     <noscript>
       <style>

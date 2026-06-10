@@ -590,7 +590,7 @@ const checkIndCls =
       successEl.hidden = false;
       if (progress) progress.style.width = "100%";
       if (stepLabel) stepLabel.textContent = "Terminé";
-      if (typeof umami !== "undefined" && umami.track) umami.track("join-submit");
+      if (window.konclavTrack) window.konclavTrack("join-submit");
     }
   })();
 </script>
