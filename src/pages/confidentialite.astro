@@ -102,8 +102,10 @@ import LegalLayout from "../layouts/LegalLayout.astro";
     <li>
       <strong>Formulaire d'inscription :</strong> les informations que
       vous y saisissez (nom de l'association, nom et e-mail du contact, canton,
-      etc.) sont transmises et stockées via <strong>Google Forms</strong>
-      (Google) afin de traiter votre demande ;
+      etc.) sont stockées dans notre base de données
+      (<strong>Supabase, Zurich</strong>) afin de traiter votre demande ;
+      une notification e-mail nous est transmise via <strong>Resend</strong>
+      (voir section 6) ;
     </li>
     <li>
       <strong>Mesure d'audience</strong> et <strong>polices d'écriture</strong> :
@@ -165,11 +167,10 @@ import LegalLayout from "../layouts/LegalLayout.astro";
       <tr><th>Prestataire</th><th>Rôle</th><th>Localisation</th></tr>
     </thead>
     <tbody>
-      <tr><td>Supabase</td><td>Base de données, authentification, stockage de fichiers de l'application</td><td>Suisse (Zurich)</td></tr>
+      <tr><td>Supabase</td><td>Base de données, authentification, stockage de fichiers de l'application ; demandes d'inscription du site</td><td>Suisse (Zurich)</td></tr>
       <tr><td>Expo, Google (FCM), Apple (APNs)</td><td>Acheminement technique des notifications push</td><td>États-Unis (voir section 6)</td></tr>
       <tr><td>Resend</td><td>Envoi d'e-mails transactionnels de l'application</td><td>États-Unis (voir section 6)</td></tr>
       <tr><td>Infomaniak</td><td>Hébergement du site vitrine konclav.ch</td><td>Suisse</td></tr>
-      <tr><td>Google (Google Forms)</td><td>Réception des demandes d'inscription (formulaire du site)</td><td>États-Unis</td></tr>
       <tr><td>Umami</td><td>Mesure d'audience du site, sans cookie</td><td>Union européenne</td></tr>
     </tbody>
   </table>
@@ -189,8 +190,8 @@ import LegalLayout from "../layouts/LegalLayout.astro";
     Certains traitements transitent par des serveurs situés <strong>aux
     États-Unis</strong> : l'<strong>envoi des notifications push</strong> (Expo,
     Google, Apple — données limitées à un identifiant d'appareil et au contenu de
-    la notification), le <strong>formulaire d'inscription</strong> (Google
-    Forms) et l'<strong>envoi de certains e-mails</strong> (Resend). Ces
+    la notification) et l'<strong>envoi de certains e-mails</strong> (Resend,
+    y compris la notification de réception d'une demande d'inscription). Ces
     transferts sont encadrés par les garanties prévues par la loi — selon le
     prestataire, adhésion au <strong>Data Privacy Framework UE–États-Unis</strong>
     et/ou <strong>clauses contractuelles types</strong>.
@@ -210,6 +211,7 @@ import LegalLayout from "../layouts/LegalLayout.astro";
       <tr><td>Jetons de notification</td><td>Supprimés à la déconnexion</td></tr>
       <tr><td>Jetons d'authentification Supabase</td><td>Durée de vie technique (rotation automatique) ; révocables à la déconnexion</td></tr>
       <tr><td>Journaux serveur web (site konclav.ch)</td><td>30 jours maximum, puis suppression ou agrégation anonyme ; conservés plus longtemps uniquement en cas d'incident de sécurité documenté</td></tr>
+      <tr><td>Demandes d'inscription (formulaire du site)</td><td>12 mois après le dernier échange si la demande n'aboutit pas, puis suppression</td></tr>
       <tr><td>E-mails reçus à contact@konclav.ch</td><td>3 ans après le dernier échange, puis suppression ; conservés plus longtemps si nécessaires à la défense d'une réclamation</td></tr>
     </tbody>
   </table>

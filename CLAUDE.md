@@ -37,7 +37,7 @@ Conventions visuelles :
 - **Easing** : `cubic-bezier(0.16, 1, 0.3, 1)` partout (animations + transitions)
 - **Type** : `text-balance` sur les H1, `tracking-tight`, `font-feature-settings: 'cv11' 1, 'ss03' 1, 'calt' 1` pour le look Linear
 - **Reveals scroll** : marquer un élément avec `data-reveal`, l'IntersectionObserver dans `Layout.astro` ajoute `is-visible`
-- **Cursor spotlight** : marquer une card avec `data-spotlight`, halo `::before` z:-1 isolation:isolate, mousemove délégué sur `document`
+- **Effets retirés (audit 10/06/2026)** : cursor-spotlight, boutons magnétiques, tilt 3D, draw-on-scroll — ne pas réintroduire
 
 ## Arborescence
 
@@ -51,8 +51,7 @@ src/
     Hero.astro            # H1 + 2 stats (Audience / Données app) + PhoneFan ou carrousel mobile
     Features.astro        # 4 cards bento (Tâches/Agenda/Documents/Membres)
     Security.astro        # 2 bentos stats + 4 points (RLS/TLS/2FA/Backups)
-    TrustBand.astro       # 4 badges (Conçu en Suisse / Conforme LPD-RGPD / Hébergé UE / AES-256)
-    Manifesto.astro       # H2 gradient + 3 stats (Sans cookie / UE / 30j Backups)
+    TrustBand.astro       # 4 badges (Conçu en Suisse / Conforme LPD-RGPD / Sans engagement / AES-256)
     PriceSimulator.astro  # 2 sliders + résultat live (aria-live)
     Onboarding.astro      # 3 étapes (Demande / Provisionnement / Go live)
     FAQ.astro             # <details> + JSON-LD FAQPage
@@ -62,12 +61,12 @@ src/
     Logo.astro            # <img> logo-mark.png (TODO: passer en SVG)
     PhoneShot.astro       # frame iPhone unique (prop `priority` pour LCP)
     PhoneFan.astro        # éventail desktop de 4 PhoneShot (Hero lg+)
-    JoinModal.astro       # modal wizard 4 étapes → POST Google Forms (honeypot + focus-trap)
-    CTAButton.astro       # bouton CTA réutilisable (primary/secondary, magnetic, joinOpen)
+    JoinModal.astro       # modal wizard 4 étapes → POST JSON Edge Function Supabase website-lead-submit (honeypot + focus-trap)
+    CTAButton.astro       # bouton CTA réutilisable (primary/secondary, joinOpen)
   pages/
     index.astro
-    demo.astro            # carrousel d'écrans + section "Demande de démo"
-    tarifs.astro          # 2 plans + simulateur + inclus + FAQ + CTA
+    inscription.astro     # carrousel d'écrans + CTA inscription (ex-demo.astro ; redirect 301 /demo → /inscription dans server.js)
+    tarifs.astro          # Pack fondateurs + 2 plans + simulateur + inclus + FAQ + CTA
     404.astro             # noindex
     confidentialite.astro # politique nLPD/RGPD complète
     conditions.astro      # CGU (essai 14 j inclus)
@@ -99,8 +98,7 @@ Composants supprimés au passage : `screens/`, `bento/`, `PhoneFrame.astro` (jam
 
 Les pages légales sont remplies avec les vraies infos (Kévin Perret, Sion, `contact@konclav.ch`, statut personne physique non assujettie TVA). Restent :
 
-- **Tester pour de vrai le formulaire de démo** une fois déployé : les `entry.*` Google Forms ont été déclarés « placeholders » dans le code initial — confirmer qu'ils tombent dans la bonne feuille (envoyer une demande test → vérifier la Sheet).
-- **Date des pages légales** : actuellement `27 mai 2026` dans les 4 pages, à rebumper si édition avant le lancement.
+- **Date des pages légales** : confidentialité + conditions au `10 juin 2026` ; mentions-légales + sous-traitance encore au `27 mai 2026`, à rebumper si édition.
 - **OG image** : régénérer si le H1 change (script non versionné, cf. section dédiée).
 
 ## Commandes utiles
@@ -136,6 +134,16 @@ Le serveur (`server.js`) :
 - Graceful shutdown sur SIGTERM/SIGINT
 
 Upload du code sur Infomaniak via FTP/SSH ou Git (cf. onglet FTP/SSH du manager). Après upload, Infomaniak lance `npm install && npm run build` puis `npm start`.
+
+## Backend partagé avec l'app (Supabase Zurich)
+
+Le formulaire d'inscription n'utilise PLUS Google Forms. Architecture :
+
+- **Projet Supabase** : `Konclav.app` (`ehbdngidjrkhfrprfgqg`, eu-central-2 Zurich) — le MÊME que l'app mobile. L'autre projet (`Konclav`, Irlande) est legacy, ne pas l'utiliser.
+- **Table `public.leads`** : propriété de CE repo. RLS activée, AUCUNE policy (deny-by-default), accès service_role uniquement. Un `comment on table` le documente en base. L'app mobile ne doit ni lire ni écrire dedans — et réciproquement, ce repo ne touche à AUCUNE autre table.
+- **Edge Function `website-lead-submit`** (verify_jwt=false) : valide (honeypot `website`, rate-limit IP 1/60s, caps longueur), insert dans `leads`, mail récap à `contact@konclav.ch` via Resend (`RESEND_API_KEY` déjà en secret, domaine vérifié, pattern copié de `send-bug-email`).
+- **CSP** : `connect-src` inclut `https://ehbdngidjrkhfrprfgqg.supabase.co` dans `server.js`.
+- Les leads se consultent dans Supabase Studio (table `leads`). Piste ouverte : cockpit admin dédié (lecture leads/clients, factures QR suisses) — chantier séparé.
 
 ## Régénérer l'OG image
 
@@ -174,7 +182,6 @@ Aucun pour le moment — le serveur magic 21st-dev a été retiré, il n'apporta
 - Préférer Tailwind utilities ; n'écrire de CSS custom que pour des patterns non couverts (FAQ accordion, spotlight, view-transition)
 - Scripts client toujours `is:inline` (pas de bundling JS pour des pages quasi-statiques)
 - `data-reveal` sur tout élément qui doit fade-in au scroll
-- `data-spotlight` sur les surfaces interactives premium (cards, CTA boxes)
 
 ## Branche de dev
 
@@ -187,7 +194,6 @@ Idées non-bloquantes, par ordre de valeur perçue :
 - **Logo en SVG** (actuellement PNG 45 Ko, chargé 3× par page)
 - **Page `/blog` ou `/changelog`** (content collections Astro = idéal)
 - **Internationalisation** fr-CH → de-CH / it-CH
-- **Refactor CSP** : nonces server-rendus pour supprimer `'unsafe-inline'` (gros chantier)
 - **Versionner** `scripts/og-gen.mjs` + npm task
 - **Upgrade deps** (Astro 6.4, Express 5)
 
@@ -203,5 +209,4 @@ grep -r 'TODO\|FIXME\|XXX' src/   # rien de critique laissé
 - Le site est mono-langue `fr-CH` actuellement
 - Pas de système de routing custom — file-based via `src/pages/`
 - Sitemap exclut `/404` (configuré dans `astro.config.mjs`)
-- `prefers-reduced-motion: reduce` désactive : reveal animations, spotlight halo, view transitions, FAQ accordion animation
-- `hover: none` (touch) désactive aussi le spotlight
+- `prefers-reduced-motion: reduce` désactive : reveal animations, view transitions, FAQ accordion animation, parallax chapitres

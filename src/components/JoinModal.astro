@@ -1,32 +1,10 @@
 ---
 import Logo from "./Logo.astro";
-// Modal "Rejoignez Konclav" — wizard multi-étapes qui POSTe vers Google Forms.
-// Les réponses arrivent dans le même Google Sheet que le formulaire d'origine.
-//
-// ⚠️ entry.* = PLACEHOLDERS. À remplacer par les vrais IDs issus du lien
-// pré-rempli Google Forms (éditeur → ⋮ → "Obtenir un lien pré-rempli").
+// Modal "Rejoignez Konclav" — wizard multi-étapes qui POSTe en JSON vers
+// l'Edge Function Supabase website-lead-submit (projet Zurich) :
+// insert dans public.leads + mail récap à contact@konclav.ch via Resend.
 const FORM_ACTION =
-  "https://docs.google.com/forms/d/e/1FAIpQLSexpAosU928HE5nSZbg1pFht-JEKuaS4X_0G9JrEtm-R9zUsw/formResponse";
-
-// Le Google Form d'origine a 3 pages → pageHistory = 0,1,2
-const PAGE_HISTORY = "0,1,2";
-
-const E = {
-  assoName: "entry.1186993864",
-  canton: "entry.1561928983",
-  legalForm: "entry.892921129",
-  memberCount: "entry.1940183991",
-  activity: "entry.397682604",
-  firstName: "entry.68668427",
-  lastName: "entry.377939619",
-  email: "entry.602325967",
-  role: "entry.1813881911",
-  phone: "entry.1248127561",
-  source: "entry.694436182",
-  modules: "entry.26847649",
-  needs: "entry.676880485",
-  consent: "entry.1856884458",
-};
+  "https://ehbdngidjrkhfrprfgqg.supabase.co/functions/v1/website-lead-submit";
 
 const cantons = ["Valais", "Vaud", "Fribourg", "Genève", "Neuchâtel", "Jura", "Autre"];
 const legalForms = ["Asso suisse", "Asso loi 1901", "Asbl belge", "Club/Collectif", "ONG/Fondation", "Autre"];
@@ -56,7 +34,6 @@ const checkIndCls =
 <div
   data-join-modal
   data-action={FORM_ACTION}
-  data-pagehistory={PAGE_HISTORY}
   inert
   class="join-modal fixed inset-0 z-[100] hidden"
   aria-hidden="true"
@@ -100,9 +77,9 @@ const checkIndCls =
           ></div>
         </div>
         <p class="mt-4 text-[11px] leading-snug text-ink-500">
-          Formulaire hébergé chez <strong>Google Forms</strong> (Google,
-          États-Unis). Vos réponses servent uniquement à qualifier votre
-          demande — pas de marketing, pas de revente. Détails et droits dans
+          Vos réponses sont stockées <strong>en Suisse</strong> (notre base de
+          données à Zurich) et servent uniquement à qualifier votre demande —
+          pas de marketing, pas de revente. Détails et droits dans
           la <a href="/confidentialite" class="underline hover:text-ink-400">politique de confidentialité</a>.
         </p>
       </div>
@@ -110,7 +87,7 @@ const checkIndCls =
       <form data-join-form novalidate class="px-6 py-6 sm:px-8">
         <div aria-hidden="true" style="position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden">
           <label>Laissez ce champ vide
-            <input type="text" name="hp_website" tabindex="-1" autocomplete="off" data-join-hp />
+            <input type="text" name="website" tabindex="-1" autocomplete="off" data-join-hp />
           </label>
         </div>
         <!-- STEP 1 -->
@@ -122,14 +99,14 @@ const checkIndCls =
 
           <div data-field data-required>
             <label class={labelCls} for="f-assoName">Nom de l'association <span class="text-accent-400">*</span></label>
-            <input id="f-assoName" type="text" name={E.assoName} autocomplete="organization" required aria-required="true" class={inputCls} placeholder="Ex : FC Lausanne" />
+            <input id="f-assoName" type="text" name="asso_name" autocomplete="organization" required aria-required="true" class={inputCls} placeholder="Ex : FC Lausanne" />
             <p role="alert" class="join-error mt-1.5 text-xs text-rose-400">Ce champ est obligatoire.</p>
           </div>
 
           <div data-field data-required>
             <label class={labelCls} id="canton-label">Canton <span class="text-accent-400">*</span></label>
             <div data-custom-select class="relative">
-              <select name={E.canton} tabindex="-1" aria-hidden="true" class="sr-only">
+              <select name="canton" tabindex="-1" aria-hidden="true" class="sr-only">
                 <option value="" selected disabled>Choisissez…</option>
                 {cantons.map((c) => <option value={c}>{c}</option>)}
               </select>
@@ -179,7 +156,7 @@ const checkIndCls =
             <div role="group" aria-label="Forme juridique" class="grid grid-cols-2 gap-2">
               {legalForms.map((opt) => (
                 <label class={optionCls}>
-                  <input type="radio" name={E.legalForm} value={opt} class="peer sr-only" />
+                  <input type="radio" name="legal_form" value={opt} class="peer sr-only" />
                   <span class={radioIndCls}></span>
                   <span>{opt}</span>
                 </label>
@@ -192,7 +169,7 @@ const checkIndCls =
             <div role="group" aria-label="Nombre de membres actifs" class="grid grid-cols-2 gap-2 sm:grid-cols-3">
               {memberCounts.map((opt) => (
                 <label class={optionCls}>
-                  <input type="radio" name={E.memberCount} value={opt} class="peer sr-only" />
+                  <input type="radio" name="member_count" value={opt} class="peer sr-only" />
                   <span class={radioIndCls}></span>
                   <span>{opt}</span>
                 </label>
@@ -203,7 +180,7 @@ const checkIndCls =
 
           <div data-field data-required>
             <label class={labelCls} for="f-activity">Que fait votre association ? <span class="text-accent-400">*</span></label>
-            <textarea id="f-activity" name={E.activity} rows="3" required aria-required="true" class={inputCls} placeholder="Ex : Théâtre, échecs, défense animale…"></textarea>
+            <textarea id="f-activity" name="activity" rows="3" required aria-required="true" class={inputCls} placeholder="Ex : Théâtre, échecs, défense animale…"></textarea>
             <p role="alert" class="join-error mt-1.5 text-xs text-rose-400">Ce champ est obligatoire.</p>
           </div>
         </div>
@@ -218,19 +195,19 @@ const checkIndCls =
           <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div data-field data-required>
               <label class={labelCls} for="f-firstName">Prénom <span class="text-accent-400">*</span></label>
-              <input id="f-firstName" type="text" name={E.firstName} autocomplete="given-name" required aria-required="true" class={inputCls} />
+              <input id="f-firstName" type="text" name="first_name" autocomplete="given-name" required aria-required="true" class={inputCls} />
               <p role="alert" class="join-error mt-1.5 text-xs text-rose-400">Obligatoire.</p>
             </div>
             <div data-field data-required>
               <label class={labelCls} for="f-lastName">Nom <span class="text-accent-400">*</span></label>
-              <input id="f-lastName" type="text" name={E.lastName} autocomplete="family-name" required aria-required="true" class={inputCls} />
+              <input id="f-lastName" type="text" name="last_name" autocomplete="family-name" required aria-required="true" class={inputCls} />
               <p role="alert" class="join-error mt-1.5 text-xs text-rose-400">Obligatoire.</p>
             </div>
           </div>
 
           <div data-field data-required>
             <label class={labelCls} for="f-email">Email <span class="text-accent-400">*</span></label>
-            <input id="f-email" type="email" name={E.email} autocomplete="email" required aria-required="true" class={inputCls} placeholder="vous@votre-asso.ch" />
+            <input id="f-email" type="email" name="email" autocomplete="email" required aria-required="true" class={inputCls} placeholder="vous@votre-asso.ch" />
             <p role="alert" class="join-error mt-1.5 text-xs text-rose-400">Merci d'indiquer un email valide.</p>
           </div>
 
@@ -239,7 +216,7 @@ const checkIndCls =
             <div role="group" aria-label="Rôle dans l'association" class="grid grid-cols-2 gap-2">
               {roles.map((opt) => (
                 <label class={optionCls}>
-                  <input type="radio" name={E.role} value={opt} class="peer sr-only" />
+                  <input type="radio" name="role" value={opt} class="peer sr-only" />
                   <span class={radioIndCls}></span>
                   <span>{opt}</span>
                 </label>
@@ -250,7 +227,7 @@ const checkIndCls =
 
           <div data-field>
             <label class={labelCls} for="f-phone">Téléphone <span class="text-ink-500">(optionnel)</span></label>
-            <input id="f-phone" type="tel" name={E.phone} autocomplete="tel" class={inputCls} placeholder="+41 …" />
+            <input id="f-phone" type="tel" name="phone" autocomplete="tel" class={inputCls} placeholder="+41 …" />
           </div>
         </div>
 
@@ -266,7 +243,7 @@ const checkIndCls =
             <div role="group" aria-label="Comment avez-vous connu Konclav ?" class="grid grid-cols-2 gap-2">
               {sources.map((opt) => (
                 <label class={optionCls}>
-                  <input type="radio" name={E.source} value={opt} class="peer sr-only" />
+                  <input type="radio" name="source" value={opt} class="peer sr-only" />
                   <span class={radioIndCls}></span>
                   <span>{opt}</span>
                 </label>
@@ -279,7 +256,7 @@ const checkIndCls =
             <div role="group" aria-label="Modules envisagés en priorité" class="grid grid-cols-2 gap-2 sm:grid-cols-3">
               {modules.map((opt) => (
                 <label class={optionCls}>
-                  <input type="checkbox" name={E.modules} value={opt} class="peer sr-only" />
+                  <input type="checkbox" name="modules" value={opt} class="peer sr-only" />
                   <span class={checkIndCls}></span>
                   <span>{opt}</span>
                 </label>
@@ -289,7 +266,7 @@ const checkIndCls =
 
           <div data-field>
             <label class={labelCls} for="f-needs">Besoins particuliers ou questions <span class="text-ink-500">(optionnel)</span></label>
-            <textarea id="f-needs" name={E.needs} rows="3" maxlength="1000" class={inputCls} placeholder="Dites-nous tout…"></textarea>
+            <textarea id="f-needs" name="needs" rows="3" maxlength="1000" class={inputCls} placeholder="Dites-nous tout…"></textarea>
           </div>
         </div>
 
@@ -301,7 +278,6 @@ const checkIndCls =
           </header>
 
           <div data-field>
-            <input type="hidden" name={E.consent} value="Oui" />
             <p class="rounded-xl border border-white/10 bg-white/[0.02] p-4 text-sm leading-snug text-ink-400">
               En envoyant ce formulaire, vous nous demandez d'être recontacté
               par e-mail au sujet de votre inscription. Aucun e-mail marketing ne
@@ -311,8 +287,9 @@ const checkIndCls =
 
           <p class="text-xs leading-relaxed text-ink-500">
             Vos réponses servent uniquement à qualifier votre demande. Aucun email
-            marketing, aucune revente. Le formulaire est traité via Google Forms
-            (Google, États-Unis) ; détails et droits dans notre <a
+            marketing, aucune revente. Elles sont stockées en Suisse (Supabase,
+            Zurich) ; une notification nous parvient par e-mail via Resend.
+            Détails et droits dans notre <a
               href="/confidentialite" class="link-underline text-ink-400"
               >politique de confidentialité</a
             >. Vous pouvez demander la suppression à tout moment.
@@ -392,7 +369,6 @@ const checkIndCls =
     const backdrop = modal.querySelector("[data-join-backdrop]");
     const panel = modal.querySelector(".join-panel");
     const ACTION = modal.dataset.action;
-    const PAGE_HISTORY = modal.dataset.pagehistory || "";
 
     let current = 0;
     let lastFocused = null;
@@ -585,12 +561,23 @@ const checkIndCls =
       if (submitLabel) submitLabel.textContent = "Envoi…";
 
       const fd = new FormData(form);
-      fd.delete("hp_website");
-      fd.append("fvv", "1");
-      if (PAGE_HISTORY) fd.append("pageHistory", PAGE_HISTORY);
+      const payload = {};
+      fd.forEach((value, key) => {
+        if (key === "modules") return;
+        payload[key] = value;
+      });
+      const mods = fd.getAll("modules");
+      if (mods.length) payload.modules = mods;
 
-      fetch(ACTION, { method: "POST", mode: "no-cors", body: fd })
-        .then(() => showSuccess())
+      fetch(ACTION, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      })
+        .then((res) => {
+          if (!res.ok) throw new Error("HTTP " + res.status);
+          showSuccess();
+        })
         .catch(() => {
           submitBtn.disabled = false;
           if (submitLabel) submitLabel.textContent = "Envoyer la demande";
