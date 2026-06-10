@@ -3,7 +3,7 @@ import Layout from "../layouts/Layout.astro";
 import Logo from "../components/Logo.astro";
 // Cockpit admin — page cachée (noindex, hors sitemap, aucun lien public).
 // Auth Supabase + RLS : la base ne répond qu'au compte contact@konclav.ch.
-// Vanilla fetch (pas de supabase-js) pour rester dans la CSP stricte.
+// Trois modules : Inscriptions, Audience (Umami), Facturation (clients + QR-bills).
 const SUPABASE_URL = "https://ehbdngidjrkhfrprfgqg.supabase.co";
 const PUBLISHABLE_KEY = "sb_publishable_VALB2_pMZ2GjMNP3mmyChg_y-vuitny";
 const ADMIN_EMAIL = "contact@konclav.ch";
@@ -12,7 +12,7 @@ const ADMIN_EMAIL = "contact@konclav.ch";
 <Layout title="Cockpit — Konclav" description="Espace d'administration Konclav." noindex={true}>
   <main
     id="main"
-    class="mx-auto min-h-dvh w-full max-w-5xl px-6 pb-24 pt-10"
+    class="mx-auto min-h-dvh w-full max-w-6xl px-6 pb-24 pt-10"
     data-cockpit
     data-url={SUPABASE_URL}
     data-key={PUBLISHABLE_KEY}
@@ -115,18 +115,247 @@ const ADMIN_EMAIL = "contact@konclav.ch";
 
     <!-- ===== APP ===== -->
     <section data-ck-app hidden>
-      <!-- Stats -->
-      <div class="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-4" data-ck-stats></div>
+      <!-- Tabs principaux -->
+      <nav class="mt-8 flex flex-wrap gap-1 border-b border-white/[0.06]" role="tablist" aria-label="Sections du cockpit">
+        <button type="button" data-tab="leads" role="tab" aria-selected="true"
+          class="ck-tab relative -mb-px border-b-2 border-accent-500 px-4 py-3 text-sm font-medium text-ink-50">
+          Inscriptions
+        </button>
+        <button type="button" data-tab="audience" role="tab" aria-selected="false"
+          class="ck-tab relative -mb-px border-b-2 border-transparent px-4 py-3 text-sm font-medium text-ink-400 hover:text-ink-50">
+          Audience
+        </button>
+        <button type="button" data-tab="billing" role="tab" aria-selected="false"
+          class="ck-tab relative -mb-px border-b-2 border-transparent px-4 py-3 text-sm font-medium text-ink-400 hover:text-ink-50">
+          Facturation
+        </button>
+      </nav>
 
-      <!-- Filtres -->
-      <div class="mt-8 flex flex-wrap items-center gap-2" data-ck-filters role="group" aria-label="Filtrer par statut"></div>
+      <!-- ===== PANEL : LEADS ===== -->
+      <div data-panel="leads" role="tabpanel">
+        <div class="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-4" data-ck-stats></div>
+        <div class="mt-8 flex flex-wrap items-center gap-2" data-ck-filters role="group" aria-label="Filtrer par statut"></div>
+        <div class="mt-6 space-y-3" data-ck-list aria-live="polite"></div>
+        <p data-ck-empty hidden class="mt-12 text-center text-sm text-ink-500">Aucune demande pour ce filtre.</p>
+      </div>
 
-      <!-- Liste -->
-      <div class="mt-6 space-y-3" data-ck-list aria-live="polite"></div>
-      <p data-ck-empty hidden class="mt-12 text-center text-sm text-ink-500">Aucune demande pour ce filtre.</p>
+      <!-- ===== PANEL : AUDIENCE ===== -->
+      <div data-panel="audience" role="tabpanel" hidden>
+        <div class="mt-8 flex flex-wrap items-center justify-between gap-3">
+          <h2 class="text-xl font-semibold tracking-tight text-ink-50">Audience du site</h2>
+          <div class="flex gap-1" data-au-periods role="group" aria-label="Période">
+            <button type="button" data-period="24h" class="ck-pill">24h</button>
+            <button type="button" data-period="7d"  class="ck-pill ck-pill-on">7 j</button>
+            <button type="button" data-period="30d" class="ck-pill">30 j</button>
+            <button type="button" data-period="90d" class="ck-pill">90 j</button>
+          </div>
+        </div>
+        <div data-au-content aria-live="polite">
+          <p class="mt-12 text-center text-sm text-ink-500">Chargement…</p>
+        </div>
+      </div>
+
+      <!-- ===== PANEL : BILLING ===== -->
+      <div data-panel="billing" role="tabpanel" hidden>
+        <!-- Sous-tabs -->
+        <nav class="mt-6 flex flex-wrap gap-1" role="tablist" aria-label="Sous-sections facturation">
+          <button type="button" data-subtab="invoices" role="tab" aria-selected="true"
+            class="ck-subtab ck-subtab-on">Factures</button>
+          <button type="button" data-subtab="customers" role="tab" aria-selected="false"
+            class="ck-subtab">Clients</button>
+        </nav>
+
+        <!-- Sous-panel factures -->
+        <div data-subpanel="invoices">
+          <div class="mt-6 flex flex-wrap items-center justify-between gap-3">
+            <h2 class="text-xl font-semibold tracking-tight text-ink-50">Factures</h2>
+            <button type="button" data-bi-new
+              class="rounded-xl bg-accent-500 px-4 py-2 text-sm font-semibold text-white shadow-[var(--shadow-cta)] transition-colors hover:bg-accent-400">
+              + Nouvelle facture
+            </button>
+          </div>
+          <div data-bi-content aria-live="polite">
+            <p class="mt-12 text-center text-sm text-ink-500">Chargement…</p>
+          </div>
+        </div>
+
+        <!-- Sous-panel clients -->
+        <div data-subpanel="customers" hidden>
+          <div class="mt-6 flex flex-wrap items-center justify-between gap-3">
+            <h2 class="text-xl font-semibold tracking-tight text-ink-50">Clients</h2>
+            <button type="button" data-bc-new
+              class="rounded-xl bg-accent-500 px-4 py-2 text-sm font-semibold text-white shadow-[var(--shadow-cta)] transition-colors hover:bg-accent-400">
+              + Nouveau client
+            </button>
+          </div>
+          <div data-bc-content aria-live="polite">
+            <p class="mt-12 text-center text-sm text-ink-500">Chargement…</p>
+          </div>
+        </div>
+      </div>
     </section>
+
+    <!-- ===== MODAL : édition client ===== -->
+    <div data-modal="customer" hidden class="ck-modal" role="dialog" aria-modal="true" aria-labelledby="ck-cust-title">
+      <div class="ck-modal-back"></div>
+      <div class="ck-modal-card">
+        <div class="flex items-center justify-between border-b border-white/[0.06] px-5 py-4">
+          <h3 id="ck-cust-title" class="text-base font-semibold text-ink-50">Nouveau client</h3>
+          <button type="button" data-modal-close class="text-ink-400 hover:text-ink-50" aria-label="Fermer">✕</button>
+        </div>
+        <form data-bc-form class="space-y-3 px-5 py-5">
+          <input type="hidden" data-bc-id />
+          <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <label class="block text-xs">
+              <span class="mb-1 block font-medium text-ink-400">Nom de l'association *</span>
+              <input data-bc-field="asso_name" required class="ck-input" />
+            </label>
+            <label class="block text-xs">
+              <span class="mb-1 block font-medium text-ink-400">Forme juridique</span>
+              <input data-bc-field="vat_number" class="ck-input" placeholder="N° TVA (si applicable)" />
+            </label>
+          </div>
+          <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <label class="block text-xs">
+              <span class="mb-1 block font-medium text-ink-400">Contact (nom complet) *</span>
+              <input data-bc-field="contact_name" required class="ck-input" />
+            </label>
+            <label class="block text-xs">
+              <span class="mb-1 block font-medium text-ink-400">Email *</span>
+              <input data-bc-field="contact_email" type="email" required class="ck-input" />
+            </label>
+          </div>
+          <div class="grid grid-cols-1 gap-3 sm:grid-cols-3">
+            <label class="block text-xs sm:col-span-3">
+              <span class="mb-1 block font-medium text-ink-400">Adresse (rue + n°)</span>
+              <input data-bc-field="address_line" class="ck-input" />
+            </label>
+            <label class="block text-xs">
+              <span class="mb-1 block font-medium text-ink-400">NPA</span>
+              <input data-bc-field="postal_code" class="ck-input" />
+            </label>
+            <label class="block text-xs sm:col-span-2">
+              <span class="mb-1 block font-medium text-ink-400">Localité</span>
+              <input data-bc-field="city" class="ck-input" />
+            </label>
+          </div>
+          <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <label class="block text-xs">
+              <span class="mb-1 block font-medium text-ink-400">Pays</span>
+              <input data-bc-field="country" value="CH" maxlength="2" class="ck-input" />
+            </label>
+            <label class="block text-xs">
+              <span class="mb-1 block font-medium text-ink-400">Téléphone</span>
+              <input data-bc-field="phone" class="ck-input" />
+            </label>
+          </div>
+          <label class="block text-xs">
+            <span class="mb-1 block font-medium text-ink-400">Notes internes</span>
+            <textarea data-bc-field="notes" rows="2" class="ck-input"></textarea>
+          </label>
+          <p data-bc-error role="alert" hidden class="text-sm text-rose-400"></p>
+          <div class="flex justify-end gap-2 pt-2">
+            <button type="button" data-modal-close class="rounded-lg border border-white/10 px-4 py-2 text-sm text-ink-300 hover:border-white/20 hover:text-ink-50">Annuler</button>
+            <button type="submit" data-bc-submit class="rounded-lg bg-accent-500 px-4 py-2 text-sm font-semibold text-white hover:bg-accent-400 disabled:cursor-not-allowed disabled:opacity-60">Enregistrer</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- ===== MODAL : édition facture ===== -->
+    <div data-modal="invoice" hidden class="ck-modal" role="dialog" aria-modal="true" aria-labelledby="ck-inv-title">
+      <div class="ck-modal-back"></div>
+      <div class="ck-modal-card ck-modal-wide">
+        <div class="flex items-center justify-between border-b border-white/[0.06] px-5 py-4">
+          <h3 id="ck-inv-title" class="text-base font-semibold text-ink-50">Nouvelle facture</h3>
+          <button type="button" data-modal-close class="text-ink-400 hover:text-ink-50" aria-label="Fermer">✕</button>
+        </div>
+        <form data-bi-form class="space-y-4 px-5 py-5">
+          <input type="hidden" data-bi-id />
+          <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <label class="block text-xs">
+              <span class="mb-1 block font-medium text-ink-400">Client *</span>
+              <select data-bi-field="customer_id" required class="ck-input"></select>
+            </label>
+            <label class="block text-xs">
+              <span class="mb-1 block font-medium text-ink-400">Devise</span>
+              <select data-bi-field="currency" class="ck-input">
+                <option value="CHF">CHF</option>
+                <option value="EUR">EUR</option>
+              </select>
+            </label>
+          </div>
+          <div class="grid grid-cols-1 gap-3 sm:grid-cols-3">
+            <label class="block text-xs">
+              <span class="mb-1 block font-medium text-ink-400">Date d'émission</span>
+              <input data-bi-field="issue_date" type="date" class="ck-input" />
+            </label>
+            <label class="block text-xs">
+              <span class="mb-1 block font-medium text-ink-400">Échéance</span>
+              <input data-bi-field="due_date" type="date" class="ck-input" />
+            </label>
+            <label class="block text-xs">
+              <span class="mb-1 block font-medium text-ink-400">TVA (%) — 0 si non assujetti</span>
+              <input data-bi-field="vat_rate" type="number" min="0" max="100" step="0.01" value="0" class="ck-input" />
+            </label>
+          </div>
+          <label class="block text-xs">
+            <span class="mb-1 block font-medium text-ink-400">IBAN émetteur (pour le QR de paiement)</span>
+            <input data-bi-field="issuer_iban" class="ck-input" placeholder="CH00 0000 0000 0000 0000 0" />
+          </label>
+
+          <!-- Lignes -->
+          <div>
+            <div class="mb-2 flex items-center justify-between">
+              <span class="text-xs font-medium text-ink-400">Lignes</span>
+              <button type="button" data-bi-add-line class="rounded-lg border border-white/10 bg-white/[0.02] px-3 py-1 text-xs font-medium text-ink-200 hover:border-white/20">+ Ligne</button>
+            </div>
+            <div data-bi-lines class="space-y-2"></div>
+          </div>
+
+          <!-- Totaux live -->
+          <div class="rounded-xl border border-white/[0.06] bg-white/[0.02] p-4 text-sm">
+            <div class="flex justify-between text-ink-400"><span>Sous-total</span><span data-bi-subtotal class="tabular-nums text-ink-50">0.00</span></div>
+            <div class="flex justify-between text-ink-400"><span data-bi-vat-label>TVA</span><span data-bi-vat class="tabular-nums text-ink-50">0.00</span></div>
+            <div class="mt-2 flex justify-between border-t border-white/[0.06] pt-2 text-base font-semibold text-ink-50"><span>Total</span><span data-bi-total class="tabular-nums">0.00</span></div>
+          </div>
+
+          <label class="block text-xs">
+            <span class="mb-1 block font-medium text-ink-400">Notes</span>
+            <textarea data-bi-field="notes" rows="2" class="ck-input"></textarea>
+          </label>
+
+          <p data-bi-error role="alert" hidden class="text-sm text-rose-400"></p>
+          <div class="flex justify-end gap-2 pt-2">
+            <button type="button" data-modal-close class="rounded-lg border border-white/10 px-4 py-2 text-sm text-ink-300 hover:border-white/20 hover:text-ink-50">Annuler</button>
+            <button type="submit" data-bi-submit class="rounded-lg bg-accent-500 px-4 py-2 text-sm font-semibold text-white hover:bg-accent-400 disabled:cursor-not-allowed disabled:opacity-60">Enregistrer</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
   </main>
 </Layout>
+
+<style is:global>
+  .ck-tab[aria-selected="true"] { border-color: var(--color-accent-500); color: var(--color-ink-50); }
+  .ck-pill { border: 1px solid rgba(255,255,255,.10); background: rgba(255,255,255,.02); color: var(--color-ink-400); padding: .35rem .85rem; border-radius: 999px; font-size: .75rem; font-weight: 500; transition: all .15s; }
+  .ck-pill:hover { border-color: rgba(255,255,255,.20); color: var(--color-ink-50); }
+  .ck-pill-on { border-color: rgba(94,106,210,.60); background: rgba(94,106,210,.15); color: var(--color-ink-50); }
+  .ck-subtab { padding: .5rem 1rem; border-radius: .5rem; font-size: .8rem; color: var(--color-ink-400); font-weight: 500; transition: all .15s; }
+  .ck-subtab:hover { color: var(--color-ink-50); background: rgba(255,255,255,.03); }
+  .ck-subtab-on { background: rgba(94,106,210,.12); color: var(--color-ink-50); }
+  .ck-input { width: 100%; border-radius: .75rem; border: 1px solid rgba(255,255,255,.10); background: rgba(255,255,255,.03); padding: .65rem .85rem; font-size: .875rem; color: var(--color-ink-50); }
+  .ck-input:focus { outline: none; border-color: rgba(94,106,210,.50); box-shadow: 0 0 0 3px rgba(94,106,210,.20); }
+  .ck-modal { position: fixed; inset: 0; z-index: 60; display: flex; align-items: center; justify-content: center; padding: 1rem; }
+  .ck-modal-back { position: absolute; inset: 0; background: rgba(0,0,0,.75); backdrop-filter: blur(4px); }
+  .ck-modal-card { position: relative; width: 100%; max-width: 32rem; max-height: 90vh; overflow-y: auto; border-radius: 1rem; border: 1px solid rgba(255,255,255,.10); background: var(--color-ink-900); }
+  .ck-modal-wide { max-width: 48rem; }
+  .ck-line { display: grid; grid-template-columns: 1fr 4rem 6rem 6rem 2rem; gap: .5rem; align-items: center; }
+  @media (max-width: 640px) { .ck-line { grid-template-columns: 1fr 1fr 1fr; } .ck-line .ck-line-rm { grid-column: span 3; } }
+  .ck-sparkline { stroke: var(--color-accent-400); stroke-width: 1.5; fill: none; }
+  .ck-sparkfill { fill: rgba(113,112,255,.10); }
+</style>
 
 <script is:inline>
   (function () {
@@ -136,6 +365,7 @@ const ADMIN_EMAIL = "contact@konclav.ch";
     const K = root.dataset.key;
     const ADMIN = root.dataset.admin;
 
+    // ===== DOM refs =====
     const loginView = root.querySelector("[data-ck-login]");
     const changeView = root.querySelector("[data-ck-change]");
     const changeForm = root.querySelector("[data-ck-change-form]");
@@ -146,11 +376,117 @@ const ADMIN_EMAIL = "contact@konclav.ch";
     const loginBtn = root.querySelector("[data-ck-login-btn]");
     const loginError = root.querySelector("[data-ck-login-error]");
     const logoutBtn = root.querySelector("[data-ck-logout]");
-    const statsEl = root.querySelector("[data-ck-stats]");
-    const filtersEl = root.querySelector("[data-ck-filters]");
-    const listEl = root.querySelector("[data-ck-list]");
-    const emptyEl = root.querySelector("[data-ck-empty]");
 
+    const tabs = root.querySelectorAll("[data-tab]");
+    const panels = { leads: root.querySelector('[data-panel="leads"]'), audience: root.querySelector('[data-panel="audience"]'), billing: root.querySelector('[data-panel="billing"]') };
+    const subtabs = root.querySelectorAll("[data-subtab]");
+    const subpanels = { invoices: root.querySelector('[data-subpanel="invoices"]'), customers: root.querySelector('[data-subpanel="customers"]') };
+
+    const esc = (s) => String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+    const fmtCHF = (n, c) => (c || "CHF") + " " + (Number(n) || 0).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, "'");
+    const fmtDate = (s) => s ? new Date(s).toLocaleDateString("fr-CH", { day: "2-digit", month: "short", year: "numeric" }) : "—";
+    const todayISO = () => new Date().toISOString().slice(0, 10);
+    const addDaysISO = (d, n) => { const x = new Date(d); x.setDate(x.getDate() + n); return x.toISOString().slice(0, 10); };
+
+    // ===== Auth (REST) =====
+    const store = {
+      get at() { return sessionStorage.getItem("ck_at"); },
+      get rt() { return sessionStorage.getItem("ck_rt"); },
+      set(at, rt) { sessionStorage.setItem("ck_at", at); sessionStorage.setItem("ck_rt", rt); },
+      clear() { sessionStorage.removeItem("ck_at"); sessionStorage.removeItem("ck_rt"); },
+    };
+    function jwtEmail(token) { try { return JSON.parse(atob(token.split(".")[1])).email || ""; } catch { return ""; } }
+
+    async function authRequest(grant, body) {
+      const res = await fetch(U + "/auth/v1/token?grant_type=" + grant, {
+        method: "POST", headers: { apikey: K, "Content-Type": "application/json" }, body: JSON.stringify(body),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error_description || data.msg || "Échec de connexion");
+      return data;
+    }
+    async function refreshSession() {
+      if (!store.rt) return false;
+      try { const d = await authRequest("refresh_token", { refresh_token: store.rt }); store.set(d.access_token, d.refresh_token); return true; }
+      catch { store.clear(); return false; }
+    }
+    async function api(path, opts = {}, retried = false) {
+      const res = await fetch(U + "/rest/v1/" + path, {
+        ...opts,
+        headers: { apikey: K, Authorization: "Bearer " + store.at, "Content-Type": "application/json", ...(opts.headers || {}) },
+      });
+      if (res.status === 401 && !retried && (await refreshSession())) return api(path, opts, true);
+      if (res.status === 401) { showLogin(); throw new Error("Session expirée"); }
+      if (!res.ok) { const t = await res.text().catch(() => ""); throw new Error("HTTP " + res.status + " — " + t.slice(0, 200)); }
+      return res;
+    }
+    async function fn(name, opts = {}) {
+      const res = await fetch(U + "/functions/v1/" + name + (opts.qs ? "?" + opts.qs : ""), {
+        method: opts.method || "GET",
+        headers: { apikey: K, Authorization: "Bearer " + store.at, ...(opts.json ? { "Content-Type": "application/json" } : {}), ...(opts.headers || {}) },
+        body: opts.json ? JSON.stringify(opts.json) : opts.body,
+      });
+      return res;
+    }
+
+    // ===== Vues principales =====
+    function showLogin() { store.clear(); appView.hidden = true; changeView.hidden = true; logoutBtn.hidden = true; loginView.hidden = false; }
+    function showChange() { loginView.hidden = true; appView.hidden = true; changeView.hidden = false; logoutBtn.hidden = false; document.getElementById("ck-newpw").focus(); }
+    async function showApp() {
+      loginView.hidden = true; changeView.hidden = true; appView.hidden = false; logoutBtn.hidden = false;
+      switchTab("leads");
+    }
+    async function fetchUser() {
+      const res = await fetch(U + "/auth/v1/user", { headers: { apikey: K, Authorization: "Bearer " + store.at } });
+      return res.ok ? res.json() : null;
+    }
+    async function enter() {
+      const user = await fetchUser();
+      if (user && user.user_metadata && user.user_metadata.temp_password === true) showChange();
+      else await showApp();
+    }
+
+    // ===== Tab navigation =====
+    function switchTab(name) {
+      tabs.forEach((t) => {
+        const on = t.dataset.tab === name;
+        t.setAttribute("aria-selected", on ? "true" : "false");
+        t.className = "ck-tab relative -mb-px border-b-2 px-4 py-3 text-sm font-medium transition-colors " + (on ? "border-accent-500 text-ink-50" : "border-transparent text-ink-400 hover:text-ink-50");
+      });
+      Object.entries(panels).forEach(([k, el]) => { if (el) el.hidden = k !== name; });
+      if (name === "leads") loadLeads();
+      if (name === "audience") loadAudience();
+      if (name === "billing") { switchSubtab("invoices"); }
+    }
+    function switchSubtab(name) {
+      subtabs.forEach((t) => {
+        const on = t.dataset.subtab === name;
+        t.setAttribute("aria-selected", on ? "true" : "false");
+        t.className = "ck-subtab " + (on ? "ck-subtab-on" : "");
+      });
+      Object.entries(subpanels).forEach(([k, el]) => { if (el) el.hidden = k !== name; });
+      if (name === "invoices") loadInvoices();
+      if (name === "customers") loadCustomers();
+    }
+    tabs.forEach((t) => t.addEventListener("click", () => switchTab(t.dataset.tab)));
+    subtabs.forEach((t) => t.addEventListener("click", () => switchSubtab(t.dataset.subtab)));
+
+    // ===== Modal helpers =====
+    const modals = root.querySelectorAll("[data-modal]");
+    function openModal(name) {
+      modals.forEach((m) => { m.hidden = m.dataset.modal !== name; });
+      const m = root.querySelector('[data-modal="' + name + '"]');
+      if (m) { const inp = m.querySelector("input, select, textarea"); if (inp) inp.focus(); }
+    }
+    function closeModals() { modals.forEach((m) => (m.hidden = true)); }
+    root.addEventListener("click", (e) => {
+      if (e.target.closest("[data-modal-close]") || e.target.classList.contains("ck-modal-back")) closeModals();
+    });
+    document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeModals(); });
+
+    // =========================================================
+    // ============ MODULE 1 : INSCRIPTIONS (LEADS) ============
+    // =========================================================
     const STATUSES = [
       { value: "new", label: "Nouveau", color: "#7170ff" },
       { value: "contacted", label: "Contacté", color: "#fbbf24" },
@@ -158,174 +494,53 @@ const ADMIN_EMAIL = "contact@konclav.ch";
       { value: "declined", label: "Refusé", color: "#8b8b94" },
     ];
     const statusOf = (v) => STATUSES.find((s) => s.value === v) || { value: v, label: v, color: "#8b8b94" };
-
     let leads = [];
-    let filter = "all";
+    let leadFilter = "all";
+    const statsEl = root.querySelector("[data-ck-stats]");
+    const filtersEl = root.querySelector("[data-ck-filters]");
+    const listEl = root.querySelector("[data-ck-list]");
+    const emptyEl = root.querySelector("[data-ck-empty]");
 
-    const esc = (s) =>
-      String(s ?? "")
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
-
-    // ---- Auth (REST, sans librairie) ----
-    const store = {
-      get at() { return sessionStorage.getItem("ck_at"); },
-      get rt() { return sessionStorage.getItem("ck_rt"); },
-      set(at, rt) { sessionStorage.setItem("ck_at", at); sessionStorage.setItem("ck_rt", rt); },
-      clear() { sessionStorage.removeItem("ck_at"); sessionStorage.removeItem("ck_rt"); },
-    };
-
-    function jwtEmail(token) {
-      try { return JSON.parse(atob(token.split(".")[1])).email || ""; } catch { return ""; }
-    }
-
-    async function authRequest(grant, body) {
-      const res = await fetch(U + "/auth/v1/token?grant_type=" + grant, {
-        method: "POST",
-        headers: { apikey: K, "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-      });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(data.error_description || data.msg || "Échec de connexion");
-      return data;
-    }
-
-    async function refreshSession() {
-      if (!store.rt) return false;
-      try {
-        const data = await authRequest("refresh_token", { refresh_token: store.rt });
-        store.set(data.access_token, data.refresh_token);
-        return true;
-      } catch { store.clear(); return false; }
-    }
-
-    async function api(path, opts = {}, retried = false) {
-      const res = await fetch(U + "/rest/v1/" + path, {
-        ...opts,
-        headers: {
-          apikey: K,
-          Authorization: "Bearer " + store.at,
-          "Content-Type": "application/json",
-          ...(opts.headers || {}),
-        },
-      });
-      if (res.status === 401 && !retried && (await refreshSession())) {
-        return api(path, opts, true);
-      }
-      if (res.status === 401) { showLogin(); throw new Error("Session expirée"); }
-      if (!res.ok) throw new Error("HTTP " + res.status);
-      return res;
-    }
-
-    // ---- Vues ----
-    function showLogin() {
-      store.clear();
-      appView.hidden = true;
-      changeView.hidden = true;
-      logoutBtn.hidden = true;
-      loginView.hidden = false;
-    }
-    function showChange() {
-      loginView.hidden = true;
-      appView.hidden = true;
-      changeView.hidden = false;
-      logoutBtn.hidden = false;
-      document.getElementById("ck-newpw").focus();
-    }
-    async function showApp() {
-      loginView.hidden = true;
-      changeView.hidden = true;
-      appView.hidden = false;
-      logoutBtn.hidden = false;
-      await loadLeads();
-    }
-
-    async function fetchUser() {
-      const res = await fetch(U + "/auth/v1/user", {
-        headers: { apikey: K, Authorization: "Bearer " + store.at },
-      });
-      if (!res.ok) return null;
-      return res.json();
-    }
-
-    // Route post-auth : mot de passe temporaire → écran de changement forcé
-    async function enter() {
-      const user = await fetchUser();
-      if (user && user.user_metadata && user.user_metadata.temp_password === true) {
-        showChange();
-      } else {
-        await showApp();
-      }
-    }
-
-    // ---- Data ----
     async function loadLeads() {
       listEl.innerHTML = '<p class="py-10 text-center text-sm text-ink-500">Chargement…</p>';
       try {
         const res = await api("leads?select=*&order=created_at.desc");
         leads = await res.json();
-        render();
+        renderLeads();
       } catch (e) {
         listEl.innerHTML = '<p class="py-10 text-center text-sm text-rose-400">Erreur de chargement. Rechargez la page.</p>';
       }
     }
-
     async function patchLead(id, body) {
-      await api("leads?id=eq." + encodeURIComponent(id), {
-        method: "PATCH",
-        headers: { Prefer: "return=minimal" },
-        body: JSON.stringify(body),
-      });
+      await api("leads?id=eq." + encodeURIComponent(id), { method: "PATCH", headers: { Prefer: "return=minimal" }, body: JSON.stringify(body) });
     }
-
-    // ---- Render ----
-    function render() {
+    function renderLeads() {
       const counts = { all: leads.length };
       STATUSES.forEach((s) => { counts[s.value] = leads.filter((l) => l.status === s.value).length; });
-
-      statsEl.innerHTML = [["Total", counts.all, "#f4f4f5"]]
-        .concat(STATUSES.map((s) => [s.label + "s", counts[s.value], s.color]))
-        .slice(0, 4)
-        .map(
-          ([label, n, color]) =>
-            '<div class="rounded-2xl border border-white/10 bg-white/[0.02] p-4">' +
-            '<p class="text-2xl font-semibold tabular-nums" style="color:' + color + '">' + n + "</p>" +
-            '<p class="mt-0.5 text-xs text-ink-500">' + esc(label) + "</p></div>"
-        )
-        .join("");
-
-      filtersEl.innerHTML = [{ value: "all", label: "Tous" }]
-        .concat(STATUSES)
-        .map((s) => {
-          const on = filter === s.value;
-          return (
-            '<button type="button" data-filter="' + s.value + '" class="rounded-full border px-3.5 py-1.5 text-xs font-medium transition-colors ' +
-            (on ? "border-accent-500/60 bg-accent-500/15 text-ink-50" : "border-white/10 bg-white/[0.02] text-ink-400 hover:border-white/20 hover:text-ink-50") +
-            '">' + esc(s.label) + (s.value === "all" ? "" : " · " + (counts[s.value] || 0)) + "</button>"
-          );
-        })
-        .join("");
-
-      const shown = filter === "all" ? leads : leads.filter((l) => l.status === filter);
+      statsEl.innerHTML = [["Total", counts.all, "#f4f4f5"]].concat(STATUSES.map((s) => [s.label + "s", counts[s.value], s.color])).slice(0, 4)
+        .map(([label, n, color]) =>
+          '<div class="rounded-2xl border border-white/10 bg-white/[0.02] p-4">' +
+          '<p class="text-2xl font-semibold tabular-nums" style="color:' + color + '">' + n + "</p>" +
+          '<p class="mt-0.5 text-xs text-ink-500">' + esc(label) + "</p></div>"
+        ).join("");
+      filtersEl.innerHTML = [{ value: "all", label: "Tous" }].concat(STATUSES).map((s) => {
+        const on = leadFilter === s.value;
+        return '<button type="button" data-filter="' + s.value + '" class="rounded-full border px-3.5 py-1.5 text-xs font-medium transition-colors ' +
+          (on ? "border-accent-500/60 bg-accent-500/15 text-ink-50" : "border-white/10 bg-white/[0.02] text-ink-400 hover:border-white/20 hover:text-ink-50") +
+          '">' + esc(s.label) + (s.value === "all" ? "" : " · " + (counts[s.value] || 0)) + "</button>";
+      }).join("");
+      const shown = leadFilter === "all" ? leads : leads.filter((l) => l.status === leadFilter);
       emptyEl.hidden = shown.length > 0;
-      listEl.innerHTML = shown.map(cardHtml).join("");
+      listEl.innerHTML = shown.map(leadCard).join("");
     }
-
-    function cardHtml(l) {
+    function leadCard(l) {
       const st = statusOf(l.status);
       const date = new Date(l.created_at).toLocaleDateString("fr-CH", { day: "2-digit", month: "short", year: "numeric" });
-      const options = STATUSES.map(
-        (s) => '<option value="' + s.value + '"' + (s.value === l.status ? " selected" : "") + ">" + s.label + "</option>"
-      ).join("");
+      const options = STATUSES.map((s) => '<option value="' + s.value + '"' + (s.value === l.status ? " selected" : "") + ">" + s.label + "</option>").join("");
       const modules = Array.isArray(l.modules) && l.modules.length
         ? l.modules.map((m) => '<span class="rounded-md border border-white/10 bg-white/[0.03] px-2 py-0.5 text-[11px] text-ink-300">' + esc(m) + "</span>").join(" ")
         : '<span class="text-ink-500">—</span>';
-
-      return (
-        '<details class="group rounded-2xl border border-white/10 bg-white/[0.02] transition-colors hover:border-white/15" data-lead="' + esc(l.id) + '">' +
+      return '<details class="group rounded-2xl border border-white/10 bg-white/[0.02] transition-colors hover:border-white/15" data-lead="' + esc(l.id) + '">' +
         '<summary class="flex cursor-pointer flex-wrap items-center gap-x-4 gap-y-2 px-5 py-4 [&::-webkit-details-marker]:hidden">' +
         '<span class="h-2 w-2 shrink-0 rounded-full" style="background:' + st.color + '"></span>' +
         '<span class="min-w-0 flex-1"><span class="block truncate text-sm font-semibold text-ink-50">' + esc(l.asso_name) + "</span>" +
@@ -347,30 +562,514 @@ const ADMIN_EMAIL = "contact@konclav.ch";
         '<textarea data-notes rows="2" class="w-full rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2 text-sm text-ink-50 focus:border-accent-500/50 focus:outline-none">' + esc(l.notes || "") + "</textarea>" +
         '<button type="button" data-save-notes class="mt-2 rounded-lg border border-white/10 bg-white/[0.02] px-3.5 py-1.5 text-xs font-medium text-ink-50 transition-colors hover:border-white/20">Enregistrer la note</button>' +
         '<span data-saved hidden class="ml-2 text-xs text-emerald-400">Enregistré ✓</span></div>' +
-        "</div></details>"
-      );
+        "</div></details>";
+    }
+    filtersEl.addEventListener("click", (e) => {
+      const btn = e.target.closest("[data-filter]"); if (!btn) return;
+      leadFilter = btn.dataset.filter; renderLeads();
+    });
+    listEl.addEventListener("click", (e) => {
+      if (e.target.closest("[data-status]")) { e.preventDefault(); e.stopPropagation(); }
+      const saveBtn = e.target.closest("[data-save-notes]");
+      if (saveBtn) {
+        const card = saveBtn.closest("[data-lead]"); const id = card.dataset.lead;
+        const notes = card.querySelector("[data-notes]").value;
+        saveBtn.disabled = true;
+        patchLead(id, { notes }).then(() => {
+          const lead = leads.find((l) => l.id === id); if (lead) lead.notes = notes;
+          const ok = card.querySelector("[data-saved]"); ok.hidden = false; setTimeout(() => (ok.hidden = true), 2000);
+        }).catch(() => alert("Échec de l'enregistrement.")).finally(() => (saveBtn.disabled = false));
+      }
+    });
+    listEl.addEventListener("change", (e) => {
+      const sel = e.target.closest("[data-status]"); if (!sel) return;
+      const card = sel.closest("[data-lead]"); const id = card.dataset.lead;
+      const prev = (leads.find((l) => l.id === id) || {}).status;
+      patchLead(id, { status: sel.value }).then(() => {
+        const lead = leads.find((l) => l.id === id); if (lead) lead.status = sel.value; renderLeads();
+      }).catch(() => { sel.value = prev; alert("Échec du changement de statut."); });
+    });
+
+    // =========================================================
+    // ============ MODULE 2 : AUDIENCE (UMAMI) =================
+    // =========================================================
+    const auContent = root.querySelector("[data-au-content]");
+    const auPeriods = root.querySelector("[data-au-periods]");
+    let auPeriod = "7d";
+
+    auPeriods.addEventListener("click", (e) => {
+      const b = e.target.closest("[data-period]"); if (!b) return;
+      auPeriod = b.dataset.period;
+      auPeriods.querySelectorAll("[data-period]").forEach((x) => x.className = "ck-pill" + (x.dataset.period === auPeriod ? " ck-pill-on" : ""));
+      loadAudience();
+    });
+
+    function fmtNum(n) { return (Number(n) || 0).toLocaleString("fr-CH"); }
+    function fmtDuration(secs) {
+      const s = Math.round(secs || 0); if (s < 60) return s + " s";
+      const m = Math.floor(s / 60); const r = s % 60; return m + " min " + (r ? r + " s" : "");
     }
 
-    // ---- Events ----
-    loginForm.addEventListener("submit", async (e) => {
+    async function loadAudience() {
+      auContent.innerHTML = '<p class="mt-12 text-center text-sm text-ink-500">Chargement…</p>';
+      try {
+        const res = await fn("cockpit-umami-stats", { qs: "period=" + auPeriod });
+        if (!res.ok) { auContent.innerHTML = '<p class="mt-12 text-center text-sm text-rose-400">Erreur API (' + res.status + ').</p>'; return; }
+        const data = await res.json();
+        if (data.not_configured) {
+          auContent.innerHTML =
+            '<div class="mt-8 rounded-2xl border border-amber-500/20 bg-amber-500/[0.04] p-6">' +
+            '<p class="text-sm font-semibold text-amber-300">Clé Umami non configurée</p>' +
+            '<p class="mt-2 text-sm text-ink-300">Ajoutez le secret <code class="rounded bg-white/10 px-1.5 py-0.5 text-xs">UMAMI_API_KEY</code> dans Supabase → Edge Functions → Secrets. La page s\'activera automatiquement.</p>' +
+            '<p class="mt-3 text-xs text-ink-500">Créer la clé : cloud.umami.is → Profile → API keys.</p>' +
+            '</div>'; return;
+        }
+        renderAudience(data);
+      } catch (e) {
+        auContent.innerHTML = '<p class="mt-12 text-center text-sm text-rose-400">Erreur : ' + esc(String(e)) + '</p>';
+      }
+    }
+
+    function sparkline(points, w = 600, h = 80) {
+      if (!points || !points.length) return '';
+      const max = Math.max(1, ...points.map((p) => p.y));
+      const dx = w / Math.max(1, points.length - 1);
+      const ys = points.map((p, i) => [i * dx, h - (p.y / max) * (h - 6) - 3]);
+      const path = ys.map(([x, y], i) => (i === 0 ? "M" : "L") + x.toFixed(1) + " " + y.toFixed(1)).join(" ");
+      const fill = "M0 " + h + " L" + ys.map(([x, y]) => x.toFixed(1) + " " + y.toFixed(1)).join(" L") + " L" + w + " " + h + " Z";
+      return '<svg viewBox="0 0 ' + w + ' ' + h + '" preserveAspectRatio="none" class="w-full" aria-hidden="true">' +
+        '<path d="' + fill + '" class="ck-sparkfill" />' +
+        '<path d="' + path + '" class="ck-sparkline" />' +
+        '</svg>';
+    }
+
+    function renderAudience(data) {
+      const s = data.stats || {};
+      const kpiCard = (label, value, sub) =>
+        '<div class="rounded-2xl border border-white/10 bg-white/[0.02] p-5">' +
+        '<p class="text-xs uppercase tracking-wide text-ink-500">' + esc(label) + '</p>' +
+        '<p class="mt-1 text-3xl font-semibold tracking-tight text-ink-50 tabular-nums">' + esc(value) + '</p>' +
+        (sub ? '<p class="mt-1 text-xs text-ink-400">' + esc(sub) + '</p>' : '') +
+        '</div>';
+
+      // Stats fields v1 Umami : { value, change } per metric
+      const visitors = s.visitors ? s.visitors.value : 0;
+      const pageviews = s.pageviews ? s.pageviews.value : 0;
+      const visits = s.visits ? s.visits.value : 0;
+      const totaltime = s.totaltime ? s.totaltime.value : 0;
+      const bounces = s.bounces ? s.bounces.value : 0;
+      const avgTime = visits > 0 ? Math.round(totaltime / visits) : 0;
+      const bounceRate = visits > 0 ? Math.round((bounces / visits) * 100) : 0;
+
+      // Pageviews timeseries
+      const pv = data.pageviews || {};
+      const pvSeries = Array.isArray(pv.pageviews) ? pv.pageviews.map((p) => ({ x: p.x || p.t, y: Number(p.y) || 0 })) : [];
+      const visSeries = Array.isArray(pv.sessions) ? pv.sessions.map((p) => ({ x: p.x || p.t, y: Number(p.y) || 0 })) : [];
+
+      const listSection = (title, items, mapper) => {
+        if (!items || !items.length) return '<p class="text-sm text-ink-500">—</p>';
+        const max = Math.max(...items.map((i) => Number(i.y) || 0));
+        return '<ul class="space-y-1.5">' + items.slice(0, 8).map((it) => {
+          const w = max > 0 ? Math.round((Number(it.y) / max) * 100) : 0;
+          const label = mapper(it);
+          return '<li class="relative overflow-hidden rounded-lg border border-white/[0.06] bg-white/[0.01] px-3 py-2">' +
+            '<div class="absolute inset-y-0 left-0 bg-accent-500/15" style="width:' + w + '%"></div>' +
+            '<div class="relative flex items-center justify-between text-xs">' +
+            '<span class="truncate text-ink-200">' + label + '</span>' +
+            '<span class="ml-3 shrink-0 tabular-nums text-ink-400">' + fmtNum(it.y) + '</span>' +
+            '</div></li>';
+        }).join("") + '</ul>';
+      };
+
+      const refLabel = (r) => {
+        const v = r.x || r.referrer || "";
+        if (!v) return '<span class="text-ink-500">Direct</span>';
+        try { return esc(new URL(v).hostname); } catch { return esc(v); }
+      };
+      const flag = (cc) => {
+        if (!cc || cc.length !== 2) return "";
+        return String.fromCodePoint(...cc.toUpperCase().split("").map((c) => 0x1F1E6 + c.charCodeAt(0) - 65));
+      };
+
+      auContent.innerHTML =
+        '<div class="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">' +
+        kpiCard("Visiteurs", fmtNum(visitors), "uniques") +
+        kpiCard("Sessions", fmtNum(visits), null) +
+        kpiCard("Pages vues", fmtNum(pageviews), null) +
+        kpiCard("Temps moy.", fmtDuration(avgTime), bounceRate + "% rebond") +
+        '</div>' +
+
+        '<div class="mt-6 rounded-2xl border border-white/10 bg-white/[0.02] p-5">' +
+        '<div class="flex items-center justify-between"><h3 class="text-sm font-semibold text-ink-50">Trafic</h3>' +
+        '<p class="text-xs text-ink-500">Pages vues sur ' + esc(auPeriod) + '</p></div>' +
+        '<div class="mt-3">' + sparkline(pvSeries) + '</div>' +
+        '</div>' +
+
+        '<div class="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-2">' +
+        '<div class="rounded-2xl border border-white/10 bg-white/[0.02] p-5">' +
+        '<h3 class="mb-3 text-sm font-semibold text-ink-50">Pages les plus vues</h3>' +
+        listSection("Pages", data.urls, (it) => esc(it.x || "/")) +
+        '</div>' +
+        '<div class="rounded-2xl border border-white/10 bg-white/[0.02] p-5">' +
+        '<h3 class="mb-3 text-sm font-semibold text-ink-50">Sources</h3>' +
+        listSection("Referrers", data.referrers, refLabel) +
+        '</div>' +
+        '<div class="rounded-2xl border border-white/10 bg-white/[0.02] p-5">' +
+        '<h3 class="mb-3 text-sm font-semibold text-ink-50">Pays</h3>' +
+        listSection("Pays", data.countries, (it) => (flag(it.x) ? flag(it.x) + ' ' : '') + esc(it.x || "—")) +
+        '</div>' +
+        '<div class="rounded-2xl border border-white/10 bg-white/[0.02] p-5">' +
+        '<h3 class="mb-3 text-sm font-semibold text-ink-50">Appareils & navigateurs</h3>' +
+        '<div class="grid grid-cols-2 gap-3">' +
+        '<div>' + listSection("Devices", data.devices, (it) => esc(it.x || "—")) + '</div>' +
+        '<div>' + listSection("Browsers", data.browsers, (it) => esc(it.x || "—")) + '</div>' +
+        '</div></div>' +
+        '</div>' +
+
+        '<p class="mt-4 text-center text-xs text-ink-600">Source : Umami Cloud · données mises en cache 60 s</p>';
+    }
+
+    // =========================================================
+    // ============ MODULE 3 : FACTURATION ======================
+    // =========================================================
+    let customers = [];
+    let invoicesList = [];
+    const biContent = root.querySelector("[data-bi-content]");
+    const bcContent = root.querySelector("[data-bc-content]");
+
+    // ----- Clients -----
+    async function loadCustomers() {
+      bcContent.innerHTML = '<p class="mt-12 text-center text-sm text-ink-500">Chargement…</p>';
+      try {
+        const res = await api("customers?select=*&order=asso_name.asc");
+        customers = await res.json();
+        renderCustomers();
+      } catch (e) {
+        bcContent.innerHTML = '<p class="mt-12 text-center text-sm text-rose-400">Erreur : ' + esc(String(e)) + '</p>';
+      }
+    }
+    function renderCustomers() {
+      if (!customers.length) {
+        bcContent.innerHTML = '<p class="mt-12 text-center text-sm text-ink-500">Aucun client. Cliquez sur « Nouveau client » pour démarrer.</p>';
+        return;
+      }
+      bcContent.innerHTML = '<div class="mt-6 overflow-hidden rounded-2xl border border-white/10 bg-white/[0.02]">' +
+        '<table class="w-full text-sm">' +
+        '<thead class="bg-white/[0.03] text-xs uppercase tracking-wide text-ink-500">' +
+        '<tr><th class="px-4 py-3 text-left">Association</th><th class="px-4 py-3 text-left">Contact</th><th class="px-4 py-3 text-left">Localité</th><th class="px-4 py-3"></th></tr></thead>' +
+        '<tbody class="divide-y divide-white/[0.06]">' +
+        customers.map((c) =>
+          '<tr data-customer="' + esc(c.id) + '">' +
+          '<td class="px-4 py-3"><p class="font-semibold text-ink-50">' + esc(c.asso_name) + '</p><p class="text-xs text-ink-500">' + esc(c.vat_number || '—') + '</p></td>' +
+          '<td class="px-4 py-3"><p class="text-ink-200">' + esc(c.contact_name) + '</p><p class="text-xs text-ink-500"><a href="mailto:' + esc(c.contact_email) + '" class="hover:text-accent-300">' + esc(c.contact_email) + '</a></p></td>' +
+          '<td class="px-4 py-3 text-ink-300">' + esc([c.postal_code, c.city, c.country].filter(Boolean).join(' ')) + '</td>' +
+          '<td class="px-4 py-3 text-right"><button type="button" data-cust-edit class="text-xs text-accent-300 hover:text-accent-400">Modifier</button> · <button type="button" data-cust-del class="text-xs text-rose-400 hover:text-rose-300">Supprimer</button></td>' +
+          '</tr>'
+        ).join("") +
+        '</tbody></table></div>';
+    }
+    bcContent.addEventListener("click", (e) => {
+      const tr = e.target.closest("[data-customer]"); if (!tr) return;
+      const id = tr.dataset.customer;
+      if (e.target.closest("[data-cust-edit]")) editCustomer(id);
+      else if (e.target.closest("[data-cust-del]")) deleteCustomer(id);
+    });
+    root.querySelector("[data-bc-new]").addEventListener("click", () => editCustomer(null));
+
+    const bcForm = root.querySelector("[data-bc-form]");
+    const bcIdInput = root.querySelector("[data-bc-id]");
+    const bcError = root.querySelector("[data-bc-error]");
+    const bcTitle = document.getElementById("ck-cust-title");
+
+    function editCustomer(id) {
+      const fields = bcForm.querySelectorAll("[data-bc-field]");
+      fields.forEach((f) => { f.value = f.dataset.bcField === "country" ? "CH" : ""; });
+      bcIdInput.value = "";
+      bcError.hidden = true;
+      bcTitle.textContent = id ? "Modifier le client" : "Nouveau client";
+      if (id) {
+        const c = customers.find((x) => x.id === id);
+        if (c) {
+          bcIdInput.value = c.id;
+          fields.forEach((f) => { const k = f.dataset.bcField; if (c[k] != null) f.value = c[k]; });
+        }
+      }
+      openModal("customer");
+    }
+    async function deleteCustomer(id) {
+      const c = customers.find((x) => x.id === id);
+      if (!confirm("Supprimer « " + (c ? c.asso_name : "ce client") + " » ? Ses factures resteront accessibles, mais seront orphelines.")) return;
+      try { await api("customers?id=eq." + encodeURIComponent(id), { method: "DELETE", headers: { Prefer: "return=minimal" } }); loadCustomers(); }
+      catch (e) { alert("Échec de la suppression : " + e.message); }
+    }
+    bcForm.addEventListener("submit", async (e) => {
       e.preventDefault();
-      loginBtn.disabled = true;
-      loginError.hidden = true;
+      const data = {};
+      bcForm.querySelectorAll("[data-bc-field]").forEach((f) => { data[f.dataset.bcField] = (f.value || "").trim() || null; });
+      if (!data.asso_name) { bcError.textContent = "Nom requis."; bcError.hidden = false; return; }
+      const id = bcIdInput.value;
+      const btn = root.querySelector("[data-bc-submit]");
+      btn.disabled = true; bcError.hidden = true;
+      try {
+        if (id) {
+          await api("customers?id=eq." + encodeURIComponent(id), { method: "PATCH", headers: { Prefer: "return=minimal" }, body: JSON.stringify(data) });
+        } else {
+          await api("customers", { method: "POST", headers: { Prefer: "return=minimal" }, body: JSON.stringify(data) });
+        }
+        closeModals();
+        await loadCustomers();
+      } catch (err) { bcError.textContent = err.message || "Erreur."; bcError.hidden = false; }
+      finally { btn.disabled = false; }
+    });
+
+    // ----- Factures -----
+    async function loadInvoices() {
+      biContent.innerHTML = '<p class="mt-12 text-center text-sm text-ink-500">Chargement…</p>';
+      try {
+        const res = await api("invoices?select=*,customer:customers(asso_name,contact_name)&order=issue_date.desc");
+        invoicesList = await res.json();
+        renderInvoices();
+      } catch (e) {
+        biContent.innerHTML = '<p class="mt-12 text-center text-sm text-rose-400">Erreur : ' + esc(String(e)) + '</p>';
+      }
+    }
+    function invoiceStatus(v) {
+      const map = { draft: ["Brouillon", "#8b8b94"], sent: ["Envoyée", "#7170ff"], paid: ["Payée", "#4ade80"], overdue: ["En retard", "#f87171"], canceled: ["Annulée", "#52525b"] };
+      return map[v] || [v, "#8b8b94"];
+    }
+    function renderInvoices() {
+      if (!invoicesList.length) {
+        biContent.innerHTML = '<p class="mt-12 text-center text-sm text-ink-500">Aucune facture. Cliquez sur « Nouvelle facture » pour démarrer.</p>';
+        return;
+      }
+      const totals = invoicesList.reduce((acc, inv) => {
+        const t = Number(inv.total) || 0;
+        if (inv.status === "paid") acc.paid += t;
+        else if (inv.status === "sent" || inv.status === "overdue") acc.due += t;
+        return acc;
+      }, { paid: 0, due: 0 });
+
+      const kpi = (label, value, color) =>
+        '<div class="rounded-2xl border border-white/10 bg-white/[0.02] p-4">' +
+        '<p class="text-2xl font-semibold tabular-nums" style="color:' + color + '">' + esc(value) + '</p>' +
+        '<p class="mt-0.5 text-xs text-ink-500">' + esc(label) + '</p></div>';
+
+      biContent.innerHTML =
+        '<div class="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3">' +
+        kpi("Total émis", fmtNum(invoicesList.length), "#f4f4f5") +
+        kpi("Encaissé", fmtCHF(totals.paid, "CHF"), "#4ade80") +
+        kpi("En attente", fmtCHF(totals.due, "CHF"), "#fbbf24") +
+        '</div>' +
+        '<div class="mt-6 overflow-hidden rounded-2xl border border-white/10 bg-white/[0.02]">' +
+        '<table class="w-full text-sm">' +
+        '<thead class="bg-white/[0.03] text-xs uppercase tracking-wide text-ink-500">' +
+        '<tr><th class="px-4 py-3 text-left">Numéro</th><th class="px-4 py-3 text-left">Client</th><th class="px-4 py-3 text-left">Émise</th><th class="px-4 py-3 text-left">Échéance</th><th class="px-4 py-3 text-right">Total</th><th class="px-4 py-3 text-left">Statut</th><th class="px-4 py-3"></th></tr>' +
+        '</thead><tbody class="divide-y divide-white/[0.06]">' +
+        invoicesList.map((inv) => {
+          const st = invoiceStatus(inv.status);
+          return '<tr data-invoice="' + esc(inv.id) + '">' +
+            '<td class="px-4 py-3 font-mono text-xs text-ink-200">' + esc(inv.number) + '</td>' +
+            '<td class="px-4 py-3 text-ink-200">' + esc((inv.customer && inv.customer.asso_name) || "—") + '</td>' +
+            '<td class="px-4 py-3 text-ink-300">' + fmtDate(inv.issue_date) + '</td>' +
+            '<td class="px-4 py-3 text-ink-300">' + fmtDate(inv.due_date) + '</td>' +
+            '<td class="px-4 py-3 text-right font-semibold tabular-nums text-ink-50">' + fmtCHF(inv.total, inv.currency) + '</td>' +
+            '<td class="px-4 py-3"><select data-inv-status class="rounded-lg border border-white/10 bg-ink-900 px-2 py-1 text-xs text-ink-50 focus:border-accent-500/50 focus:outline-none">' +
+            ["draft", "sent", "paid", "overdue", "canceled"].map((v) => '<option value="' + v + '"' + (v === inv.status ? " selected" : "") + '>' + invoiceStatus(v)[0] + '</option>').join("") +
+            '</select></td>' +
+            '<td class="px-4 py-3 text-right whitespace-nowrap">' +
+            '<button type="button" data-inv-pdf class="text-xs text-accent-300 hover:text-accent-400">PDF</button>' +
+            ' · <button type="button" data-inv-edit class="text-xs text-ink-300 hover:text-ink-50">Modifier</button>' +
+            ' · <button type="button" data-inv-del class="text-xs text-rose-400 hover:text-rose-300">×</button>' +
+            '</td></tr>';
+        }).join("") +
+        '</tbody></table></div>';
+    }
+
+    biContent.addEventListener("click", async (e) => {
+      const tr = e.target.closest("[data-invoice]"); if (!tr) return;
+      const id = tr.dataset.invoice;
+      if (e.target.closest("[data-inv-pdf]")) downloadInvoicePdf(id);
+      else if (e.target.closest("[data-inv-edit]")) editInvoice(id);
+      else if (e.target.closest("[data-inv-del]")) deleteInvoice(id);
+    });
+    biContent.addEventListener("change", async (e) => {
+      const sel = e.target.closest("[data-inv-status]"); if (!sel) return;
+      const tr = sel.closest("[data-invoice]"); const id = tr.dataset.invoice;
+      const inv = invoicesList.find((x) => x.id === id);
+      const prev = inv ? inv.status : null;
+      const patch = { status: sel.value };
+      if (sel.value === "paid") patch.paid_at = new Date().toISOString();
+      try { await api("invoices?id=eq." + encodeURIComponent(id), { method: "PATCH", headers: { Prefer: "return=minimal" }, body: JSON.stringify(patch) });
+        if (inv) Object.assign(inv, patch); renderInvoices();
+      } catch (err) { sel.value = prev || "draft"; alert("Échec : " + err.message); }
+    });
+
+    root.querySelector("[data-bi-new]").addEventListener("click", () => editInvoice(null));
+
+    async function downloadInvoicePdf(id) {
+      try {
+        const res = await fn("cockpit-invoice-pdf", { qs: "id=" + encodeURIComponent(id) });
+        if (!res.ok) { const t = await res.text(); alert("PDF échoué : " + t.slice(0, 200)); return; }
+        const blob = await res.blob();
+        const url = URL.createObjectURL(blob);
+        window.open(url, "_blank");
+        setTimeout(() => URL.revokeObjectURL(url), 60_000);
+      } catch (e) { alert("Erreur PDF : " + e.message); }
+    }
+
+    async function deleteInvoice(id) {
+      const inv = invoicesList.find((x) => x.id === id);
+      if (!confirm("Supprimer la facture " + (inv ? inv.number : id) + " ?")) return;
+      try { await api("invoices?id=eq." + encodeURIComponent(id), { method: "DELETE", headers: { Prefer: "return=minimal" } }); loadInvoices(); }
+      catch (e) { alert("Échec : " + e.message); }
+    }
+
+    // ----- Modal facture -----
+    const biForm = root.querySelector("[data-bi-form]");
+    const biIdInput = root.querySelector("[data-bi-id]");
+    const biError = root.querySelector("[data-bi-error]");
+    const biTitle = document.getElementById("ck-inv-title");
+    const biLinesEl = root.querySelector("[data-bi-lines]");
+    let editingInvoiceLines = []; // {description, qty, unit_price}
+
+    function lineRow(line, idx) {
+      return '<div class="ck-line" data-line-idx="' + idx + '">' +
+        '<input data-l-desc placeholder="Description" value="' + esc(line.description || "") + '" class="ck-input" />' +
+        '<input data-l-qty type="number" step="0.01" min="0" value="' + (line.qty != null ? line.qty : 1) + '" class="ck-input" />' +
+        '<input data-l-price type="number" step="0.01" min="0" value="' + (line.unit_price != null ? line.unit_price : 0) + '" class="ck-input" />' +
+        '<span class="text-right text-xs tabular-nums text-ink-300" data-l-total>0.00</span>' +
+        '<button type="button" data-l-rm aria-label="Supprimer la ligne" class="ck-line-rm text-rose-400 hover:text-rose-300">×</button>' +
+        '</div>';
+    }
+    function renderLines() {
+      biLinesEl.innerHTML = editingInvoiceLines.map(lineRow).join("");
+      recomputeTotals();
+    }
+    function recomputeTotals() {
+      let subtotal = 0;
+      biLinesEl.querySelectorAll("[data-line-idx]").forEach((row) => {
+        const i = +row.dataset.lineIdx;
+        const qty = +row.querySelector("[data-l-qty]").value || 0;
+        const price = +row.querySelector("[data-l-price]").value || 0;
+        const lt = Math.round(qty * price * 100) / 100;
+        editingInvoiceLines[i].qty = qty;
+        editingInvoiceLines[i].unit_price = price;
+        editingInvoiceLines[i].line_total = lt;
+        row.querySelector("[data-l-total]").textContent = lt.toFixed(2);
+        subtotal += lt;
+      });
+      const vatRate = +biForm.querySelector('[data-bi-field="vat_rate"]').value || 0;
+      const vat = Math.round(subtotal * vatRate) / 100;
+      const total = Math.round((subtotal + vat) * 100) / 100;
+      const cur = biForm.querySelector('[data-bi-field="currency"]').value || "CHF";
+      root.querySelector("[data-bi-subtotal]").textContent = fmtCHF(subtotal, cur);
+      root.querySelector("[data-bi-vat-label]").textContent = "TVA " + vatRate + "%";
+      root.querySelector("[data-bi-vat]").textContent = fmtCHF(vat, cur);
+      root.querySelector("[data-bi-total]").textContent = fmtCHF(total, cur);
+    }
+    biLinesEl.addEventListener("input", recomputeTotals);
+    biLinesEl.addEventListener("click", (e) => {
+      const rm = e.target.closest("[data-l-rm]"); if (!rm) return;
+      const idx = +rm.closest("[data-line-idx]").dataset.lineIdx;
+      editingInvoiceLines.splice(idx, 1); renderLines();
+    });
+    biForm.addEventListener("input", (e) => {
+      if (e.target.dataset.biField === "vat_rate" || e.target.dataset.biField === "currency") recomputeTotals();
+    });
+    root.querySelector("[data-bi-add-line]").addEventListener("click", () => {
+      editingInvoiceLines.push({ description: "", qty: 1, unit_price: 0 });
+      renderLines();
+    });
+
+    async function editInvoice(id) {
+      // Reset
+      biIdInput.value = "";
+      biError.hidden = true;
+      biTitle.textContent = id ? "Modifier la facture" : "Nouvelle facture";
+      // Populate clients dropdown
+      if (!customers.length) { try { const r = await api("customers?select=id,asso_name&order=asso_name.asc"); customers = await r.json(); } catch {} }
+      const sel = biForm.querySelector('[data-bi-field="customer_id"]');
+      sel.innerHTML = '<option value="">— Sélectionner —</option>' + customers.map((c) => '<option value="' + esc(c.id) + '">' + esc(c.asso_name) + '</option>').join("");
+      // Defaults
+      biForm.querySelector('[data-bi-field="issue_date"]').value = todayISO();
+      biForm.querySelector('[data-bi-field="due_date"]').value = addDaysISO(todayISO(), 30);
+      biForm.querySelector('[data-bi-field="vat_rate"]').value = 0;
+      biForm.querySelector('[data-bi-field="currency"]').value = "CHF";
+      biForm.querySelector('[data-bi-field="notes"]').value = "";
+      biForm.querySelector('[data-bi-field="issuer_iban"]').value = "";
+      editingInvoiceLines = [{ description: "Abonnement Konclav", qty: 1, unit_price: 0 }];
+      if (id) {
+        biIdInput.value = id;
+        try {
+          const [iRes, lRes] = await Promise.all([
+            api("invoices?id=eq." + encodeURIComponent(id) + "&select=*"),
+            api("invoice_lines?invoice_id=eq." + encodeURIComponent(id) + "&order=position.asc"),
+          ]);
+          const inv = (await iRes.json())[0];
+          const lines = await lRes.json();
+          sel.value = inv.customer_id || "";
+          ["issue_date", "due_date", "vat_rate", "currency", "notes", "issuer_iban"].forEach((k) => {
+            const el = biForm.querySelector('[data-bi-field="' + k + '"]'); if (el && inv[k] != null) el.value = inv[k];
+          });
+          editingInvoiceLines = lines.length ? lines.map((l) => ({ description: l.description, qty: l.qty, unit_price: l.unit_price })) : editingInvoiceLines;
+        } catch (e) { biError.textContent = e.message; biError.hidden = false; }
+      }
+      renderLines();
+      openModal("invoice");
+    }
+
+    biForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      biError.hidden = true;
+      const submit = root.querySelector("[data-bi-submit]");
+      const data = {
+        customer_id: biForm.querySelector('[data-bi-field="customer_id"]').value || null,
+        issue_date: biForm.querySelector('[data-bi-field="issue_date"]').value || todayISO(),
+        due_date: biForm.querySelector('[data-bi-field="due_date"]').value || addDaysISO(todayISO(), 30),
+        currency: biForm.querySelector('[data-bi-field="currency"]').value || "CHF",
+        vat_rate: +biForm.querySelector('[data-bi-field="vat_rate"]').value || 0,
+        notes: biForm.querySelector('[data-bi-field="notes"]').value.trim() || null,
+        issuer_iban: biForm.querySelector('[data-bi-field="issuer_iban"]').value.replace(/\s/g, "") || null,
+      };
+      if (!data.customer_id) { biError.textContent = "Client requis."; biError.hidden = false; return; }
+      const cleanLines = editingInvoiceLines.filter((l) => l.description && +l.qty > 0);
+      if (!cleanLines.length) { biError.textContent = "Ajoutez au moins une ligne."; biError.hidden = false; return; }
+
+      submit.disabled = true;
+      try {
+        const id = biIdInput.value;
+        let invoiceId;
+        if (id) {
+          await api("invoices?id=eq." + encodeURIComponent(id), { method: "PATCH", headers: { Prefer: "return=minimal" }, body: JSON.stringify(data) });
+          await api("invoice_lines?invoice_id=eq." + encodeURIComponent(id), { method: "DELETE", headers: { Prefer: "return=minimal" } });
+          invoiceId = id;
+        } else {
+          const res = await api("invoices", { method: "POST", headers: { Prefer: "return=representation" }, body: JSON.stringify(data) });
+          const created = await res.json();
+          invoiceId = created[0].id;
+        }
+        const payload = cleanLines.map((l, i) => ({ invoice_id: invoiceId, position: i, description: l.description, qty: l.qty, unit_price: l.unit_price }));
+        if (payload.length) await api("invoice_lines", { method: "POST", headers: { Prefer: "return=minimal" }, body: JSON.stringify(payload) });
+        closeModals();
+        await loadInvoices();
+      } catch (err) { biError.textContent = err.message || "Erreur."; biError.hidden = false; }
+      finally { submit.disabled = false; }
+    });
+
+    // =========================================================
+    // ============ AUTH FORMS ==================================
+    // =========================================================
+    loginForm.addEventListener("submit", async (e) => {
+      e.preventDefault(); loginBtn.disabled = true; loginError.hidden = true;
       try {
         const email = document.getElementById("ck-email").value.trim();
         const password = document.getElementById("ck-password").value;
         const data = await authRequest("password", { email, password });
-        if (jwtEmail(data.access_token) !== ADMIN) {
-          throw new Error("Ce compte n'a pas accès au cockpit.");
-        }
+        if (jwtEmail(data.access_token) !== ADMIN) throw new Error("Ce compte n'a pas accès au cockpit.");
         store.set(data.access_token, data.refresh_token);
         await enter();
-      } catch (err) {
-        loginError.textContent = err.message || "Échec de connexion.";
-        loginError.hidden = false;
-      } finally {
-        loginBtn.disabled = false;
-      }
+      } catch (err) { loginError.textContent = err.message || "Échec de connexion."; loginError.hidden = false; }
+      finally { loginBtn.disabled = false; }
     });
 
     changeForm.addEventListener("submit", async (e) => {
@@ -378,91 +1077,30 @@ const ADMIN_EMAIL = "contact@konclav.ch";
       const pw = document.getElementById("ck-newpw").value;
       const pw2 = document.getElementById("ck-newpw2").value;
       changeError.hidden = true;
-      if (pw.length < 12) {
-        changeError.textContent = "12 caractères minimum.";
-        changeError.hidden = false;
-        return;
-      }
-      if (pw !== pw2) {
-        changeError.textContent = "Les deux mots de passe ne correspondent pas.";
-        changeError.hidden = false;
-        return;
-      }
+      if (pw.length < 12) { changeError.textContent = "12 caractères minimum."; changeError.hidden = false; return; }
+      if (pw !== pw2) { changeError.textContent = "Les deux mots de passe ne correspondent pas."; changeError.hidden = false; return; }
       changeBtn.disabled = true;
       try {
         const res = await fetch(U + "/auth/v1/user", {
-          method: "PUT",
-          headers: {
-            apikey: K,
-            Authorization: "Bearer " + store.at,
-            "Content-Type": "application/json",
-          },
+          method: "PUT", headers: { apikey: K, Authorization: "Bearer " + store.at, "Content-Type": "application/json" },
           body: JSON.stringify({ password: pw, data: { temp_password: false } }),
         });
         const data = await res.json().catch(() => ({}));
         if (!res.ok) throw new Error(data.error_description || data.msg || "Échec du changement.");
         await showApp();
-      } catch (err) {
-        changeError.textContent = err.message || "Échec du changement.";
-        changeError.hidden = false;
-      } finally {
-        changeBtn.disabled = false;
-      }
+      } catch (err) { changeError.textContent = err.message || "Échec du changement."; changeError.hidden = false; }
+      finally { changeBtn.disabled = false; }
     });
 
     logoutBtn.addEventListener("click", showLogin);
 
-    filtersEl.addEventListener("click", (e) => {
-      const btn = e.target.closest("[data-filter]");
-      if (!btn) return;
-      filter = btn.dataset.filter;
-      render();
-    });
-
-    listEl.addEventListener("click", (e) => {
-      // Le <select> vit dans le <summary> : ne pas toggle l'accordéon en cliquant dessus
-      if (e.target.closest("[data-status]")) { e.preventDefault(); e.stopPropagation(); }
-      const saveBtn = e.target.closest("[data-save-notes]");
-      if (saveBtn) {
-        const card = saveBtn.closest("[data-lead]");
-        const id = card.dataset.lead;
-        const notes = card.querySelector("[data-notes]").value;
-        saveBtn.disabled = true;
-        patchLead(id, { notes })
-          .then(() => {
-            const lead = leads.find((l) => l.id === id);
-            if (lead) lead.notes = notes;
-            const ok = card.querySelector("[data-saved]");
-            ok.hidden = false;
-            setTimeout(() => { ok.hidden = true; }, 2000);
-          })
-          .catch(() => alert("Échec de l'enregistrement."))
-          .finally(() => { saveBtn.disabled = false; });
-      }
-    });
-
-    listEl.addEventListener("change", (e) => {
-      const sel = e.target.closest("[data-status]");
-      if (!sel) return;
-      const card = sel.closest("[data-lead]");
-      const id = card.dataset.lead;
-      const prev = (leads.find((l) => l.id === id) || {}).status;
-      patchLead(id, { status: sel.value })
-        .then(() => {
-          const lead = leads.find((l) => l.id === id);
-          if (lead) lead.status = sel.value;
-          render();
-        })
-        .catch(() => { sel.value = prev; alert("Échec du changement de statut."); });
-    });
-
-    // ---- Boot : session existante ? ----
+    // ---- Boot ----
     (async () => {
       if (store.at && jwtEmail(store.at) === ADMIN) { await enter(); return; }
-      if (await refreshSession()) {
-        if (jwtEmail(store.at) === ADMIN) { await enter(); return; }
-      }
+      if (await refreshSession()) { if (jwtEmail(store.at) === ADMIN) { await enter(); return; } }
       showLogin();
     })();
   })();
 </script>
+</content>
+</invoke>
