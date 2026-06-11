@@ -24,14 +24,24 @@ const ADMIN_EMAIL = "contact@konclav.ch";
         <Logo class="h-7 w-7" />
         Konclav <span class="rounded-md border border-accent-500/40 bg-accent-500/10 px-2 py-0.5 text-[11px] font-medium text-accent-300">Cockpit</span>
       </a>
-      <button
-        type="button"
-        data-ck-logout
-        hidden
-        class="rounded-lg border border-white/10 bg-white/[0.02] px-4 py-2 text-xs font-medium text-ink-400 transition-colors hover:border-white/20 hover:text-ink-50"
-      >
-        Se déconnecter
-      </button>
+      <div class="flex items-center gap-2">
+        <button
+          type="button"
+          data-ck-2fa
+          hidden
+          class="rounded-lg border border-white/10 bg-white/[0.02] px-4 py-2 text-xs font-medium text-ink-400 transition-colors hover:border-white/20 hover:text-ink-50"
+        >
+          2FA
+        </button>
+        <button
+          type="button"
+          data-ck-logout
+          hidden
+          class="rounded-lg border border-white/10 bg-white/[0.02] px-4 py-2 text-xs font-medium text-ink-400 transition-colors hover:border-white/20 hover:text-ink-50"
+        >
+          Se déconnecter
+        </button>
+      </div>
     </header>
 
     <!-- ===== LOGIN ===== -->
@@ -110,6 +120,33 @@ const ADMIN_EMAIL = "contact@konclav.ch";
           Enregistrer et entrer
         </button>
         <p data-ck-change-error role="alert" hidden class="text-center text-sm text-rose-400"></p>
+      </form>
+    </section>
+
+    <!-- ===== VÉRIFICATION 2FA (connexion) ===== -->
+    <section data-ck-mfa hidden class="mx-auto mt-20 max-w-sm">
+      <h1 class="text-center text-2xl font-semibold tracking-tight text-ink-50">Vérification 2FA</h1>
+      <p class="mt-2 text-center text-sm text-ink-400">Entrez le code à 6 chiffres de votre app d'authentification.</p>
+      <form data-ck-mfa-form class="mt-8 space-y-4">
+        <label for="ck-mfa-code" class="sr-only">Code 2FA</label>
+        <input
+          id="ck-mfa-code"
+          inputmode="numeric"
+          autocomplete="one-time-code"
+          pattern="\d{6}"
+          maxlength="6"
+          required
+          placeholder="••••••"
+          class="w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-center text-2xl tracking-[0.4em] tabular-nums text-ink-50 placeholder:text-ink-500 focus:border-accent-500/50 focus:outline-none focus:ring-2 focus:ring-accent-500/20"
+        />
+        <button
+          type="submit"
+          data-ck-mfa-btn
+          class="cta-shimmer w-full rounded-xl bg-accent-500 px-5 py-3 text-sm font-semibold text-white shadow-[var(--shadow-cta)] transition-colors hover:bg-accent-400 disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          Vérifier
+        </button>
+        <p data-ck-mfa-error role="alert" hidden class="text-center text-sm text-rose-400"></p>
       </form>
     </section>
 
@@ -334,6 +371,18 @@ const ADMIN_EMAIL = "contact@konclav.ch";
       </div>
     </div>
 
+    <!-- ===== MODAL : gestion 2FA ===== -->
+    <div data-modal="mfa" hidden class="ck-modal" role="dialog" aria-modal="true" aria-labelledby="ck-mfa-modal-title">
+      <div class="ck-modal-back"></div>
+      <div class="ck-modal-card">
+        <div class="flex items-center justify-between border-b border-white/[0.06] px-5 py-4">
+          <h3 id="ck-mfa-modal-title" class="text-base font-semibold text-ink-50">Double authentification (2FA)</h3>
+          <button type="button" data-modal-close class="text-ink-400 hover:text-ink-50" aria-label="Fermer">✕</button>
+        </div>
+        <div data-mfa-body class="px-5 py-5 text-sm text-ink-300"></div>
+      </div>
+    </div>
+
     <div data-ck-toasts class="ck-toasts" aria-live="polite"></div>
   </main>
 </Layout>
@@ -383,6 +432,11 @@ const ADMIN_EMAIL = "contact@konclav.ch";
     const loginBtn = root.querySelector("[data-ck-login-btn]");
     const loginError = root.querySelector("[data-ck-login-error]");
     const logoutBtn = root.querySelector("[data-ck-logout]");
+    const mfaView = root.querySelector("[data-ck-mfa]");
+    const mfaForm = root.querySelector("[data-ck-mfa-form]");
+    const mfaError = root.querySelector("[data-ck-mfa-error]");
+    const btn2fa = root.querySelector("[data-ck-2fa]");
+    const mfaBody = root.querySelector("[data-mfa-body]");
 
     const tabs = root.querySelectorAll("[data-tab]");
     const panels = { leads: root.querySelector('[data-panel="leads"]'), audience: root.querySelector('[data-panel="audience"]'), billing: root.querySelector('[data-panel="billing"]') };
@@ -455,19 +509,49 @@ const ADMIN_EMAIL = "contact@konclav.ch";
     }
 
     // ===== Vues principales =====
-    function showLogin() { store.clear(); appView.hidden = true; changeView.hidden = true; logoutBtn.hidden = true; loginView.hidden = false; }
-    function showChange() { loginView.hidden = true; appView.hidden = true; changeView.hidden = false; logoutBtn.hidden = false; document.getElementById("ck-newpw").focus(); }
+    function showLogin() { store.clear(); appView.hidden = true; changeView.hidden = true; mfaView.hidden = true; logoutBtn.hidden = true; btn2fa.hidden = true; loginView.hidden = false; }
+    function showChange() { loginView.hidden = true; appView.hidden = true; mfaView.hidden = true; changeView.hidden = false; logoutBtn.hidden = false; document.getElementById("ck-newpw").focus(); }
+    let mfaFactorId = null;
+    function showMfa(factorId) {
+      mfaFactorId = factorId;
+      loginView.hidden = true; changeView.hidden = true; appView.hidden = true;
+      logoutBtn.hidden = false; btn2fa.hidden = true; mfaView.hidden = false;
+      const inp = document.getElementById("ck-mfa-code"); inp.value = ""; inp.focus();
+    }
     async function showApp() {
-      loginView.hidden = true; changeView.hidden = true; appView.hidden = false; logoutBtn.hidden = false;
+      loginView.hidden = true; changeView.hidden = true; mfaView.hidden = true; appView.hidden = false; logoutBtn.hidden = false; btn2fa.hidden = false;
       switchTab("leads");
     }
     async function fetchUser() {
       const res = await fetch(U + "/auth/v1/user", { headers: { apikey: K, Authorization: "Bearer " + store.at } });
       return res.ok ? res.json() : null;
     }
+
+    // ===== MFA TOTP (GoTrue REST : /factors, /factors/:id/challenge, /factors/:id/verify) =====
+    function jwtAal(token) { try { return JSON.parse(atob(token.split(".")[1])).aal || "aal1"; } catch { return "aal1"; } }
+    async function mfaRequest(path, opts = {}) {
+      const res = await fetch(U + "/auth/v1/factors" + path, {
+        method: opts.method || "POST",
+        headers: { apikey: K, Authorization: "Bearer " + store.at, "Content-Type": "application/json" },
+        body: opts.body ? JSON.stringify(opts.body) : undefined,
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error_description || data.msg || "Erreur 2FA (" + res.status + ")");
+      return data;
+    }
+    async function mfaVerify(factorId, code) {
+      const ch = await mfaRequest("/" + factorId + "/challenge");
+      const d = await mfaRequest("/" + factorId + "/verify", { body: { challenge_id: ch.id, code } });
+      if (d.access_token) store.set(d.access_token, d.refresh_token);
+      return d;
+    }
+
     async function enter() {
       const user = await fetchUser();
-      if (user && user.user_metadata && user.user_metadata.temp_password === true) showChange();
+      if (!user) { showLogin(); return; }
+      const verified = (user.factors || []).filter((f) => f.status === "verified");
+      if (verified.length && jwtAal(store.at) !== "aal2") { showMfa(verified[0].id); return; }
+      if (user.user_metadata && user.user_metadata.temp_password === true) showChange();
       else await showApp();
     }
 
@@ -1077,18 +1161,14 @@ const ADMIN_EMAIL = "contact@konclav.ch";
       submit.disabled = true;
       try {
         const id = biIdInput.value;
-        let invoiceId;
-        if (id) {
-          await api("invoices?id=eq." + encodeURIComponent(id), { method: "PATCH", headers: { Prefer: "return=minimal" }, body: JSON.stringify(data) });
-          await api("invoice_lines?invoice_id=eq." + encodeURIComponent(id), { method: "DELETE", headers: { Prefer: "return=minimal" } });
-          invoiceId = id;
-        } else {
-          const res = await api("invoices", { method: "POST", headers: { Prefer: "return=representation" }, body: JSON.stringify(data) });
-          const created = await res.json();
-          invoiceId = created[0].id;
-        }
-        const payload = cleanLines.map((l, i) => ({ invoice_id: invoiceId, position: i, description: l.description, qty: l.qty, unit_price: l.unit_price }));
-        if (payload.length) await api("invoice_lines", { method: "POST", headers: { Prefer: "return=minimal" }, body: JSON.stringify(payload) });
+        // RPC transactionnelle : upsert facture + remplacement des lignes en un seul aller-retour
+        await api("rpc/save_invoice", {
+          method: "POST",
+          body: JSON.stringify({
+            p_invoice: Object.assign({ id: id || null }, data),
+            p_lines: cleanLines.map((l) => ({ description: l.description, qty: l.qty, unit_price: l.unit_price })),
+          }),
+        });
         closeModals();
         toast(id ? "Facture mise à jour ✓" : "Facture créée ✓");
         await loadInvoices();
@@ -1130,6 +1210,84 @@ const ADMIN_EMAIL = "contact@konclav.ch";
         await showApp();
       } catch (err) { changeError.textContent = err.message || "Échec du changement."; changeError.hidden = false; }
       finally { changeBtn.disabled = false; }
+    });
+
+    mfaForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const btn = root.querySelector("[data-ck-mfa-btn]");
+      const code = document.getElementById("ck-mfa-code").value.trim();
+      btn.disabled = true; mfaError.hidden = true;
+      try {
+        await mfaVerify(mfaFactorId, code);
+        mfaView.hidden = true;
+        await enter();
+      } catch (err) { mfaError.textContent = err.message || "Code invalide."; mfaError.hidden = false; }
+      finally { btn.disabled = false; }
+    });
+
+    // Modal de gestion 2FA : enrôlement (QR + activation) ou désactivation
+    btn2fa.addEventListener("click", openMfaSettings);
+    async function openMfaSettings() {
+      openModal("mfa");
+      mfaBody.innerHTML = '<p class="text-ink-500">Chargement…</p>';
+      try {
+        const user = await fetchUser();
+        const factors = (user && user.factors) || [];
+        const verified = factors.filter((f) => f.status === "verified");
+        if (verified.length) { renderMfaActive(verified[0]); return; }
+        for (const f of factors) { try { await mfaRequest("/" + f.id, { method: "DELETE" }); } catch {} }
+        const enr = await mfaRequest("", { body: { factor_type: "totp", friendly_name: "Cockpit Konclav" } });
+        renderMfaEnroll(enr);
+      } catch (err) {
+        mfaBody.innerHTML = '<p class="text-rose-400">' + esc(err.message || "Erreur 2FA.") + '</p>';
+      }
+    }
+    function renderMfaActive(factor) {
+      mfaBody.innerHTML =
+        '<p class="flex items-center gap-2 text-emerald-400"><span class="h-2 w-2 rounded-full bg-emerald-400"></span>2FA actif sur ce compte.</p>' +
+        '<p class="mt-3 text-xs text-ink-500">Chaque connexion exige un code de votre app d\'authentification. La base refuse toute session non vérifiée, même avec le bon mot de passe.</p>' +
+        '<div class="mt-5 flex justify-end">' +
+        '<button type="button" data-mfa-disable="' + esc(factor.id) + '" class="rounded-lg border border-rose-400/30 px-4 py-2 text-xs font-medium text-rose-400 hover:border-rose-400/60">Désactiver le 2FA</button>' +
+        '</div>';
+    }
+    function renderMfaEnroll(enr) {
+      const qr = (enr.totp && enr.totp.qr_code) || "";
+      const qrHtml = qr.indexOf("data:") === 0
+        ? '<img src="' + qr + '" alt="QR code 2FA" class="h-44 w-44" />'
+        : '<div class="h-44 w-44 [&>svg]:h-full [&>svg]:w-full" role="img" aria-label="QR code 2FA">' + qr + '</div>';
+      mfaBody.innerHTML =
+        '<p>Scannez ce QR avec une app d\'authentification (Google Authenticator, Aegis, 1Password…), puis entrez le code à 6 chiffres pour activer.</p>' +
+        '<div class="mt-4 flex justify-center"><div class="rounded-xl bg-white p-3">' + qrHtml + '</div></div>' +
+        '<p class="mt-3 break-all text-center font-mono text-[11px] text-ink-500">' + esc((enr.totp && enr.totp.secret) || "") + '</p>' +
+        '<form data-mfa-activate-form class="mt-4 flex gap-2">' +
+        '<input data-mfa-code inputmode="numeric" pattern="\\d{6}" maxlength="6" required placeholder="000000" autocomplete="one-time-code" class="ck-input text-center tracking-[0.3em] tabular-nums" />' +
+        '<button type="submit" class="shrink-0 rounded-lg bg-accent-500 px-4 py-2 text-sm font-semibold text-white hover:bg-accent-400 disabled:opacity-60">Activer</button>' +
+        '</form>' +
+        '<p data-mfa-enroll-error role="alert" hidden class="mt-2 text-xs text-rose-400"></p>' +
+        '<p class="mt-4 text-xs text-ink-500">⚠ Conservez l\'accès à votre app : sans elle, le déblocage passe par le dashboard Supabase (Authentication → Users → supprimer le facteur).</p>';
+      mfaBody.dataset.enrollId = enr.id;
+    }
+    mfaBody.addEventListener("click", async (e) => {
+      const dis = e.target.closest("[data-mfa-disable]");
+      if (!dis) return;
+      if (!confirm("Désactiver le 2FA ? Le mot de passe seul suffira à nouveau.")) return;
+      dis.disabled = true;
+      try { await mfaRequest("/" + dis.dataset.mfaDisable, { method: "DELETE" }); toast("2FA désactivé."); closeModals(); }
+      catch (err) { toast("Échec : " + err.message, "error"); dis.disabled = false; }
+    });
+    mfaBody.addEventListener("submit", async (e) => {
+      const form = e.target.closest("[data-mfa-activate-form]");
+      if (!form) return;
+      e.preventDefault();
+      const errEl = mfaBody.querySelector("[data-mfa-enroll-error]");
+      const btn = form.querySelector("button");
+      btn.disabled = true; errEl.hidden = true;
+      try {
+        await mfaVerify(mfaBody.dataset.enrollId, mfaBody.querySelector("[data-mfa-code]").value.trim());
+        toast("2FA activé ✓ — il sera demandé à chaque connexion.");
+        closeModals();
+      } catch (err) { errEl.textContent = err.message || "Code invalide."; errEl.hidden = false; }
+      finally { btn.disabled = false; }
     });
 
     logoutBtn.addEventListener("click", showLogin);
