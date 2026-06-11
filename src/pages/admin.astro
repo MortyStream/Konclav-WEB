@@ -334,6 +334,7 @@ const ADMIN_EMAIL = "contact@konclav.ch";
       </div>
     </div>
 
+    <div data-ck-toasts class="ck-toasts" aria-live="polite"></div>
   </main>
 </Layout>
 
@@ -355,6 +356,12 @@ const ADMIN_EMAIL = "contact@konclav.ch";
   @media (max-width: 640px) { .ck-line { grid-template-columns: 1fr 1fr 1fr; } .ck-line .ck-line-rm { grid-column: span 3; } }
   .ck-sparkline { stroke: var(--color-accent-400); stroke-width: 1.5; fill: none; }
   .ck-sparkfill { fill: rgba(113,112,255,.10); }
+  .ck-toasts { position: fixed; bottom: 1.25rem; left: 50%; transform: translateX(-50%); z-index: 80; display: flex; flex-direction: column; align-items: center; gap: .5rem; width: min(92vw, 28rem); pointer-events: none; }
+  .ck-toast { pointer-events: auto; max-width: 100%; border-radius: .75rem; border: 1px solid rgba(255,255,255,.10); background: var(--color-ink-900); padding: .6rem 1rem; font-size: .8rem; color: var(--color-ink-50); box-shadow: 0 8px 24px rgba(0,0,0,.5); transition: opacity .3s; animation: ck-toast-in .25s cubic-bezier(0.16, 1, 0.3, 1); }
+  .ck-toast-ok { border-color: rgba(74,222,128,.35); }
+  .ck-toast-err { border-color: rgba(248,113,113,.45); }
+  @keyframes ck-toast-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+  @media (prefers-reduced-motion: reduce) { .ck-toast { animation: none; } }
 </style>
 
 <script is:inline>
@@ -387,6 +394,24 @@ const ADMIN_EMAIL = "contact@konclav.ch";
     const fmtDate = (s) => s ? new Date(s).toLocaleDateString("fr-CH", { day: "2-digit", month: "short", year: "numeric" }) : "—";
     const todayISO = () => new Date().toISOString().slice(0, 10);
     const addDaysISO = (d, n) => { const x = new Date(d); x.setDate(x.getDate() + n); return x.toISOString().slice(0, 10); };
+
+    const toastsEl = root.querySelector("[data-ck-toasts]");
+    function toast(msg, type) {
+      const el = document.createElement("div");
+      el.className = "ck-toast " + (type === "error" ? "ck-toast-err" : "ck-toast-ok");
+      el.textContent = msg;
+      toastsEl.appendChild(el);
+      setTimeout(() => { el.style.opacity = "0"; setTimeout(() => el.remove(), 320); }, type === "error" ? 5200 : 2600);
+    }
+
+    // Un AbortController par module : changer d'onglet/période annule la requête précédente
+    const aborters = {};
+    function freshSignal(key) {
+      if (aborters[key]) aborters[key].abort();
+      aborters[key] = new AbortController();
+      return aborters[key].signal;
+    }
+    const isAbort = (e) => !!e && (e.name === "AbortError" || e.code === 20);
 
     // ===== Auth (REST) =====
     const store = {
@@ -502,12 +527,14 @@ const ADMIN_EMAIL = "contact@konclav.ch";
     const emptyEl = root.querySelector("[data-ck-empty]");
 
     async function loadLeads() {
+      const signal = freshSignal("leads");
       listEl.innerHTML = '<p class="py-10 text-center text-sm text-ink-500">Chargement…</p>';
       try {
-        const res = await api("leads?select=*&order=created_at.desc");
+        const res = await api("leads?select=*&order=created_at.desc", { signal });
         leads = await res.json();
         renderLeads();
       } catch (e) {
+        if (isAbort(e)) return;
         listEl.innerHTML = '<p class="py-10 text-center text-sm text-rose-400">Erreur de chargement. Rechargez la page.</p>';
       }
     }
@@ -578,7 +605,7 @@ const ADMIN_EMAIL = "contact@konclav.ch";
         patchLead(id, { notes }).then(() => {
           const lead = leads.find((l) => l.id === id); if (lead) lead.notes = notes;
           const ok = card.querySelector("[data-saved]"); ok.hidden = false; setTimeout(() => (ok.hidden = true), 2000);
-        }).catch(() => alert("Échec de l'enregistrement.")).finally(() => (saveBtn.disabled = false));
+        }).catch(() => toast("Échec de l'enregistrement de la note.", "error")).finally(() => (saveBtn.disabled = false));
       }
     });
     listEl.addEventListener("change", (e) => {
@@ -587,7 +614,7 @@ const ADMIN_EMAIL = "contact@konclav.ch";
       const prev = (leads.find((l) => l.id === id) || {}).status;
       patchLead(id, { status: sel.value }).then(() => {
         const lead = leads.find((l) => l.id === id); if (lead) lead.status = sel.value; renderLeads();
-      }).catch(() => { sel.value = prev; alert("Échec du changement de statut."); });
+      }).catch(() => { sel.value = prev; toast("Échec du changement de statut.", "error"); });
     });
 
     // =========================================================
@@ -611,12 +638,14 @@ const ADMIN_EMAIL = "contact@konclav.ch";
     }
 
     async function loadAudience() {
+      const signal = freshSignal("audience");
       auContent.innerHTML = '<p class="mt-12 text-center text-sm text-ink-500">Chargement…</p>';
       try {
-        const res = await api("rpc/cockpit_analytics", { method: "POST", body: JSON.stringify({ p_period: auPeriod }) });
+        const res = await api("rpc/cockpit_analytics", { method: "POST", body: JSON.stringify({ p_period: auPeriod }), signal });
         const data = await res.json();
         renderAudience(data);
       } catch (e) {
+        if (isAbort(e)) return;
         auContent.innerHTML = '<p class="mt-12 text-center text-sm text-rose-400">Erreur : ' + esc(String(e)) + '</p>';
       }
     }
@@ -717,7 +746,7 @@ const ADMIN_EMAIL = "contact@konclav.ch";
           : '') +
         '</div>' +
 
-        '<p class="mt-4 text-center text-xs text-ink-600">Mesure d\'audience interne · hébergée à Zurich (Supabase) · sans cookie, anonyme by design</p>';
+        '<p class="mt-4 text-center text-xs text-ink-500">Mesure d\'audience interne · hébergée à Zurich (Supabase) · sans cookie, anonyme by design</p>';
     }
 
     // =========================================================
@@ -730,12 +759,14 @@ const ADMIN_EMAIL = "contact@konclav.ch";
 
     // ----- Clients -----
     async function loadCustomers() {
+      const signal = freshSignal("customers");
       bcContent.innerHTML = '<p class="mt-12 text-center text-sm text-ink-500">Chargement…</p>';
       try {
-        const res = await api("customers?select=*&order=asso_name.asc");
+        const res = await api("customers?select=*&order=asso_name.asc", { signal });
         customers = await res.json();
         renderCustomers();
       } catch (e) {
+        if (isAbort(e)) return;
         bcContent.innerHTML = '<p class="mt-12 text-center text-sm text-rose-400">Erreur : ' + esc(String(e)) + '</p>';
       }
     }
@@ -747,7 +778,7 @@ const ADMIN_EMAIL = "contact@konclav.ch";
       bcContent.innerHTML = '<div class="mt-6 overflow-hidden rounded-2xl border border-white/10 bg-white/[0.02]">' +
         '<table class="w-full text-sm">' +
         '<thead class="bg-white/[0.03] text-xs uppercase tracking-wide text-ink-500">' +
-        '<tr><th class="px-4 py-3 text-left">Association</th><th class="px-4 py-3 text-left">Contact</th><th class="px-4 py-3 text-left">Localité</th><th class="px-4 py-3"></th></tr></thead>' +
+        '<tr><th scope="col" class="px-4 py-3 text-left">Association</th><th scope="col" class="px-4 py-3 text-left">Contact</th><th scope="col" class="px-4 py-3 text-left">Localité</th><th scope="col" class="px-4 py-3"><span class="sr-only">Actions</span></th></tr></thead>' +
         '<tbody class="divide-y divide-white/[0.06]">' +
         customers.map((c) =>
           '<tr data-customer="' + esc(c.id) + '">' +
@@ -789,9 +820,15 @@ const ADMIN_EMAIL = "contact@konclav.ch";
     }
     async function deleteCustomer(id) {
       const c = customers.find((x) => x.id === id);
-      if (!confirm("Supprimer « " + (c ? c.asso_name : "ce client") + " » ? Ses factures resteront accessibles, mais seront orphelines.")) return;
-      try { await api("customers?id=eq." + encodeURIComponent(id), { method: "DELETE", headers: { Prefer: "return=minimal" } }); loadCustomers(); }
-      catch (e) { alert("Échec de la suppression : " + e.message); }
+      if (!confirm("Supprimer « " + (c ? c.asso_name : "ce client") + " » ?\nRefusé s'il reste des factures à son nom — supprimez-les d'abord.")) return;
+      try {
+        await api("customers?id=eq." + encodeURIComponent(id), { method: "DELETE", headers: { Prefer: "return=minimal" } });
+        toast("Client supprimé.");
+        loadCustomers();
+      } catch (e) {
+        if (String(e.message).indexOf("23503") !== -1) toast("Suppression refusée : des factures sont rattachées à ce client.", "error");
+        else toast("Échec de la suppression : " + e.message, "error");
+      }
     }
     bcForm.addEventListener("submit", async (e) => {
       e.preventDefault();
@@ -808,6 +845,7 @@ const ADMIN_EMAIL = "contact@konclav.ch";
           await api("customers", { method: "POST", headers: { Prefer: "return=minimal" }, body: JSON.stringify(data) });
         }
         closeModals();
+        toast(id ? "Client mis à jour ✓" : "Client créé ✓");
         await loadCustomers();
       } catch (err) { bcError.textContent = err.message || "Erreur."; bcError.hidden = false; }
       finally { btn.disabled = false; }
@@ -815,12 +853,14 @@ const ADMIN_EMAIL = "contact@konclav.ch";
 
     // ----- Factures -----
     async function loadInvoices() {
+      const signal = freshSignal("invoices");
       biContent.innerHTML = '<p class="mt-12 text-center text-sm text-ink-500">Chargement…</p>';
       try {
-        const res = await api("invoices?select=*,customer:customers(asso_name,contact_name)&order=issue_date.desc");
+        const res = await api("invoices?select=*,customer:customers(asso_name,contact_name)&order=issue_date.desc", { signal });
         invoicesList = await res.json();
         renderInvoices();
       } catch (e) {
+        if (isAbort(e)) return;
         biContent.innerHTML = '<p class="mt-12 text-center text-sm text-rose-400">Erreur : ' + esc(String(e)) + '</p>';
       }
     }
@@ -833,12 +873,16 @@ const ADMIN_EMAIL = "contact@konclav.ch";
         biContent.innerHTML = '<p class="mt-12 text-center text-sm text-ink-500">Aucune facture. Cliquez sur « Nouvelle facture » pour démarrer.</p>';
         return;
       }
-      const totals = invoicesList.reduce((acc, inv) => {
+      const today = todayISO();
+      const monthKey = today.slice(0, 7);
+      const isLate = (inv) => inv.status === "overdue" || (inv.status === "sent" && inv.due_date && inv.due_date < today);
+      const sums = invoicesList.reduce((acc, inv) => {
         const t = Number(inv.total) || 0;
-        if (inv.status === "paid") acc.paid += t;
-        else if (inv.status === "sent" || inv.status === "overdue") acc.due += t;
+        if (inv.status === "paid") { acc.paidAll += t; if ((inv.paid_at || "").slice(0, 7) === monthKey) acc.paidMonth += t; }
+        else if (isLate(inv)) acc.late += t;
+        else if (inv.status === "sent") acc.due += t;
         return acc;
-      }, { paid: 0, due: 0 });
+      }, { paidMonth: 0, due: 0, late: 0, paidAll: 0 });
 
       const kpi = (label, value, color) =>
         '<div class="rounded-2xl border border-white/10 bg-white/[0.02] p-4">' +
@@ -846,15 +890,16 @@ const ADMIN_EMAIL = "contact@konclav.ch";
         '<p class="mt-0.5 text-xs text-ink-500">' + esc(label) + '</p></div>';
 
       biContent.innerHTML =
-        '<div class="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3">' +
-        kpi("Total émis", fmtNum(invoicesList.length), "#f4f4f5") +
-        kpi("Encaissé", fmtCHF(totals.paid, "CHF"), "#4ade80") +
-        kpi("En attente", fmtCHF(totals.due, "CHF"), "#fbbf24") +
+        '<div class="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">' +
+        kpi("Encaissé ce mois-ci", fmtCHF(sums.paidMonth, "CHF"), "#4ade80") +
+        kpi("En attente", fmtCHF(sums.due, "CHF"), "#fbbf24") +
+        kpi("En retard", fmtCHF(sums.late, "CHF"), sums.late > 0 ? "#f87171" : "#8b8b94") +
+        kpi("Encaissé total", fmtCHF(sums.paidAll, "CHF"), "#f4f4f5") +
         '</div>' +
         '<div class="mt-6 overflow-hidden rounded-2xl border border-white/10 bg-white/[0.02]">' +
         '<table class="w-full text-sm">' +
         '<thead class="bg-white/[0.03] text-xs uppercase tracking-wide text-ink-500">' +
-        '<tr><th class="px-4 py-3 text-left">Numéro</th><th class="px-4 py-3 text-left">Client</th><th class="px-4 py-3 text-left">Émise</th><th class="px-4 py-3 text-left">Échéance</th><th class="px-4 py-3 text-right">Total</th><th class="px-4 py-3 text-left">Statut</th><th class="px-4 py-3"></th></tr>' +
+        '<tr><th scope="col" class="px-4 py-3 text-left">Numéro</th><th scope="col" class="px-4 py-3 text-left">Client</th><th scope="col" class="px-4 py-3 text-left">Émise</th><th scope="col" class="px-4 py-3 text-left">Échéance</th><th scope="col" class="px-4 py-3 text-right">Total</th><th scope="col" class="px-4 py-3 text-left">Statut</th><th scope="col" class="px-4 py-3"><span class="sr-only">Actions</span></th></tr>' +
         '</thead><tbody class="divide-y divide-white/[0.06]">' +
         invoicesList.map((inv) => {
           const st = invoiceStatus(inv.status);
@@ -862,7 +907,7 @@ const ADMIN_EMAIL = "contact@konclav.ch";
             '<td class="px-4 py-3 font-mono text-xs text-ink-200">' + esc(inv.number) + '</td>' +
             '<td class="px-4 py-3 text-ink-200">' + esc((inv.customer && inv.customer.asso_name) || "—") + '</td>' +
             '<td class="px-4 py-3 text-ink-300">' + fmtDate(inv.issue_date) + '</td>' +
-            '<td class="px-4 py-3 text-ink-300">' + fmtDate(inv.due_date) + '</td>' +
+            '<td class="px-4 py-3 ' + (isLate(inv) ? 'font-medium text-rose-400' : 'text-ink-300') + '">' + fmtDate(inv.due_date) + '</td>' +
             '<td class="px-4 py-3 text-right font-semibold tabular-nums text-ink-50">' + fmtCHF(inv.total, inv.currency) + '</td>' +
             '<td class="px-4 py-3"><select data-inv-status class="rounded-lg border border-white/10 bg-ink-900 px-2 py-1 text-xs text-ink-50 focus:border-accent-500/50 focus:outline-none">' +
             ["draft", "sent", "paid", "overdue", "canceled"].map((v) => '<option value="' + v + '"' + (v === inv.status ? " selected" : "") + '>' + invoiceStatus(v)[0] + '</option>').join("") +
@@ -891,8 +936,8 @@ const ADMIN_EMAIL = "contact@konclav.ch";
       const patch = { status: sel.value };
       if (sel.value === "paid") patch.paid_at = new Date().toISOString();
       try { await api("invoices?id=eq." + encodeURIComponent(id), { method: "PATCH", headers: { Prefer: "return=minimal" }, body: JSON.stringify(patch) });
-        if (inv) Object.assign(inv, patch); renderInvoices();
-      } catch (err) { sel.value = prev || "draft"; alert("Échec : " + err.message); }
+        if (inv) Object.assign(inv, patch); renderInvoices(); toast("Statut mis à jour ✓");
+      } catch (err) { sel.value = prev || "draft"; toast("Échec du changement de statut : " + err.message, "error"); }
     });
 
     root.querySelector("[data-bi-new]").addEventListener("click", () => editInvoice(null));
@@ -900,19 +945,21 @@ const ADMIN_EMAIL = "contact@konclav.ch";
     async function downloadInvoicePdf(id) {
       try {
         const res = await fn("cockpit-invoice-pdf", { qs: "id=" + encodeURIComponent(id) });
-        if (!res.ok) { const t = await res.text(); alert("PDF échoué : " + t.slice(0, 200)); return; }
+        if (!res.ok) { const t = await res.text(); toast("PDF échoué : " + t.slice(0, 160), "error"); return; }
         const blob = await res.blob();
         const url = URL.createObjectURL(blob);
-        window.open(url, "_blank");
+        const a = document.createElement("a");
+        a.href = url; a.target = "_blank"; a.rel = "noopener";
+        document.body.appendChild(a); a.click(); a.remove();
         setTimeout(() => URL.revokeObjectURL(url), 60_000);
-      } catch (e) { alert("Erreur PDF : " + e.message); }
+      } catch (e) { toast("Erreur PDF : " + e.message, "error"); }
     }
 
     async function deleteInvoice(id) {
       const inv = invoicesList.find((x) => x.id === id);
       if (!confirm("Supprimer la facture " + (inv ? inv.number : id) + " ?")) return;
-      try { await api("invoices?id=eq." + encodeURIComponent(id), { method: "DELETE", headers: { Prefer: "return=minimal" } }); loadInvoices(); }
-      catch (e) { alert("Échec : " + e.message); }
+      try { await api("invoices?id=eq." + encodeURIComponent(id), { method: "DELETE", headers: { Prefer: "return=minimal" } }); toast("Facture supprimée."); loadInvoices(); }
+      catch (e) { toast("Échec de la suppression : " + e.message, "error"); }
     }
 
     // ----- Modal facture -----
@@ -1025,6 +1072,7 @@ const ADMIN_EMAIL = "contact@konclav.ch";
       if (!data.customer_id) { biError.textContent = "Client requis."; biError.hidden = false; return; }
       const cleanLines = editingInvoiceLines.filter((l) => l.description && +l.qty > 0);
       if (!cleanLines.length) { biError.textContent = "Ajoutez au moins une ligne."; biError.hidden = false; return; }
+      if (cleanLines.some((l) => +l.unit_price < 0)) { biError.textContent = "Les prix ne peuvent pas être négatifs."; biError.hidden = false; return; }
 
       submit.disabled = true;
       try {
@@ -1042,6 +1090,7 @@ const ADMIN_EMAIL = "contact@konclav.ch";
         const payload = cleanLines.map((l, i) => ({ invoice_id: invoiceId, position: i, description: l.description, qty: l.qty, unit_price: l.unit_price }));
         if (payload.length) await api("invoice_lines", { method: "POST", headers: { Prefer: "return=minimal" }, body: JSON.stringify(payload) });
         closeModals();
+        toast(id ? "Facture mise à jour ✓" : "Facture créée ✓");
         await loadInvoices();
       } catch (err) { biError.textContent = err.message || "Erreur."; biError.hidden = false; }
       finally { submit.disabled = false; }
