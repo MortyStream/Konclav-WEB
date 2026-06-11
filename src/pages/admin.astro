@@ -27,6 +27,14 @@ const ADMIN_EMAIL = "contact@konclav.ch";
       <div class="flex items-center gap-2">
         <button
           type="button"
+          data-ck-search
+          hidden
+          class="rounded-lg border border-white/10 bg-white/[0.02] px-4 py-2 text-xs font-medium text-ink-400 transition-colors hover:border-white/20 hover:text-ink-50"
+        >
+          Rechercher <kbd class="ml-1 rounded border border-white/10 bg-white/[0.04] px-1 text-[10px]">⌘K</kbd>
+        </button>
+        <button
+          type="button"
           data-ck-2fa
           hidden
           class="rounded-lg border border-white/10 bg-white/[0.02] px-4 py-2 text-xs font-medium text-ink-400 transition-colors hover:border-white/20 hover:text-ink-50"
@@ -154,9 +162,17 @@ const ADMIN_EMAIL = "contact@konclav.ch";
     <section data-ck-app hidden>
       <!-- Tabs principaux -->
       <nav class="mt-8 flex flex-wrap gap-1 border-b border-white/[0.06]" role="tablist" aria-label="Sections du cockpit">
-        <button type="button" data-tab="leads" role="tab" aria-selected="true"
+        <button type="button" data-tab="overview" role="tab" aria-selected="true"
           class="ck-tab relative -mb-px border-b-2 border-accent-500 px-4 py-3 text-sm font-medium text-ink-50">
+          Aperçu
+        </button>
+        <button type="button" data-tab="leads" role="tab" aria-selected="false"
+          class="ck-tab relative -mb-px border-b-2 border-transparent px-4 py-3 text-sm font-medium text-ink-400 hover:text-ink-50">
           Inscriptions
+        </button>
+        <button type="button" data-tab="orgs" role="tab" aria-selected="false"
+          class="ck-tab relative -mb-px border-b-2 border-transparent px-4 py-3 text-sm font-medium text-ink-400 hover:text-ink-50">
+          Assos
         </button>
         <button type="button" data-tab="audience" role="tab" aria-selected="false"
           class="ck-tab relative -mb-px border-b-2 border-transparent px-4 py-3 text-sm font-medium text-ink-400 hover:text-ink-50">
@@ -168,12 +184,30 @@ const ADMIN_EMAIL = "contact@konclav.ch";
         </button>
       </nav>
 
+      <!-- ===== PANEL : APERÇU ===== -->
+      <div data-panel="overview" role="tabpanel">
+        <div data-ov-content aria-live="polite">
+          <p class="mt-12 text-center text-sm text-ink-500">Chargement…</p>
+        </div>
+      </div>
+
       <!-- ===== PANEL : LEADS ===== -->
-      <div data-panel="leads" role="tabpanel">
+      <div data-panel="leads" role="tabpanel" hidden>
         <div class="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-4" data-ck-stats></div>
         <div class="mt-8 flex flex-wrap items-center gap-2" data-ck-filters role="group" aria-label="Filtrer par statut"></div>
         <div class="mt-6 space-y-3" data-ck-list aria-live="polite"></div>
         <p data-ck-empty hidden class="mt-12 text-center text-sm text-ink-500">Aucune demande pour ce filtre.</p>
+      </div>
+
+      <!-- ===== PANEL : ASSOS ===== -->
+      <div data-panel="orgs" role="tabpanel" hidden>
+        <div class="mt-8 flex flex-wrap items-center justify-between gap-3">
+          <h2 class="text-xl font-semibold tracking-tight text-ink-50">Associations provisionnées</h2>
+          <button type="button" data-og-refresh class="ck-pill">Rafraîchir</button>
+        </div>
+        <div data-og-content aria-live="polite">
+          <p class="mt-12 text-center text-sm text-ink-500">Chargement…</p>
+        </div>
       </div>
 
       <!-- ===== PANEL : AUDIENCE ===== -->
@@ -371,6 +405,58 @@ const ADMIN_EMAIL = "contact@konclav.ch";
       </div>
     </div>
 
+    <!-- ===== MODAL : email lead ===== -->
+    <div data-modal="email" hidden class="ck-modal" role="dialog" aria-modal="true" aria-labelledby="ck-email-title">
+      <div class="ck-modal-back"></div>
+      <div class="ck-modal-card">
+        <div class="flex items-center justify-between border-b border-white/[0.06] px-5 py-4">
+          <h3 id="ck-email-title" class="text-base font-semibold text-ink-50">Email à <span data-em-to class="text-accent-300"></span></h3>
+          <button type="button" data-modal-close class="text-ink-400 hover:text-ink-50" aria-label="Fermer">✕</button>
+        </div>
+        <form data-em-form class="space-y-3 px-5 py-5">
+          <label class="block text-xs">
+            <span class="mb-1 block font-medium text-ink-400">Modèle</span>
+            <select data-em-template class="ck-input"></select>
+          </label>
+          <label class="block text-xs">
+            <span class="mb-1 block font-medium text-ink-400">Sujet</span>
+            <input data-em-subject required maxlength="200" class="ck-input" />
+          </label>
+          <label class="block text-xs">
+            <span class="mb-1 block font-medium text-ink-400">Message</span>
+            <textarea data-em-body rows="10" required maxlength="5000" class="ck-input"></textarea>
+          </label>
+          <p data-em-error role="alert" hidden class="text-sm text-rose-400"></p>
+          <div class="flex justify-end gap-2 pt-1">
+            <button type="button" data-modal-close class="rounded-lg border border-white/10 px-4 py-2 text-sm text-ink-300 hover:border-white/20 hover:text-ink-50">Annuler</button>
+            <button type="submit" data-em-send class="rounded-lg bg-accent-500 px-4 py-2 text-sm font-semibold text-white hover:bg-accent-400 disabled:cursor-not-allowed disabled:opacity-60">Envoyer</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- ===== MODAL : résultat provisionnement ===== -->
+    <div data-modal="provision" hidden class="ck-modal" role="dialog" aria-modal="true" aria-labelledby="ck-pv-title">
+      <div class="ck-modal-back"></div>
+      <div class="ck-modal-card">
+        <div class="flex items-center justify-between border-b border-white/[0.06] px-5 py-4">
+          <h3 id="ck-pv-title" class="text-base font-semibold text-ink-50">Asso provisionnée 🎉</h3>
+          <button type="button" data-modal-close class="text-ink-400 hover:text-ink-50" aria-label="Fermer">✕</button>
+        </div>
+        <div data-pv-body class="px-5 py-5 text-sm text-ink-300"></div>
+      </div>
+    </div>
+
+    <!-- ===== PALETTE Cmd+K ===== -->
+    <div data-modal="cmdk" hidden class="ck-modal" role="dialog" aria-modal="true" aria-label="Recherche globale">
+      <div class="ck-modal-back"></div>
+      <div class="ck-modal-card" style="max-width: 36rem; align-self: flex-start; margin-top: 12vh;">
+        <input data-ck-q type="search" placeholder="Rechercher un lead, un client, une facture…"
+          class="w-full border-b border-white/[0.06] bg-transparent px-5 py-4 text-sm text-ink-50 placeholder:text-ink-500 focus:outline-none" />
+        <ul data-ck-results class="max-h-80 overflow-y-auto p-2"></ul>
+      </div>
+    </div>
+
     <!-- ===== MODAL : gestion 2FA ===== -->
     <div data-modal="mfa" hidden class="ck-modal" role="dialog" aria-modal="true" aria-labelledby="ck-mfa-modal-title">
       <div class="ck-modal-back"></div>
@@ -437,9 +523,10 @@ const ADMIN_EMAIL = "contact@konclav.ch";
     const mfaError = root.querySelector("[data-ck-mfa-error]");
     const btn2fa = root.querySelector("[data-ck-2fa]");
     const mfaBody = root.querySelector("[data-mfa-body]");
+    const searchBtn = root.querySelector("[data-ck-search]");
 
     const tabs = root.querySelectorAll("[data-tab]");
-    const panels = { leads: root.querySelector('[data-panel="leads"]'), audience: root.querySelector('[data-panel="audience"]'), billing: root.querySelector('[data-panel="billing"]') };
+    const panels = { overview: root.querySelector('[data-panel="overview"]'), leads: root.querySelector('[data-panel="leads"]'), orgs: root.querySelector('[data-panel="orgs"]'), audience: root.querySelector('[data-panel="audience"]'), billing: root.querySelector('[data-panel="billing"]') };
     const subtabs = root.querySelectorAll("[data-subtab]");
     const subpanels = { invoices: root.querySelector('[data-subpanel="invoices"]'), customers: root.querySelector('[data-subpanel="customers"]') };
 
@@ -509,7 +596,7 @@ const ADMIN_EMAIL = "contact@konclav.ch";
     }
 
     // ===== Vues principales =====
-    function showLogin() { store.clear(); appView.hidden = true; changeView.hidden = true; mfaView.hidden = true; logoutBtn.hidden = true; btn2fa.hidden = true; loginView.hidden = false; }
+    function showLogin() { store.clear(); appView.hidden = true; changeView.hidden = true; mfaView.hidden = true; logoutBtn.hidden = true; btn2fa.hidden = true; searchBtn.hidden = true; loginView.hidden = false; }
     function showChange() { loginView.hidden = true; appView.hidden = true; mfaView.hidden = true; changeView.hidden = false; logoutBtn.hidden = false; document.getElementById("ck-newpw").focus(); }
     let mfaFactorId = null;
     function showMfa(factorId) {
@@ -519,8 +606,8 @@ const ADMIN_EMAIL = "contact@konclav.ch";
       const inp = document.getElementById("ck-mfa-code"); inp.value = ""; inp.focus();
     }
     async function showApp() {
-      loginView.hidden = true; changeView.hidden = true; mfaView.hidden = true; appView.hidden = false; logoutBtn.hidden = false; btn2fa.hidden = false;
-      switchTab("leads");
+      loginView.hidden = true; changeView.hidden = true; mfaView.hidden = true; appView.hidden = false; logoutBtn.hidden = false; btn2fa.hidden = false; searchBtn.hidden = false;
+      switchTab("overview");
     }
     async function fetchUser() {
       const res = await fetch(U + "/auth/v1/user", { headers: { apikey: K, Authorization: "Bearer " + store.at } });
@@ -563,7 +650,9 @@ const ADMIN_EMAIL = "contact@konclav.ch";
         t.className = "ck-tab relative -mb-px border-b-2 px-4 py-3 text-sm font-medium transition-colors " + (on ? "border-accent-500 text-ink-50" : "border-transparent text-ink-400 hover:text-ink-50");
       });
       Object.entries(panels).forEach(([k, el]) => { if (el) el.hidden = k !== name; });
+      if (name === "overview") loadOverview();
       if (name === "leads") loadLeads();
+      if (name === "orgs") loadOrgs();
       if (name === "audience") loadAudience();
       if (name === "billing") { switchSubtab("invoices"); }
     }
@@ -643,7 +732,13 @@ const ADMIN_EMAIL = "contact@konclav.ch";
       const shown = leadFilter === "all" ? leads : leads.filter((l) => l.status === leadFilter);
       emptyEl.hidden = shown.length > 0;
       listEl.innerHTML = shown.map(leadCard).join("");
+      if (focusLeadId) {
+        const card = listEl.querySelector('[data-lead="' + focusLeadId + '"]');
+        if (card) { card.open = true; card.scrollIntoView({ block: "center" }); }
+        focusLeadId = null;
+      }
     }
+    let focusLeadId = null;
     function leadCard(l) {
       const st = statusOf(l.status);
       const date = new Date(l.created_at).toLocaleDateString("fr-CH", { day: "2-digit", month: "short", year: "numeric" });
@@ -656,6 +751,8 @@ const ADMIN_EMAIL = "contact@konclav.ch";
         '<span class="h-2 w-2 shrink-0 rounded-full" style="background:' + st.color + '"></span>' +
         '<span class="min-w-0 flex-1"><span class="block truncate text-sm font-semibold text-ink-50">' + esc(l.asso_name) + "</span>" +
         '<span class="block text-xs text-ink-500">' + esc(l.canton) + " · " + esc(l.member_count) + " membres · " + date + "</span></span>" +
+        (l.next_action_at ? '<span class="text-[11px] font-medium ' + (l.next_action_at <= todayISO() ? "text-rose-400" : "text-ink-500") + '">🔔 ' + fmtDate(l.next_action_at) + "</span>" : "") +
+        (l.provisioned_org_id ? '<span class="rounded-md bg-emerald-400/10 px-1.5 py-0.5 text-[10px] font-medium text-emerald-400">App ✓</span>' : "") +
         '<span class="text-xs text-ink-400">' + esc(l.first_name + " " + l.last_name) + "</span>" +
         '<select data-status class="rounded-lg border border-white/10 bg-ink-900 px-2.5 py-1.5 text-xs text-ink-50 focus:border-accent-500/50 focus:outline-none">' + options + "</select>" +
         "</summary>" +
@@ -673,6 +770,17 @@ const ADMIN_EMAIL = "contact@konclav.ch";
         '<textarea data-notes rows="2" class="w-full rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2 text-sm text-ink-50 focus:border-accent-500/50 focus:outline-none">' + esc(l.notes || "") + "</textarea>" +
         '<button type="button" data-save-notes class="mt-2 rounded-lg border border-white/10 bg-white/[0.02] px-3.5 py-1.5 text-xs font-medium text-ink-50 transition-colors hover:border-white/20">Enregistrer la note</button>' +
         '<span data-saved hidden class="ml-2 text-xs text-emerald-400">Enregistré ✓</span></div>' +
+        '<div class="flex flex-wrap items-end gap-2 border-t border-white/[0.06] pt-3">' +
+        '<label class="block text-xs"><span class="mb-1 block font-medium text-ink-400">Prochaine action</span>' +
+        '<input type="date" data-next-action value="' + esc(l.next_action_at || "") + '" class="rounded-lg border border-white/10 bg-ink-900 px-2.5 py-1.5 text-xs text-ink-50 focus:border-accent-500/50 focus:outline-none" /></label>' +
+        '<button type="button" data-save-reminder class="rounded-lg border border-white/10 bg-white/[0.02] px-3 py-1.5 text-xs font-medium text-ink-200 transition-colors hover:border-white/20">Planifier</button>' +
+        '<span class="flex-1"></span>' +
+        '<button type="button" data-lead-email class="rounded-lg border border-accent-500/40 bg-accent-500/10 px-3 py-1.5 text-xs font-medium text-accent-300 transition-colors hover:bg-accent-500/20">✉️ Email</button>' +
+        (l.provisioned_org_id
+          ? '<span class="rounded-lg border border-emerald-400/30 bg-emerald-400/10 px-3 py-1.5 text-xs font-medium text-emerald-400">Provisionnée ✓</span>'
+          : '<button type="button" data-lead-provision class="rounded-lg bg-accent-500 px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-accent-400">🚀 Provisionner</button>') +
+        "</div>" +
+        '<div data-lead-events class="border-t border-white/[0.06] pt-3 text-xs text-ink-500"></div>' +
         "</div></details>";
     }
     filtersEl.addEventListener("click", (e) => {
@@ -681,15 +789,33 @@ const ADMIN_EMAIL = "contact@konclav.ch";
     });
     listEl.addEventListener("click", (e) => {
       if (e.target.closest("[data-status]")) { e.preventDefault(); e.stopPropagation(); }
+      const card = e.target.closest("[data-lead]");
+      if (!card) return;
+      const id = card.dataset.lead;
       const saveBtn = e.target.closest("[data-save-notes]");
       if (saveBtn) {
-        const card = saveBtn.closest("[data-lead]"); const id = card.dataset.lead;
         const notes = card.querySelector("[data-notes]").value;
         saveBtn.disabled = true;
         patchLead(id, { notes }).then(() => {
           const lead = leads.find((l) => l.id === id); if (lead) lead.notes = notes;
           const ok = card.querySelector("[data-saved]"); ok.hidden = false; setTimeout(() => (ok.hidden = true), 2000);
         }).catch(() => toast("Échec de l'enregistrement de la note.", "error")).finally(() => (saveBtn.disabled = false));
+      }
+      const remBtn = e.target.closest("[data-save-reminder]");
+      if (remBtn) {
+        const val = card.querySelector("[data-next-action]").value || null;
+        remBtn.disabled = true;
+        patchLead(id, { next_action_at: val }).then(() => {
+          const lead = leads.find((l) => l.id === id); if (lead) lead.next_action_at = val;
+          toast(val ? "Rappel planifié pour le " + fmtDate(val) + " ✓" : "Rappel retiré.");
+          if (val) logLeadEvent(id, "reminder_set", "Relance planifiée le " + fmtDate(val));
+        }).catch(() => toast("Échec de l'enregistrement du rappel.", "error")).finally(() => (remBtn.disabled = false));
+      }
+      if (e.target.closest("[data-lead-email]")) {
+        const lead = leads.find((l) => l.id === id); if (lead) openEmailModal(lead);
+      }
+      if (e.target.closest("[data-lead-provision]")) {
+        const lead = leads.find((l) => l.id === id); if (lead) provisionLead(lead);
       }
     });
     listEl.addEventListener("change", (e) => {
@@ -698,7 +824,117 @@ const ADMIN_EMAIL = "contact@konclav.ch";
       const prev = (leads.find((l) => l.id === id) || {}).status;
       patchLead(id, { status: sel.value }).then(() => {
         const lead = leads.find((l) => l.id === id); if (lead) lead.status = sel.value; renderLeads();
+        logLeadEvent(id, "status_change", "Statut → " + statusOf(sel.value).label);
       }).catch(() => { sel.value = prev; toast("Échec du changement de statut.", "error"); });
+    });
+
+    // Timeline d'activité : chargée à l'ouverture du card (toggle ne bulle pas → capture)
+    listEl.addEventListener("toggle", (e) => {
+      const card = e.target.closest ? e.target.closest("[data-lead]") : null;
+      if (!card || !card.open) return;
+      loadLeadEvents(card.dataset.lead, card.querySelector("[data-lead-events]"));
+    }, true);
+    const EVENT_ICONS = { status_change: "↻", note: "📝", email_sent: "✉️", reminder_set: "🔔", provisioned: "🚀" };
+    async function loadLeadEvents(id, el) {
+      if (!el || el.dataset.loaded) return;
+      try {
+        const res = await api("lead_events?lead_id=eq." + encodeURIComponent(id) + "&order=created_at.desc&limit=20");
+        const evs = await res.json();
+        el.dataset.loaded = "1";
+        el.innerHTML = evs.length
+          ? '<p class="mb-1.5 font-medium text-ink-400">Historique</p>' + evs.map((ev) =>
+              '<p class="py-0.5">' + (EVENT_ICONS[ev.type] || "·") + ' <span class="text-ink-300">' + esc(ev.detail || ev.type) + '</span> <span class="text-ink-500">— ' + fmtDate(ev.created_at) + "</span></p>"
+            ).join("")
+          : "<p>Aucune activité enregistrée pour ce lead.</p>";
+      } catch { el.innerHTML = ""; }
+    }
+    function logLeadEvent(id, type, detail) {
+      api("lead_events", { method: "POST", headers: { Prefer: "return=minimal" }, body: JSON.stringify({ lead_id: id, type, detail }) })
+        .then(() => {
+          const el = listEl.querySelector('[data-lead="' + id + '"] [data-lead-events]');
+          if (el) { delete el.dataset.loaded; const card = el.closest("[data-lead]"); if (card && card.open) loadLeadEvents(id, el); }
+        })
+        .catch(() => {});
+    }
+
+    // =========================================================
+    // ============ MODULE 1B : APERÇU (dashboard) ==============
+    // =========================================================
+    const ovContent = root.querySelector("[data-ov-content]");
+    async function loadOverview() {
+      const signal = freshSignal("overview");
+      ovContent.innerHTML = '<p class="mt-12 text-center text-sm text-ink-500">Chargement…</p>';
+      try {
+        const [leadsRes, invRes, anaRes] = await Promise.all([
+          api("leads?select=id,asso_name,status,created_at,next_action_at,first_name,last_name&order=created_at.desc", { signal }),
+          api("invoices?select=id,number,total,currency,status,due_date,paid_at&order=due_date.asc", { signal }),
+          api("rpc/cockpit_analytics", { method: "POST", body: JSON.stringify({ p_period: "7d" }), signal }).catch(() => null),
+        ]);
+        const allLeads = await leadsRes.json();
+        const invs = await invRes.json();
+        const ana = anaRes ? await anaRes.json().catch(() => null) : null;
+        renderOverview(allLeads, invs, ana);
+      } catch (e) {
+        if (isAbort(e)) return;
+        ovContent.innerHTML = '<p class="mt-12 text-center text-sm text-rose-400">Erreur : ' + esc(String(e)) + "</p>";
+      }
+    }
+    function renderOverview(allLeads, invs, ana) {
+      const today = todayISO();
+      const weekAgo = addDaysISO(today, -7);
+      const due = allLeads
+        .filter((l) => l.next_action_at && l.next_action_at <= today && l.status !== "declined" && l.status !== "converted")
+        .sort((a, b) => (a.next_action_at < b.next_action_at ? -1 : 1));
+      const newLeads = allLeads.filter((l) => l.created_at >= weekAgo);
+      const lateInvs = invs.filter((i) => i.status === "overdue" || (i.status === "sent" && i.due_date && i.due_date < today));
+      const lateSum = lateInvs.reduce((s, i) => s + (Number(i.total) || 0), 0);
+      const monthKey = today.slice(0, 7);
+      const paidMonth = invs.filter((i) => i.status === "paid" && (i.paid_at || "").slice(0, 7) === monthKey)
+        .reduce((s, i) => s + (Number(i.total) || 0), 0);
+      const visitors = ana && ana.stats ? Number(ana.stats.visitors) || 0 : null;
+
+      const kpiCard = (label, value, color, tab) =>
+        '<button type="button" data-goto="' + tab + '" class="rounded-2xl border border-white/10 bg-white/[0.02] p-5 text-left transition-colors hover:border-white/20">' +
+        '<p class="text-3xl font-semibold tracking-tight tabular-nums" style="color:' + color + '">' + value + "</p>" +
+        '<p class="mt-1 text-xs text-ink-500">' + esc(label) + "</p></button>";
+      const miniList = (items, mapper, emptyMsg) =>
+        items.length
+          ? '<ul class="space-y-1.5">' + items.slice(0, 6).map(mapper).join("") + "</ul>"
+          : '<p class="text-sm text-ink-500">' + emptyMsg + "</p>";
+
+      ovContent.innerHTML =
+        '<div class="mt-8 grid grid-cols-2 gap-3 lg:grid-cols-4">' +
+        kpiCard("Leads à relancer", String(due.length), due.length ? "#f87171" : "#4ade80", "leads") +
+        kpiCard("Nouvelles demandes (7 j)", String(newLeads.length), "#7170ff", "leads") +
+        kpiCard("Factures en retard", lateInvs.length ? lateInvs.length + " · " + fmtCHF(lateSum, "CHF") : "0", lateInvs.length ? "#f87171" : "#4ade80", "billing") +
+        kpiCard("Encaissé ce mois-ci", fmtCHF(paidMonth, "CHF"), "#4ade80", "billing") +
+        "</div>" +
+        '<div class="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-2">' +
+        '<div class="rounded-2xl border border-white/10 bg-white/[0.02] p-5">' +
+        '<h3 class="mb-3 text-sm font-semibold text-ink-50">🔔 À relancer</h3>' +
+        miniList(due, (l) =>
+          '<li><button type="button" data-goto-lead="' + esc(l.id) + '" class="flex w-full items-center justify-between rounded-lg border border-white/[0.06] bg-white/[0.01] px-3 py-2 text-left text-xs transition-colors hover:border-white/15">' +
+          '<span class="truncate text-ink-200">' + esc(l.asso_name) + ' <span class="text-ink-500">· ' + esc((l.first_name || "") + " " + (l.last_name || "")) + "</span></span>" +
+          '<span class="ml-3 shrink-0 tabular-nums text-rose-400">' + fmtDate(l.next_action_at) + "</span></button></li>",
+          "Rien en attente — tout est à jour ✓") +
+        "</div>" +
+        '<div class="rounded-2xl border border-white/10 bg-white/[0.02] p-5">' +
+        '<h3 class="mb-3 text-sm font-semibold text-ink-50">Dernières demandes</h3>' +
+        miniList(newLeads, (l) =>
+          '<li><button type="button" data-goto-lead="' + esc(l.id) + '" class="flex w-full items-center justify-between rounded-lg border border-white/[0.06] bg-white/[0.01] px-3 py-2 text-left text-xs transition-colors hover:border-white/15">' +
+          '<span class="truncate text-ink-200">' + esc(l.asso_name) + "</span>" +
+          '<span class="ml-3 shrink-0 text-ink-500">' + fmtDate(l.created_at) + "</span></button></li>",
+          "Aucune demande cette semaine.") +
+        "</div></div>" +
+        (visitors !== null
+          ? '<p class="mt-6 text-center text-xs text-ink-500">' + fmtNum(visitors) + ' visiteurs sur konclav.ch ces 7 derniers jours · <button type="button" data-goto="audience" class="text-accent-300 hover:text-accent-400">voir l\'audience</button></p>'
+          : "");
+    }
+    ovContent.addEventListener("click", (e) => {
+      const lb = e.target.closest("[data-goto-lead]");
+      if (lb) { focusLeadId = lb.dataset.gotoLead; switchTab("leads"); return; }
+      const b = e.target.closest("[data-goto]");
+      if (b) switchTab(b.dataset.goto);
     });
 
     // =========================================================
@@ -832,6 +1068,144 @@ const ADMIN_EMAIL = "contact@konclav.ch";
 
         '<p class="mt-4 text-center text-xs text-ink-500">Mesure d\'audience interne · hébergée à Zurich (Supabase) · sans cookie, anonyme by design</p>';
     }
+
+    // =========================================================
+    // ============ MODULE 2B : ASSOS (provisionnement) =========
+    // =========================================================
+    const ogContent = root.querySelector("[data-og-content]");
+    async function loadOrgs() {
+      ogContent.innerHTML = '<p class="mt-12 text-center text-sm text-ink-500">Chargement…</p>';
+      try {
+        const res = await fn("cockpit-orgs");
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(data.error || "HTTP " + res.status);
+        renderOrgs(data.orgs || []);
+      } catch (e) {
+        ogContent.innerHTML = '<p class="mt-12 text-center text-sm text-rose-400">Erreur : ' + esc(e.message || String(e)) + "</p>";
+      }
+    }
+    function renderOrgs(orgs) {
+      if (!orgs.length) {
+        ogContent.innerHTML = '<p class="mt-12 text-center text-sm text-ink-500">Aucune asso provisionnée pour l\'instant.<br>Ouvrez un lead dans « Inscriptions » et cliquez « 🚀 Provisionner ».</p>';
+        return;
+      }
+      ogContent.innerHTML = '<div class="mt-6 overflow-x-auto rounded-2xl border border-white/10 bg-white/[0.02]">' +
+        '<table class="w-full text-sm">' +
+        '<thead class="bg-white/[0.03] text-xs uppercase tracking-wide text-ink-500">' +
+        '<tr><th scope="col" class="px-4 py-3 text-left">Association</th><th scope="col" class="px-4 py-3 text-left">Président</th><th scope="col" class="px-4 py-3 text-right">Membres</th><th scope="col" class="px-4 py-3 text-left">Dernière connexion</th><th scope="col" class="px-4 py-3 text-left">Statut</th><th scope="col" class="px-4 py-3"><span class="sr-only">Actions</span></th></tr></thead>' +
+        '<tbody class="divide-y divide-white/[0.06]">' +
+        orgs.map((o) =>
+          '<tr data-org="' + esc(o.id) + '" data-org-active="' + (o.is_active ? "1" : "") + '" data-org-name="' + esc(o.name) + '">' +
+          '<td class="px-4 py-3"><p class="font-semibold text-ink-50">' + esc(o.name) + '</p><p class="font-mono text-[11px] text-ink-500">' + esc(o.slug) + "</p></td>" +
+          '<td class="px-4 py-3">' + (o.president
+            ? '<p class="text-ink-200">' + esc(o.president.name) + '</p><p class="text-xs text-ink-500">' + esc(o.president.email) + "</p>"
+            : '<span class="text-ink-500">—</span>') + "</td>" +
+          '<td class="px-4 py-3 text-right tabular-nums text-ink-200">' + (o.member_count || 0) + "</td>" +
+          '<td class="px-4 py-3 text-xs text-ink-400">' + (o.last_login ? fmtDate(o.last_login) : "jamais") + "</td>" +
+          '<td class="px-4 py-3">' + (o.is_active
+            ? '<span class="rounded-md bg-emerald-400/10 px-2 py-0.5 text-[11px] font-medium text-emerald-400">Active</span>'
+            : '<span class="rounded-md bg-rose-400/10 px-2 py-0.5 text-[11px] font-medium text-rose-400">Suspendue</span>') + "</td>" +
+          '<td class="px-4 py-3 text-right"><button type="button" data-org-toggle class="text-xs ' +
+          (o.is_active ? "text-rose-400 hover:text-rose-300" : "text-emerald-400 hover:text-emerald-300") + '">' +
+          (o.is_active ? "Suspendre" : "Réactiver") + "</button></td></tr>"
+        ).join("") + "</tbody></table></div>";
+    }
+    ogContent.addEventListener("click", async (e) => {
+      const btn = e.target.closest("[data-org-toggle]"); if (!btn) return;
+      const tr = btn.closest("[data-org]");
+      const active = !!tr.dataset.orgActive;
+      if (!confirm(active
+        ? "Suspendre « " + tr.dataset.orgName + " » ?\nSes membres ne pourront plus utiliser l'app jusqu'à réactivation."
+        : "Réactiver « " + tr.dataset.orgName + " » ?")) return;
+      btn.disabled = true;
+      try {
+        const res = await fn("cockpit-orgs", { method: "PATCH", json: { org_id: tr.dataset.org, is_active: !active } });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(data.error || "HTTP " + res.status);
+        toast(active ? "Asso suspendue." : "Asso réactivée ✓");
+        loadOrgs();
+      } catch (err) { toast("Échec : " + err.message, "error"); btn.disabled = false; }
+    });
+    root.querySelector("[data-og-refresh]").addEventListener("click", loadOrgs);
+
+    // ----- Provisionnement depuis un lead -----
+    async function provisionLead(lead) {
+      if (!confirm("Provisionner « " + lead.asso_name + " » ?\n\nCela va créer :\n• l'association dans l'app Konclav\n• le compte président pour " + lead.email + " (mot de passe temporaire, à changer au 1er login)\n• la fiche client en facturation\n\nUn email avec les accès sera envoyé au président.")) return;
+      try {
+        const res = await fn("cockpit-orgs", { method: "POST", json: { lead_id: lead.id } });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(data.error || "HTTP " + res.status);
+        lead.provisioned_org_id = data.org.id;
+        lead.status = "converted";
+        renderLeads();
+        showProvisionResult(lead, data);
+      } catch (err) { toast("Provisionnement échoué : " + err.message, "error"); }
+    }
+    function showProvisionResult(lead, data) {
+      const mb = root.querySelector("[data-pv-body]");
+      mb.innerHTML =
+        '<p class="flex items-center gap-2 text-emerald-400"><span class="h-2 w-2 rounded-full bg-emerald-400"></span>« ' + esc(data.org.name) + " » est provisionnée.</p>" +
+        '<table class="mt-4 w-full text-xs"><tbody>' +
+        '<tr><td class="py-1.5 pr-3 text-ink-500">Identifiant</td><td class="py-1.5 font-mono text-ink-50">' + esc(lead.email) + "</td></tr>" +
+        '<tr><td class="py-1.5 pr-3 text-ink-500">Mot de passe temporaire</td><td class="py-1.5 font-mono text-base text-ink-50">' + esc(data.temp_password) + "</td></tr>" +
+        "</tbody></table>" +
+        (data.email_sent
+          ? '<p class="mt-3 text-xs text-emerald-400">Email d\'accès envoyé au président ✓</p>'
+          : '<p class="mt-3 text-xs text-rose-400">⚠ L\'email n\'est pas parti — transmettez ces accès manuellement.</p>') +
+        '<p class="mt-2 text-xs text-ink-500">Ce mot de passe ne sera plus jamais affiché. Le président devra le changer à sa première connexion.</p>';
+      openModal("provision");
+    }
+
+    // =========================================================
+    // ============ MODULE 2C : EMAILS CRM ======================
+    // =========================================================
+    const EMAIL_TEMPLATES = [
+      { label: "Premier contact", subject: "Votre demande pour {asso} — Konclav",
+        body: "Bonjour {prenom},\n\nMerci pour votre demande concernant {asso} !\n\nJe suis Kévin, je développe Konclav — l'espace privé pour les associations suisses. J'aimerais comprendre votre fonctionnement actuel pour vous montrer ce que l'app peut vous apporter concrètement.\n\nAuriez-vous 20 minutes cette semaine pour un appel ?\n\nBonne journée,\nKévin — Konclav" },
+      { label: "Relance douce", subject: "Re : votre demande pour {asso}",
+        body: "Bonjour {prenom},\n\nJe me permets de revenir vers vous concernant votre demande pour {asso}.\n\nSi vous avez des questions sur Konclav (fonctionnement, prix, sécurité des données), j'y réponds volontiers — par email ou par téléphone, comme vous préférez.\n\nBonne journée,\nKévin — Konclav" },
+      { label: "Infos pratiques", subject: "Konclav pour {asso} — les infos essentielles",
+        body: "Bonjour {prenom},\n\nVoici l'essentiel sur Konclav en quelques lignes :\n\n• Un espace 100% privé pour {asso} : tâches, agenda, documents, membres\n• Hébergé en Suisse (Zurich), conforme nLPD\n• Essai 14 jours sans engagement\n\nJe vous accompagne personnellement pour la mise en route (environ 30 minutes).\n\nDes questions ? Répondez simplement à cet email.\n\nBonne journée,\nKévin — Konclav" },
+      { label: "Refus poli", subject: "Votre demande pour {asso}",
+        body: "Bonjour {prenom},\n\nMerci pour l'intérêt que vous portez à Konclav.\n\nAprès examen, je ne pense pas que l'app soit le bon outil pour {asso} aujourd'hui — je préfère vous le dire honnêtement plutôt que de vous faire perdre du temps.\n\nJe garde vos coordonnées : si l'offre évolue dans une direction qui vous correspond, je reviendrai vers vous.\n\nBonne continuation,\nKévin — Konclav" },
+    ];
+    let emailLeadId = null;
+    const fillTemplate = (str, lead) => str.replace(/\{prenom\}/g, lead.first_name || "").replace(/\{asso\}/g, lead.asso_name || "");
+    function openEmailModal(lead) {
+      emailLeadId = lead.id;
+      root.querySelector("[data-em-to]").textContent = lead.email;
+      const sel = root.querySelector("[data-em-template]");
+      sel.innerHTML = EMAIL_TEMPLATES.map((t, i) => '<option value="' + i + '">' + esc(t.label) + "</option>").join("");
+      const apply = () => {
+        const t = EMAIL_TEMPLATES[+sel.value || 0];
+        root.querySelector("[data-em-subject]").value = fillTemplate(t.subject, lead);
+        root.querySelector("[data-em-body]").value = fillTemplate(t.body, lead);
+      };
+      sel.onchange = apply;
+      apply();
+      root.querySelector("[data-em-error]").hidden = true;
+      openModal("email");
+    }
+    root.querySelector("[data-em-form]").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const btn = root.querySelector("[data-em-send]");
+      const errEl = root.querySelector("[data-em-error]");
+      btn.disabled = true; errEl.hidden = true;
+      try {
+        const res = await fn("cockpit-send-email", { method: "POST", json: {
+          lead_id: emailLeadId,
+          subject: root.querySelector("[data-em-subject]").value.trim(),
+          body: root.querySelector("[data-em-body]").value.trim(),
+        }});
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(data.error || "Envoi échoué");
+        closeModals();
+        toast("Email envoyé ✓");
+        const el = listEl.querySelector('[data-lead="' + emailLeadId + '"] [data-lead-events]');
+        if (el) { delete el.dataset.loaded; const card = el.closest("[data-lead]"); if (card && card.open) loadLeadEvents(emailLeadId, el); }
+      } catch (err) { errEl.textContent = err.message || "Envoi échoué."; errEl.hidden = false; }
+      finally { btn.disabled = false; }
+    });
 
     // =========================================================
     // ============ MODULE 3 : FACTURATION ======================
@@ -1174,6 +1548,75 @@ const ADMIN_EMAIL = "contact@konclav.ch";
         await loadInvoices();
       } catch (err) { biError.textContent = err.message || "Erreur."; biError.hidden = false; }
       finally { submit.disabled = false; }
+    });
+
+    // =========================================================
+    // ============ RECHERCHE GLOBALE (Cmd+K) ===================
+    // =========================================================
+    const qInput = root.querySelector("[data-ck-q]");
+    const qResults = root.querySelector("[data-ck-results]");
+    let qItems = [];
+    let qActive = 0;
+    const qBtnClass = (on) => "flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm " + (on ? "bg-accent-500/15 text-ink-50" : "text-ink-300 hover:bg-white/[0.04]");
+    async function openSearch() {
+      if (appView.hidden) return;
+      openModal("cmdk");
+      qInput.value = "";
+      renderSearch("");
+      qInput.focus();
+      const jobs = [];
+      if (!leads.length) jobs.push(api("leads?select=*&order=created_at.desc").then((r) => r.json()).then((d) => { leads = d; }).catch(() => {}));
+      if (!customers.length) jobs.push(api("customers?select=*&order=asso_name.asc").then((r) => r.json()).then((d) => { customers = d; }).catch(() => {}));
+      if (!invoicesList.length) jobs.push(api("invoices?select=*,customer:customers(asso_name,contact_name)&order=issue_date.desc").then((r) => r.json()).then((d) => { invoicesList = d; }).catch(() => {}));
+      if (jobs.length) { await Promise.all(jobs); renderSearch(qInput.value); }
+    }
+    function searchPool() {
+      const pool = [];
+      leads.forEach((l) => pool.push({
+        kind: "Lead", label: l.asso_name, sub: (l.first_name || "") + " " + (l.last_name || "") + " · " + l.email,
+        hay: (l.asso_name + " " + l.first_name + " " + l.last_name + " " + l.email + " " + (l.canton || "")).toLowerCase(),
+        go: () => { closeModals(); focusLeadId = l.id; switchTab("leads"); },
+      }));
+      customers.forEach((c) => pool.push({
+        kind: "Client", label: c.asso_name, sub: (c.contact_name || "") + " · " + (c.contact_email || ""),
+        hay: (c.asso_name + " " + (c.contact_name || "") + " " + (c.contact_email || "")).toLowerCase(),
+        go: () => { closeModals(); switchTab("billing"); switchSubtab("customers"); },
+      }));
+      invoicesList.forEach((i) => pool.push({
+        kind: "Facture", label: i.number, sub: ((i.customer && i.customer.asso_name) || "—") + " · " + fmtCHF(i.total, i.currency),
+        hay: (i.number + " " + ((i.customer && i.customer.asso_name) || "")).toLowerCase(),
+        go: () => { closeModals(); switchTab("billing"); switchSubtab("invoices"); editInvoice(i.id); },
+      }));
+      return pool;
+    }
+    function renderSearch(q) {
+      const needle = q.trim().toLowerCase();
+      qItems = needle ? searchPool().filter((it) => it.hay.indexOf(needle) !== -1).slice(0, 8) : [];
+      qActive = 0;
+      qResults.innerHTML = qItems.length
+        ? qItems.map((it, i) =>
+            '<li><button type="button" data-q-i="' + i + '" class="' + qBtnClass(i === qActive) + '">' +
+            '<span class="shrink-0 rounded-md border border-white/10 bg-white/[0.03] px-1.5 py-0.5 text-[10px] uppercase tracking-wide text-ink-500">' + it.kind + "</span>" +
+            '<span class="min-w-0 flex-1"><span class="block truncate font-medium">' + esc(it.label) + '</span><span class="block truncate text-xs text-ink-500">' + esc(it.sub) + "</span></span>" +
+            "</button></li>").join("")
+        : '<li class="px-3 py-6 text-center text-sm text-ink-500">' + (needle ? "Aucun résultat." : "Tapez pour chercher dans les leads, clients et factures.") + "</li>";
+    }
+    qInput.addEventListener("input", () => renderSearch(qInput.value));
+    qInput.addEventListener("keydown", (e) => {
+      if (e.key === "ArrowDown") { e.preventDefault(); qActive = Math.min(qActive + 1, qItems.length - 1); qHighlight(); }
+      else if (e.key === "ArrowUp") { e.preventDefault(); qActive = Math.max(qActive - 1, 0); qHighlight(); }
+      else if (e.key === "Enter") { e.preventDefault(); if (qItems[qActive]) qItems[qActive].go(); }
+    });
+    function qHighlight() {
+      qResults.querySelectorAll("[data-q-i]").forEach((b, i) => { b.className = qBtnClass(i === qActive); });
+    }
+    qResults.addEventListener("click", (e) => {
+      const b = e.target.closest("[data-q-i]");
+      if (b && qItems[+b.dataset.qI]) qItems[+b.dataset.qI].go();
+    });
+    searchBtn.addEventListener("click", openSearch);
+    document.addEventListener("keydown", (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") { e.preventDefault(); openSearch(); }
     });
 
     // =========================================================
