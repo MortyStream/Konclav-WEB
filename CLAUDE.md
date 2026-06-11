@@ -168,7 +168,15 @@ Le formulaire d'inscription n'utilise PLUS Google Forms. Architecture :
   - `billing_daily()` (security definer, gate admin OU session_user postgres) : flip sent→overdue + génère les factures d'abonnement échues en **draft** (rattrapage max 24 périodes). Appelée par **pg_cron** `konclav-billing-daily` (05:00 UTC, quotidien) ET en opportuniste à l'ouverture de l'onglet Factures.
   - Edge Function `cockpit-invoice-reminder` : relance manuelle par facture (Resend, ton courtois puis ferme selon reminder_count, passe sent→overdue si échu). Même gate que les autres fonctions cockpit.
   - Front : sous-onglet Abonnements (CRUD, pause/reprise), bouton Relancer + compteur, badge 🔄 sur factures auto, export CSV (`;` + BOM Excel), vue Kanban leads (drag & drop = statut + lead_event), lignes Assos dépliables (factures/encaissé/en cours du client lié).
-- Reste du backlog produit (audit 11/06) : fiche asso unifiée complète, audit log avant impersonation (impersonation pas construite), édition contenu site, monitoring (logs Edge Functions / statut Resend). Ordre suggéré dans la conv.
+- **Sprint 4 cockpit (11/06/2026) — « mets tout »** — migration `sprint4_credit_notes_settings_monitoring` :
+  - **Avoirs** : `invoices.doc_type` ('invoice'|'credit_note') + `credit_for_invoice_id` (FK interne SET NULL). Bouton « Avoir » → duplique en brouillon via `save_invoice` v2 (gère doc_type). Badge AVOIR, comptés négatifs dans les KPIs, PDF v3 (titre NOTE DE CRÉDIT, pas de section paiement/QR, mention facture corrigée).
+  - **Rapprochement bancaire** : modal coller-relevé → match par n° de facture (pré-coché) ou montant exact (proposé) → marquage payé en lot. Pur front.
+  - **Email groupé** : Edge Function `cockpit-broadcast` (segments leads actifs/convertis/clients, batch Resend 50, envois individuels, cap 200, 1/min, lead_events journalisés).
+  - **Templates email éditables** : table `cockpit_settings` (key/value jsonb, RLS admin), clé `email_templates`, éditeur dans le modal email (« ✎ Modèles »), upsert PostgREST merge-duplicates.
+  - **Monitoring** : RPC `cockpit_monitoring()` (runs pg_cron 7 j via cron.job_run_details, leads dormants 14 j, brouillons auto, factures en retard) + Edge Function `cockpit-monitoring` (20 derniers emails Resend avec statut — endpoint list dégradé proprement si indispo — et 20 derniers `bug_reports` de l'app, LECTURE SEULE validée explicitement). Affiché dans l'Aperçu : cards Conversion (taux, temps moyen, top source — calculés de leads + lead_events) / Santé système / Bugs signalés.
+  - Pastille santé par asso (last_login : 🟢≤7 j 🟡≤30 j 🔴 au-delà/jamais), onglet actif persisté (sessionStorage `ck_tab`).
+  - **Upgrades** : Astro 6.4.6, Express 5.2.1 (smoke tests : 200 sur /, /tarifs/, /admin/, 301 /demo, 404 fallback, CSP OK), @astrojs/sitemap 3.7.3. `scripts/og-gen.mjs` versionné + tâche `npm run og` (Playwright à installer ponctuellement, H1 dupliqué dans le script — à synchroniser si le Hero change).
+- Reste du backlog produit : impersonation + audit log (nécessite du code côté APP — à coordonner avec la conv de l'app), annonces in-app (idem), édition du contenu du site depuis le cockpit (gros chantier), /blog, i18n, logo SVG (demande le fichier vectoriel source).
 
 ## Régénérer l'OG image
 
