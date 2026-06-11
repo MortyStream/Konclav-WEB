@@ -157,7 +157,13 @@ Le formulaire d'inscription n'utilise PLUS Google Forms. Architecture :
   - Contraintes : `qty >= 0`, `unit_price >= 0`, `vat_rate` 0–100 (+ migration précédente `counter_audit_hardening` : revoke EXECUTE sur les 5 fonctions trigger, search_path fixé).
   - Front cockpit : toasts (plus aucun `alert()`), KPIs cash (encaissé ce mois / en attente / en retard / encaissé total, échéances dépassées en rose), AbortController sur les 4 loaders, message suppression client honnête (FK RESTRICT, erreur 23503 détectée), PDF ouvert via ancre `rel=noopener`, `<th scope="col">`.
   - HIBP (leaked password protection) : abandonné — réservé au plan Pro Supabase ; compensé par le 2FA TOTP (gratuit).
-- Phase suivante du cockpit : C = provisionnement assos (à coordonner avec la conv de l'app).
+- **Sprint 2 cockpit (11/06/2026) — CRM + provisionnement (Phase C livrée)** — migration `sprint2_crm_provisioning` :
+  - **Onglet Aperçu** (défaut) : KPIs cliquables (à relancer / demandes 7 j / retards / encaissé du mois) + listes avec saut direct au lead.
+  - **CRM leads** : `leads.next_action_at` (rappel, badge 🔔 rose si dépassé), table `lead_events` (journal immuable RLS admin : status_change / note / email_sent / reminder_set / provisioned), timeline dans le card, envoi d'emails depuis 4 templates éditables via Edge Function `cockpit-send-email` (Resend `noreply@konclav.ch`, reply-to contact@, rate-limit 10/min, caps 200/5000).
+  - **Provisionnement** (Edge Function `cockpit-orgs`, validée explicitement) : bouton 🚀 sur le lead → crée `organizations` + compte auth président (mdp temporaire affiché UNE fois au cockpit, `mustChangePassword=true`, pattern de `create-member-account`) + `users` (role admin, associationRole president = bootstrap org neuve, dérogation documentée à la règle red-team) + lie `customers.org_id`/`leads.provisioned_org_id` (uuid souples, PAS de FK vers les tables de l'app) + email d'accès Resend + rollback complet si échec. GET = liste orgs (membres, président, dernière connexion), PATCH = suspendre/réactiver (`isActive`). Gate : email admin + aal2 si 2FA (fail closed).
+  - **Recherche globale ⌘K / Ctrl+K** : leads + clients + factures, navigation clavier, saut contextuel (ouvre le card lead / le modal facture).
+  - Périmètre app strictement limité à `organizations` + `users` via `cockpit-orgs` — aucune autre table de l'app touchée, aucune FK depuis nos tables.
+- Reste du backlog produit (audit 11/06) : abos récurrents + relances auto factures, lien fiche asso unifiée, Kanban leads, audit log avant impersonation, export comptable, édition contenu site. Ordre suggéré dans la conv.
 
 ## Régénérer l'OG image
 
