@@ -9,11 +9,66 @@
 
 ## TL;DR (à lire si tu as 90 secondes)
 
+0. **Contre-audit passé le 11/06** (vérification claim par claim contre le code + advisors Supabase) : **2 claims de l'audit étaient faux** (corrigés ci-dessous), **8 trouvailles nouvelles** dont **1 critique confirmée exploitable en base** — fonction de facturation appelable sans authentification via l'API REST. Correctif prêt, en attente de feu vert. Voir §0bis.
+
 1. **Le cockpit actuel est un MVP qui craque sur 3 fronts** dès qu'il grossit : (a) **un seul fichier de 1100 lignes vanilla JS** non testable, (b) **aucune pagination ni recherche** sur les tableaux, (c) **`alert()` natifs partout** au lieu de toasts modernes. Voir §1.
 2. **Sécurité OK mais perfectible** : RLS Postgres rigoureuse, mais tokens JWT en `sessionStorage` (vulnérable au XSS), pas de 2FA, hash gate par email hardcodé (impossible d'ajouter un collaborateur). Voir §2.
 3. **La vision 2026 visée** : refonte UI dans une lane **différente du site marketing** — dark violet/cyan avec aurora background animé, OKLCH tokens, command palette ⌘K, view transitions natives, toasts à la Vercel, drawers Linear-style. Voir §3.
 4. **Roadmap pragmatique en 4 sprints** : Quick Wins (2 j) → Pro Tools (1 sem) → Industrialisation (2 sem) → Polish & Power (1 sem). Voir §5.
 5. **Top 20 features** classées valeur/effort. Les 4 premières (2FA, KPI cash mensuel, command palette, kanban leads) sont une **demi-journée chacune** et transforment l'expérience. Voir §6.
+
+---
+
+## §0bis. Contre-audit (11 juin 2026) — vérification de l'audit lui-même
+
+Chaque claim a été revérifié contre le code réel (`grep`/lecture ligne à ligne), la base de prod (SQL read-only, `pg_policies`, `information_schema`, `has_function_privilege`) et les **advisors sécurité officiels Supabase**.
+
+### ✅ Claims confirmés (l'essentiel de l'audit tient)
+
+- JWT access + refresh en `sessionStorage` (`admin.astro:393-396`) ✔
+- Zéro `AbortController` dans tout le fichier ✔
+- 4 requêtes `select=*` **sans `limit`** (leads :507, customers :735, invoices :820, :996) ✔
+- Zéro `scope="col"`, zéro navigation clavier onglets (ArrowLeft/Right), pas de focus trap dans les modals (seulement focus initial) ✔
+- `aria-live="polite"` sur **4 conteneurs** entièrement re-render → spam screen reader ✔
+- 1096 lignes dans `admin.astro` ; HTML construit : **124 Ko brut / 23,5 Ko gzip** (mesure réelle ; l'audit estimait ~28 Ko, ordre de grandeur correct) ✔
+- RLS : 15 policies vérifiées une à une dans `pg_policies` — toutes gateées `is_konclav_admin()`, `page_events` en select-only, `leads` sans insert/delete. Architecture conforme à ce qui est décrit ✔
+- Sitemap exclut bien `/admin` (filtre `astro.config.mjs` vérifié + sitemap généré inspecté) ✔
+- `pg_cron 1.6.4` + `pg_net` **déjà installés** → toute la roadmap Sprint 3 (crons, relances, MV refresh) est faisable sans demande d'infra ✔
+
+### ❌ Claims de l'audit corrigés (2)
+
+1. **« Cast `+value` sans garde → NaN dans le total » : FAUX.** `admin.astro:943-944` lit `+(...).value || 0` — un `NaN` retombe sur `0`. Le total ne peut pas devenir NaN. Reste vrai en mineur : les **valeurs négatives** passent (le `min="0"` HTML n'est pas une validation), un `-5` en quantité fausse le total silencieusement.
+2. **« Tabnabbing via `window.open` » : sévérité surestimée.** L'URL ouverte est un `blob:` PDF généré par nous-mêmes — pas de contexte script attaquant. Ajouter `noopener` reste une bonne pratique, mais ce n'est pas une faille.
+
+### 🆕 Trouvailles nouvelles (ce que l'audit avait raté)
+
+| # | Sév. | Trouvaille | Preuve |
+|---|---|---|---|
+| 1 | 🔴 | **`recompute_invoice_totals(uuid)` exécutable par `anon`** via `/rest/v1/rpc/` — fonction `SECURITY DEFINER` avec EXECUTE par défaut à `public`. Un anonyme peut déclencher des écritures (recalcul) sur n'importe quelle facture. Impact réel limité (recalcul idempotent depuis les vraies lignes, aucune valeur injectable) et 0 facture en base à ce jour — mais c'est un accès écriture non authentifié. Idem exposition inutile de 3 fonctions trigger (`set_invoice_number`, `invoice_lines_after_change`, `invoices_recompute_on_vat`). | `has_function_privilege('anon', …) = true` vérifié + lint Supabase 0028 |
+| 2 | 🟠 | **`search_path` mutable** sur `is_konclav_admin()` et `touch_updated_at()` (lint 0011) — vecteur d'escalade théorique via shadowing de schéma. | Advisors Supabase |
+| 3 | 🟠 | **Édition de facture non transactionnelle** (`admin.astro:1033-1037`) : PATCH facture → DELETE toutes les lignes → POST nouvelles lignes. Un échec réseau entre les deux laisse une **facture vide** (totaux remis à 0 par trigger). Fix : RPC `save_invoice(jsonb)` transactionnelle. | Lecture code |
+| 4 | 🟡 | **Message de suppression client mensonger** (`admin.astro:792`) : promet des « factures orphelines », mais le FK est `ON DELETE RESTRICT` (vérifié en base) → la suppression **échoue** avec une erreur brute `HTTP 409` si le client a des factures. | `information_schema.referential_constraints` |
+| 5 | 🟡 | **`text-ink-600` n'existe pas** dans les tokens `global.css` → classe morte sur le footer Audience, le texte hérite d'une couleur non voulue. | grep tokens |
+| 6 | 🟡 | **Numérotation factures : pas de reset annuel.** La séquence est globale : en janvier 2027, on aura `INV-2027-004` qui suit `INV-2026-003`. À décider : assumer (unicité simple, recommandé) ou reset par année. | Lecture migration + `last_value = 1` |
+| 7 | 🟡 | **Leaked password protection désactivée** (HaveIBeenPwned check de Supabase Auth) — à activer dans le dashboard, pas de SQL. | Advisors Supabase |
+| 8 | 🟡 | **QR-bill : payload SPC v2.2 structurellement valide** (revérifié champ par champ : 31 lignes, créancier type S 7 champs, ultimate creditor vide, montant/devise, débiteur 7 champs, `NON`, message, `EPD`) **MAIS** (a) la **croix suisse au centre du QR est absente** — elle est obligatoire dans le standard officiel, (b) NPA émetteur hardcodé `1950`, (c) layout PDF non conforme aux Implementation Guidelines (partie paiement 105 mm). La plupart des apps bancaires scanneront quand même (le payload prime), mais **tester avec une vraie app bancaire avant la première vraie facture**. | Lecture `cockpit-invoice-pdf` vs spec SIX v2.2 |
+
+Hors périmètre de ce repo mais détecté par les advisors (à transmettre à la conv de l'app) : `password_reset_codes` a RLS activée **sans aucune policy** (info), et le bucket `org-logos` autorise le **listing public** de tous les fichiers (warn).
+
+### Correctif critique prêt (en attente de feu vert — base partagée)
+
+```sql
+-- migration counter_audit_hardening
+revoke execute on function public.recompute_invoice_totals(uuid) from public, anon, authenticated;
+revoke execute on function public.set_invoice_number() from public, anon, authenticated;
+revoke execute on function public.invoice_lines_after_change() from public, anon, authenticated;
+revoke execute on function public.invoices_recompute_on_vat() from public, anon, authenticated;
+revoke execute on function public.touch_updated_at() from public, anon, authenticated;
+alter function public.is_konclav_admin() set search_path = public, pg_temp;
+alter function public.touch_updated_at() set search_path = public, pg_temp;
+```
+
+Les triggers continuent de fonctionner après le revoke (le privilège EXECUTE n'est pas vérifié à l'exécution d'un trigger). Zéro impact fonctionnel.
 
 ---
 
@@ -26,8 +81,8 @@
 | JWT (access + refresh) en `sessionStorage` — XSS = vol immédiat | `admin.astro:392-397` | Élevée | Refresh token en cookie `httpOnly; Secure; SameSite=Strict` |
 | Race condition sur changement de statut concurrent | `admin.astro:584-591` | Moyenne | `AbortController` + rollback basé sur état au moment du fire |
 | Périodes audience qui se chevauchent si on clique vite | `admin.astro:613-622` | Moyenne | `AbortController` par fetch |
-| Cast `+value` sans garde sur quantités/prix → NaN dans le total | `admin.astro:943-944` | Moyenne | Validation numérique stricte + feedback UI |
-| `window.open()` sans `noopener,noreferrer` (tabnabbing) | `admin.astro:906` | Faible | Ajouter les flags |
+| ~~NaN dans les totaux~~ **Corrigé au contre-audit : faux** (guards `\|\| 0` présents). Reste : valeurs négatives acceptées | `admin.astro:943-944` | Mineure | Rejeter qty/prix < 0 avec feedback UI |
+| `window.open()` sans `noopener` — **sévérité revue à la baisse au contre-audit** (blob: PDF auto-généré, pas de contexte script) | `admin.astro:906` | Cosmétique | Ajouter les flags par hygiène |
 | `pdf-lib` (~500 Ko via esm.sh) téléchargé à chaque cold start | Edge function | Moyenne | Inline les bytes ou bundler en local Deno |
 
 ### 1.2 Performance — le mur à 500 items
@@ -210,13 +265,18 @@ Chaque page admin charge **uniquement** les modules dont elle a besoin via `<scr
 
 Objectif : **moderniser sans refondre**. Tout dans le code existant.
 
+- [ ] **Migration `counter_audit_hardening`** (revoke RPC anon + search_path) — ⚠️ priorité absolue, correctif §0bis
+- [ ] **Activer leaked password protection** (dashboard Supabase → Auth → Passwords)
+- [ ] **RPC `save_invoice(jsonb)` transactionnelle** (remplace le PATCH→DELETE→POST fragile)
+- [ ] **Croix suisse au centre du QR** des factures PDF (obligatoire spec SIX) + NPA émetteur éditable
 - [ ] **2FA TOTP** via Supabase Auth (factor enrollment + challenge à login)
 - [ ] **Toast system** vanilla (remplace tous les `alert()`)
 - [ ] **KPI cash du mois** sur Facturation : encaissé / dû / retard en gros chiffres
 - [ ] **AbortController** sur les fetch (audience period switch + leads status)
-- [ ] **`noopener,noreferrer`** sur `window.open(pdf)`
-- [ ] **Validation numérique** sur quantités et prix de facture
-- [ ] **`<th scope="col">`** sur les tableaux
+- [ ] **Fix message suppression client** (FK RESTRICT → message honnête + gestion du 409)
+- [ ] **Fix `text-ink-600`** → token existant
+- [ ] **Validation valeurs négatives** sur quantités et prix de facture
+- [ ] **`<th scope="col">`** sur les tableaux + `noopener` par hygiène
 
 **Livrable** : UX déjà visiblement plus pro. Sécurité hardcore.
 
