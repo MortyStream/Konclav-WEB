@@ -10,15 +10,16 @@
     "build": "astro build",
     "preview": "astro preview",
     "start": "node server.js",
+    "og": "node scripts/og-gen.mjs",
     "astro": "astro"
   },
   "dependencies": {
-    "@astrojs/sitemap": "^3.7.2",
+    "@astrojs/sitemap": "^3.7.3",
     "@fontsource/inter": "^5.2.8",
     "@tailwindcss/vite": "^4.3.0",
-    "astro": "^6.3.7",
+    "astro": "^6.4.6",
     "compression": "^1.8.1",
-    "express": "^4.21.2",
+    "express": "^5.2.1",
     "tailwindcss": "^4.3.0"
   }
 }

@@ -196,9 +196,10 @@ const ADMIN_EMAIL = "contact@konclav.ch";
         <div class="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-4" data-ck-stats></div>
         <div class="mt-8 flex flex-wrap items-center justify-between gap-3">
           <div class="flex flex-wrap items-center gap-2" data-ck-filters role="group" aria-label="Filtrer par statut"></div>
-          <div class="flex gap-1" role="group" aria-label="Vue">
+          <div class="flex items-center gap-1" role="group" aria-label="Vue">
             <button type="button" data-view="list" class="ck-pill ck-pill-on">Liste</button>
             <button type="button" data-view="kanban" class="ck-pill">Kanban</button>
+            <button type="button" data-ck-broadcast class="ck-pill ml-2">📣 Email groupé</button>
           </div>
         </div>
         <div class="mt-6 space-y-3" data-ck-list aria-live="polite"></div>
@@ -249,6 +250,10 @@ const ADMIN_EMAIL = "contact@konclav.ch";
           <div class="mt-6 flex flex-wrap items-center justify-between gap-3">
             <h2 class="text-xl font-semibold tracking-tight text-ink-50">Factures</h2>
             <div class="flex gap-2">
+              <button type="button" data-bi-reconcile
+                class="rounded-xl border border-white/10 bg-white/[0.02] px-4 py-2 text-sm font-medium text-ink-300 transition-colors hover:border-white/20 hover:text-ink-50">
+                Rapprocher
+              </button>
               <button type="button" data-bi-csv
                 class="rounded-xl border border-white/10 bg-white/[0.02] px-4 py-2 text-sm font-medium text-ink-300 transition-colors hover:border-white/20 hover:text-ink-50">
                 Exporter CSV
@@ -501,7 +506,10 @@ const ADMIN_EMAIL = "contact@konclav.ch";
       <div class="ck-modal-card">
         <div class="flex items-center justify-between border-b border-white/[0.06] px-5 py-4">
           <h3 id="ck-email-title" class="text-base font-semibold text-ink-50">Email à <span data-em-to class="text-accent-300"></span></h3>
-          <button type="button" data-modal-close class="text-ink-400 hover:text-ink-50" aria-label="Fermer">✕</button>
+          <div class="flex items-center gap-3">
+            <button type="button" data-em-edit-tpl class="text-xs text-ink-500 hover:text-ink-300">✎ Modèles</button>
+            <button type="button" data-modal-close class="text-ink-400 hover:text-ink-50" aria-label="Fermer">✕</button>
+          </div>
         </div>
         <form data-em-form class="space-y-3 px-5 py-5">
           <label class="block text-xs">
@@ -544,6 +552,78 @@ const ADMIN_EMAIL = "contact@konclav.ch";
         <input data-ck-q type="search" placeholder="Rechercher un lead, un client, une facture…"
           class="w-full border-b border-white/[0.06] bg-transparent px-5 py-4 text-sm text-ink-50 placeholder:text-ink-500 focus:outline-none" />
         <ul data-ck-results class="max-h-80 overflow-y-auto p-2"></ul>
+      </div>
+    </div>
+
+    <!-- ===== MODAL : email groupé ===== -->
+    <div data-modal="broadcast" hidden class="ck-modal" role="dialog" aria-modal="true" aria-labelledby="ck-bb-title">
+      <div class="ck-modal-back"></div>
+      <div class="ck-modal-card">
+        <div class="flex items-center justify-between border-b border-white/[0.06] px-5 py-4">
+          <h3 id="ck-bb-title" class="text-base font-semibold text-ink-50">📣 Email groupé</h3>
+          <button type="button" data-modal-close class="text-ink-400 hover:text-ink-50" aria-label="Fermer">✕</button>
+        </div>
+        <form data-bb-form class="space-y-3 px-5 py-5">
+          <label class="block text-xs">
+            <span class="mb-1 block font-medium text-ink-400">Segment</span>
+            <select data-bb-segment class="ck-input"></select>
+          </label>
+          <p data-bb-count class="text-xs font-medium text-accent-300"></p>
+          <label class="block text-xs">
+            <span class="mb-1 block font-medium text-ink-400">Sujet</span>
+            <input data-bb-subject required maxlength="200" class="ck-input" />
+          </label>
+          <label class="block text-xs">
+            <span class="mb-1 block font-medium text-ink-400">Message (chacun reçoit un email individuel)</span>
+            <textarea data-bb-body rows="10" required maxlength="5000" class="ck-input"></textarea>
+          </label>
+          <p data-bb-error role="alert" hidden class="text-sm text-rose-400"></p>
+          <div class="flex justify-end gap-2 pt-1">
+            <button type="button" data-modal-close class="rounded-lg border border-white/10 px-4 py-2 text-sm text-ink-300 hover:border-white/20 hover:text-ink-50">Annuler</button>
+            <button type="submit" data-bb-send class="rounded-lg bg-accent-500 px-4 py-2 text-sm font-semibold text-white hover:bg-accent-400 disabled:cursor-not-allowed disabled:opacity-60">Envoyer</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- ===== MODAL : édition des modèles email ===== -->
+    <div data-modal="templates" hidden class="ck-modal" role="dialog" aria-modal="true" aria-labelledby="ck-tpl-title">
+      <div class="ck-modal-back"></div>
+      <div class="ck-modal-card ck-modal-wide">
+        <div class="flex items-center justify-between border-b border-white/[0.06] px-5 py-4">
+          <h3 id="ck-tpl-title" class="text-base font-semibold text-ink-50">Modèles d'email</h3>
+          <button type="button" data-modal-close class="text-ink-400 hover:text-ink-50" aria-label="Fermer">✕</button>
+        </div>
+        <div class="space-y-3 px-5 py-5">
+          <p class="text-xs text-ink-500">Variables disponibles : <code class="rounded bg-white/[0.06] px-1">{"{prenom}"}</code> et <code class="rounded bg-white/[0.06] px-1">{"{asso}"}</code> — remplacées automatiquement à l'ouverture.</p>
+          <div data-tpl-list class="space-y-3"></div>
+          <div class="flex justify-end gap-2 pt-1">
+            <button type="button" data-modal-close class="rounded-lg border border-white/10 px-4 py-2 text-sm text-ink-300 hover:border-white/20 hover:text-ink-50">Annuler</button>
+            <button type="button" data-tpl-save class="rounded-lg bg-accent-500 px-4 py-2 text-sm font-semibold text-white hover:bg-accent-400">Enregistrer les modèles</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== MODAL : rapprochement bancaire ===== -->
+    <div data-modal="reconcile" hidden class="ck-modal" role="dialog" aria-modal="true" aria-labelledby="ck-rc-title">
+      <div class="ck-modal-back"></div>
+      <div class="ck-modal-card ck-modal-wide">
+        <div class="flex items-center justify-between border-b border-white/[0.06] px-5 py-4">
+          <h3 id="ck-rc-title" class="text-base font-semibold text-ink-50">Rapprochement bancaire</h3>
+          <button type="button" data-modal-close class="text-ink-400 hover:text-ink-50" aria-label="Fermer">✕</button>
+        </div>
+        <div class="space-y-3 px-5 py-5">
+          <label class="block text-xs">
+            <span class="mb-1 block font-medium text-ink-400">Collez votre relevé (texte e-banking, CSV exporté, PDF copié…)</span>
+            <textarea data-rc-text rows="6" class="ck-input font-mono text-xs" placeholder="11.06.2026  Virement Asso des Amis du Lac  Facture INV-2026-003  240.00 CHF"></textarea>
+          </label>
+          <button type="button" data-rc-analyze class="rounded-lg border border-white/10 bg-white/[0.02] px-4 py-2 text-sm font-medium text-ink-200 hover:border-white/20">Analyser</button>
+          <div data-rc-results class="space-y-1.5"></div>
+          <div class="flex justify-end pt-1">
+            <button type="button" data-rc-apply hidden class="rounded-lg bg-accent-500 px-4 py-2 text-sm font-semibold text-white hover:bg-accent-400 disabled:cursor-not-allowed disabled:opacity-60">Marquer payées</button>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -697,7 +777,9 @@ const ADMIN_EMAIL = "contact@konclav.ch";
     }
     async function showApp() {
       loginView.hidden = true; changeView.hidden = true; mfaView.hidden = true; appView.hidden = false; logoutBtn.hidden = false; btn2fa.hidden = false; searchBtn.hidden = false;
-      switchTab("overview");
+      let saved = null;
+      try { saved = sessionStorage.getItem("ck_tab"); } catch {}
+      switchTab(saved && panels[saved] ? saved : "overview");
     }
     async function fetchUser() {
       const res = await fetch(U + "/auth/v1/user", { headers: { apikey: K, Authorization: "Bearer " + store.at } });
@@ -740,6 +822,7 @@ const ADMIN_EMAIL = "contact@konclav.ch";
         t.className = "ck-tab relative -mb-px border-b-2 px-4 py-3 text-sm font-medium transition-colors " + (on ? "border-accent-500 text-ink-50" : "border-transparent text-ink-400 hover:text-ink-50");
       });
       Object.entries(panels).forEach(([k, el]) => { if (el) el.hidden = k !== name; });
+      try { sessionStorage.setItem("ck_tab", name); } catch {}
       if (name === "overview") loadOverview();
       if (name === "leads") loadLeads();
       if (name === "orgs") loadOrgs();
@@ -1012,21 +1095,46 @@ const ADMIN_EMAIL = "contact@konclav.ch";
       const signal = freshSignal("overview");
       ovContent.innerHTML = '<p class="mt-12 text-center text-sm text-ink-500">Chargement…</p>';
       try {
-        const [leadsRes, invRes, anaRes] = await Promise.all([
-          api("leads?select=id,asso_name,status,created_at,next_action_at,first_name,last_name&order=created_at.desc", { signal }),
-          api("invoices?select=id,number,total,currency,status,due_date,paid_at&order=due_date.asc", { signal }),
+        const [leadsRes, invRes, anaRes, evRes, monRes, sysRes] = await Promise.all([
+          api("leads?select=id,asso_name,status,created_at,next_action_at,first_name,last_name,source,provisioned_org_id&order=created_at.desc", { signal }),
+          api("invoices?select=id,number,total,currency,status,due_date,paid_at,doc_type&order=due_date.asc", { signal }),
           api("rpc/cockpit_analytics", { method: "POST", body: JSON.stringify({ p_period: "7d" }), signal }).catch(() => null),
+          api("lead_events?select=lead_id,type,detail,created_at&or=(type.eq.provisioned,type.eq.status_change)&limit=1000", { signal }).catch(() => null),
+          api("rpc/cockpit_monitoring", { method: "POST", body: "{}", signal }).catch(() => null),
+          fn("cockpit-monitoring").catch(() => null),
         ]);
         const allLeads = await leadsRes.json();
         const invs = await invRes.json();
         const ana = anaRes ? await anaRes.json().catch(() => null) : null;
-        renderOverview(allLeads, invs, ana);
+        const events = evRes ? await evRes.json().catch(() => []) : [];
+        const mon = monRes ? await monRes.json().catch(() => null) : null;
+        const sys = sysRes && sysRes.ok ? await sysRes.json().catch(() => null) : null;
+        renderOverview(allLeads, invs, ana, events, mon, sys);
       } catch (e) {
         if (isAbort(e)) return;
         ovContent.innerHTML = '<p class="mt-12 text-center text-sm text-rose-400">Erreur : ' + esc(String(e)) + "</p>";
       }
     }
-    function renderOverview(allLeads, invs, ana) {
+    function conversionStats(allLeads, events) {
+      const total = allLeads.length;
+      const converted = allLeads.filter((l) => l.status === "converted" || l.provisioned_org_id).length;
+      const rate = total ? Math.round((converted / total) * 100) : 0;
+      const convDates = {};
+      (events || []).forEach((ev) => {
+        if ((ev.type === "status_change" && /Converti$/.test(ev.detail || "")) || ev.type === "provisioned") {
+          if (!convDates[ev.lead_id] || ev.created_at < convDates[ev.lead_id]) convDates[ev.lead_id] = ev.created_at;
+        }
+      });
+      const durations = [];
+      allLeads.forEach((l) => { if (convDates[l.id]) durations.push((new Date(convDates[l.id]) - new Date(l.created_at)) / 86400000); });
+      const avgDays = durations.length ? Math.round(durations.reduce((a, b) => a + b, 0) / durations.length) : null;
+      const srcCount = {};
+      allLeads.forEach((l) => { const s = (l.source || "").trim(); if (s) srcCount[s] = (srcCount[s] || 0) + 1; });
+      const topSource = Object.entries(srcCount).sort((a, b) => b[1] - a[1])[0] || null;
+      return { total, converted, rate, avgDays, topSource };
+    }
+
+    function renderOverview(allLeads, invs, ana, events, mon, sys) {
       const today = todayISO();
       const weekAgo = addDaysISO(today, -7);
       const due = allLeads
@@ -1073,9 +1181,64 @@ const ADMIN_EMAIL = "contact@konclav.ch";
           '<span class="ml-3 shrink-0 text-ink-500">' + fmtDate(l.created_at) + "</span></button></li>",
           "Aucune demande cette semaine.") +
         "</div></div>" +
+        renderOverviewExtras(allLeads, events, mon, sys) +
         (visitors !== null
           ? '<p class="mt-6 text-center text-xs text-ink-500">' + fmtNum(visitors) + ' visiteurs sur konclav.ch ces 7 derniers jours · <button type="button" data-goto="audience" class="text-accent-300 hover:text-accent-400">voir l\'audience</button></p>'
           : "");
+    }
+    function renderOverviewExtras(allLeads, events, mon, sys) {
+      const cv = conversionStats(allLeads, events);
+      const statLine = (label, value) =>
+        '<div class="flex items-center justify-between py-1 text-xs"><span class="text-ink-500">' + label + '</span><span class="font-medium text-ink-200">' + value + "</span></div>";
+
+      const convCard =
+        '<div class="rounded-2xl border border-white/10 bg-white/[0.02] p-5">' +
+        '<h3 class="mb-2 text-sm font-semibold text-ink-50">📈 Conversion</h3>' +
+        statLine("Taux de conversion", cv.rate + " % <span class=\"text-ink-500\">(" + cv.converted + "/" + cv.total + ")</span>") +
+        statLine("Temps moyen avant conversion", cv.avgDays !== null ? cv.avgDays + " j" : "—") +
+        statLine("Top source", cv.topSource ? esc(cv.topSource[0]) + " <span class=\"text-ink-500\">(" + cv.topSource[1] + ")</span>" : "—") +
+        "</div>";
+
+      let sysCard = '<div class="rounded-2xl border border-white/10 bg-white/[0.02] p-5">' +
+        '<h3 class="mb-2 text-sm font-semibold text-ink-50">🩺 Santé système</h3>';
+      if (mon) {
+        const runs = Array.isArray(mon.cron_runs) ? mon.cron_runs : [];
+        const last = runs[0];
+        sysCard += statLine("Facturation nocturne",
+          last
+            ? (last.status === "succeeded" ? '<span class="text-emerald-400">✓ ' + fmtDate(last.start_time) + "</span>" : '<span class="text-rose-400">✗ ' + esc(last.status) + "</span>")
+            : "pas encore exécutée");
+        sysCard += statLine("Brouillons d'abonnement à valider", mon.draft_auto_invoices > 0 ? '<span class="text-amber-400">' + mon.draft_auto_invoices + "</span>" : "0");
+        sysCard += statLine("Leads dormants (14 j sans action)", mon.stuck_leads > 0 ? '<span class="text-rose-400">' + mon.stuck_leads + "</span>" : "0");
+      } else {
+        sysCard += '<p class="text-xs text-ink-500">Monitoring indisponible.</p>';
+      }
+      if (sys && Array.isArray(sys.resend)) {
+        const bad = sys.resend.filter((r) => ["bounced", "complained", "failed", "delivery_delayed"].indexOf(String(r.status)) !== -1);
+        sysCard += statLine("Emails récents (Resend)",
+          sys.resend.length
+            ? (bad.length ? '<span class="text-rose-400">' + bad.length + " en échec / " + sys.resend.length + "</span>" : '<span class="text-emerald-400">' + sys.resend.length + " OK</span>")
+            : "—");
+        if (bad.length) {
+          sysCard += bad.slice(0, 3).map((r) => '<p class="truncate py-0.5 text-[11px] text-rose-400">✗ ' + esc(r.to || "?") + " — " + esc(r.subject || "") + "</p>").join("");
+        }
+      }
+      sysCard += "</div>";
+
+      let bugsCard = '<div class="rounded-2xl border border-white/10 bg-white/[0.02] p-5">' +
+        '<h3 class="mb-2 text-sm font-semibold text-ink-50">🐛 Bugs signalés (app)</h3>';
+      if (sys && Array.isArray(sys.bugs) && sys.bugs.length) {
+        bugsCard += sys.bugs.slice(0, 4).map((b) =>
+          '<div class="border-b border-white/[0.04] py-1.5 last:border-0">' +
+          '<p class="text-xs text-ink-200">' + esc(String(b.description).slice(0, 90)) + (String(b.description).length > 90 ? "…" : "") + "</p>" +
+          '<p class="mt-0.5 text-[11px] text-ink-500">' + esc(b.who) + " · " + esc(b.org) + " · " + fmtDate(b.created_at) + "</p>" +
+          "</div>").join("");
+      } else {
+        bugsCard += '<p class="text-xs text-ink-500">Aucun bug signalé 🎉</p>';
+      }
+      bugsCard += "</div>";
+
+      return '<div class="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-3">' + convCard + sysCard + bugsCard + "</div>";
     }
     ovContent.addEventListener("click", (e) => {
       const lb = e.target.closest("[data-goto-lead]");
@@ -1248,7 +1411,11 @@ const ADMIN_EMAIL = "contact@konclav.ch";
             ? '<p class="text-ink-200">' + esc(o.president.name) + '</p><p class="text-xs text-ink-500">' + esc(o.president.email) + "</p>"
             : '<span class="text-ink-500">—</span>') + "</td>" +
           '<td class="px-4 py-3 text-right tabular-nums text-ink-200">' + (o.member_count || 0) + "</td>" +
-          '<td class="px-4 py-3 text-xs text-ink-400">' + (o.last_login ? fmtDate(o.last_login) : "jamais") + "</td>" +
+          (function () {
+            const days = o.last_login ? (Date.now() - new Date(o.last_login)) / 86400000 : null;
+            const c = days === null ? "#8b8b94" : days <= 7 ? "#4ade80" : days <= 30 ? "#fbbf24" : "#f87171";
+            return '<td class="px-4 py-3 text-xs text-ink-400"><span class="mr-1.5 inline-block h-2 w-2 rounded-full align-middle" style="background:' + c + '"></span>' + (o.last_login ? fmtDate(o.last_login) : "jamais") + "</td>";
+          })() +
           '<td class="px-4 py-3">' + (o.is_active
             ? '<span class="rounded-md bg-emerald-400/10 px-2 py-0.5 text-[11px] font-medium text-emerald-400">Active</span>'
             : '<span class="rounded-md bg-rose-400/10 px-2 py-0.5 text-[11px] font-medium text-rose-400">Suspendue</span>') + "</td>" +
@@ -1345,13 +1512,29 @@ const ADMIN_EMAIL = "contact@konclav.ch";
     ];
     let emailLeadId = null;
     const fillTemplate = (str, lead) => str.replace(/\{prenom\}/g, lead.first_name || "").replace(/\{asso\}/g, lead.asso_name || "");
-    function openEmailModal(lead) {
+
+    // Modèles éditables : surcharges stockées dans cockpit_settings (clé email_templates)
+    let tplCache = null;
+    async function getTemplates() {
+      if (tplCache) return tplCache;
+      try {
+        const res = await api("cockpit_settings?key=eq.email_templates&select=value");
+        const rows = await res.json();
+        const saved = rows[0] && Array.isArray(rows[0].value) ? rows[0].value : null;
+        tplCache = saved && saved.length === EMAIL_TEMPLATES.length
+          ? EMAIL_TEMPLATES.map((t, i) => ({ label: t.label, subject: saved[i].subject || t.subject, body: saved[i].body || t.body }))
+          : EMAIL_TEMPLATES.slice();
+      } catch { tplCache = EMAIL_TEMPLATES.slice(); }
+      return tplCache;
+    }
+    async function openEmailModal(lead) {
       emailLeadId = lead.id;
       root.querySelector("[data-em-to]").textContent = lead.email;
+      const tpls = await getTemplates();
       const sel = root.querySelector("[data-em-template]");
-      sel.innerHTML = EMAIL_TEMPLATES.map((t, i) => '<option value="' + i + '">' + esc(t.label) + "</option>").join("");
+      sel.innerHTML = tpls.map((t, i) => '<option value="' + i + '">' + esc(t.label) + "</option>").join("");
       const apply = () => {
-        const t = EMAIL_TEMPLATES[+sel.value || 0];
+        const t = tpls[+sel.value || 0];
         root.querySelector("[data-em-subject]").value = fillTemplate(t.subject, lead);
         root.querySelector("[data-em-body]").value = fillTemplate(t.body, lead);
       };
@@ -1360,6 +1543,75 @@ const ADMIN_EMAIL = "contact@konclav.ch";
       root.querySelector("[data-em-error]").hidden = true;
       openModal("email");
     }
+    root.querySelector("[data-em-edit-tpl]").addEventListener("click", openTemplatesEditor);
+    async function openTemplatesEditor() {
+      const tpls = await getTemplates();
+      root.querySelector("[data-tpl-list]").innerHTML = tpls.map((t, i) =>
+        '<div class="rounded-xl border border-white/[0.06] bg-white/[0.01] p-3">' +
+        '<p class="mb-2 text-xs font-semibold text-ink-50">' + esc(t.label) + "</p>" +
+        '<input data-tpl-subject="' + i + '" value="' + esc(t.subject) + '" class="ck-input mb-2" aria-label="Sujet" />' +
+        '<textarea data-tpl-body="' + i + '" rows="6" class="ck-input" aria-label="Corps">' + esc(t.body) + "</textarea>" +
+        "</div>").join("");
+      openModal("templates");
+    }
+    root.querySelector("[data-tpl-save]").addEventListener("click", async () => {
+      const tpls = await getTemplates();
+      const value = tpls.map((t, i) => ({
+        label: t.label,
+        subject: root.querySelector('[data-tpl-subject="' + i + '"]').value,
+        body: root.querySelector('[data-tpl-body="' + i + '"]').value,
+      }));
+      try {
+        await api("cockpit_settings", { method: "POST", headers: { Prefer: "resolution=merge-duplicates,return=minimal" }, body: JSON.stringify({ key: "email_templates", value }) });
+        tplCache = value;
+        toast("Modèles enregistrés ✓");
+        closeModals();
+      } catch (e) { toast("Échec : " + e.message, "error"); }
+    });
+
+    // ----- Email groupé (broadcast segmenté) -----
+    const SEGMENTS = [
+      { value: "leads_active", label: "Leads actifs (nouveau + contacté)", count: () => leads.filter((l) => l.status === "new" || l.status === "contacted").length },
+      { value: "leads_converted", label: "Leads convertis", count: () => leads.filter((l) => l.status === "converted").length },
+      { value: "customers", label: "Clients (facturation)", count: () => customers.length },
+    ];
+    root.querySelector("[data-ck-broadcast]").addEventListener("click", async () => {
+      if (!leads.length) { try { const r = await api("leads?select=*&order=created_at.desc"); leads = await r.json(); } catch {} }
+      if (!customers.length) { try { const r = await api("customers?select=*&order=asso_name.asc"); customers = await r.json(); } catch {} }
+      const sel = root.querySelector("[data-bb-segment]");
+      sel.innerHTML = SEGMENTS.map((s) => '<option value="' + s.value + '">' + esc(s.label) + "</option>").join("");
+      const upd = () => {
+        const s = SEGMENTS.find((x) => x.value === sel.value);
+        root.querySelector("[data-bb-count]").textContent = s ? s.count() + " destinataire(s)" : "";
+      };
+      sel.onchange = upd;
+      upd();
+      root.querySelector("[data-bb-subject]").value = "";
+      root.querySelector("[data-bb-body]").value = "";
+      root.querySelector("[data-bb-error]").hidden = true;
+      openModal("broadcast");
+    });
+    root.querySelector("[data-bb-form]").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const btn = root.querySelector("[data-bb-send]");
+      const errEl = root.querySelector("[data-bb-error]");
+      const seg = root.querySelector("[data-bb-segment]").value;
+      const s = SEGMENTS.find((x) => x.value === seg);
+      if (!confirm("Envoyer cet email à " + (s ? s.count() : "?") + " destinataire(s) ?\nChacun reçoit un email individuel (pas de copie visible).")) return;
+      btn.disabled = true; errEl.hidden = true;
+      try {
+        const res = await fn("cockpit-broadcast", { method: "POST", json: {
+          segment: seg,
+          subject: root.querySelector("[data-bb-subject]").value.trim(),
+          body: root.querySelector("[data-bb-body]").value.trim(),
+        }});
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(data.error || "HTTP " + res.status);
+        closeModals();
+        toast(data.sent + " email(s) envoyé(s) ✓" + (data.failed ? " — " + data.failed + " échec(s)" : ""));
+      } catch (err) { errEl.textContent = err.message || "Envoi échoué."; errEl.hidden = false; }
+      finally { btn.disabled = false; }
+    });
     root.querySelector("[data-em-form]").addEventListener("submit", async (e) => {
       e.preventDefault();
       const btn = root.querySelector("[data-em-send]");
@@ -1637,10 +1889,11 @@ const ADMIN_EMAIL = "contact@konclav.ch";
       const monthKey = today.slice(0, 7);
       const isLate = (inv) => inv.status === "overdue" || (inv.status === "sent" && inv.due_date && inv.due_date < today);
       const sums = invoicesList.reduce((acc, inv) => {
-        const t = Number(inv.total) || 0;
+        const sign = inv.doc_type === "credit_note" ? -1 : 1;
+        const t = (Number(inv.total) || 0) * sign;
         if (inv.status === "paid") { acc.paidAll += t; if ((inv.paid_at || "").slice(0, 7) === monthKey) acc.paidMonth += t; }
-        else if (isLate(inv)) acc.late += t;
-        else if (inv.status === "sent") acc.due += t;
+        else if (sign === 1 && isLate(inv)) acc.late += t;
+        else if (sign === 1 && inv.status === "sent") acc.due += t;
         return acc;
       }, { paidMonth: 0, due: 0, late: 0, paidAll: 0 });
 
@@ -1664,7 +1917,9 @@ const ADMIN_EMAIL = "contact@konclav.ch";
         invoicesList.map((inv) => {
           const st = invoiceStatus(inv.status);
           return '<tr data-invoice="' + esc(inv.id) + '">' +
-            '<td class="px-4 py-3 font-mono text-xs text-ink-200">' + esc(inv.number) + (inv.subscription_id ? ' <span title="Générée par abonnement">🔄</span>' : "") + '</td>' +
+            '<td class="px-4 py-3 font-mono text-xs text-ink-200">' + esc(inv.number) +
+            (inv.doc_type === "credit_note" ? ' <span class="rounded bg-rose-400/10 px-1 py-0.5 text-[9px] font-semibold text-rose-400">AVOIR</span>' : "") +
+            (inv.subscription_id ? ' <span title="Générée par abonnement">🔄</span>' : "") + '</td>' +
             '<td class="px-4 py-3 text-ink-200">' + esc((inv.customer && inv.customer.asso_name) || "—") + '</td>' +
             '<td class="px-4 py-3 text-ink-300">' + fmtDate(inv.issue_date) + '</td>' +
             '<td class="px-4 py-3 ' + (isLate(inv) ? 'font-medium text-rose-400' : 'text-ink-300') + '">' + fmtDate(inv.due_date) + '</td>' +
@@ -1674,8 +1929,11 @@ const ADMIN_EMAIL = "contact@konclav.ch";
             '</select></td>' +
             '<td class="px-4 py-3 text-right whitespace-nowrap">' +
             '<button type="button" data-inv-pdf class="text-xs text-accent-300 hover:text-accent-400">PDF</button>' +
-            ((inv.status === "sent" || inv.status === "overdue")
+            ((inv.status === "sent" || inv.status === "overdue") && inv.doc_type !== "credit_note"
               ? ' · <button type="button" data-inv-remind class="text-xs text-amber-400 hover:text-amber-300">Relancer' + (inv.reminder_count > 0 ? " · " + inv.reminder_count : "") + '</button>'
+              : "") +
+            (inv.doc_type !== "credit_note" && ["sent", "paid", "overdue"].indexOf(inv.status) !== -1
+              ? ' · <button type="button" data-inv-credit class="text-xs text-ink-300 hover:text-ink-50">Avoir</button>'
               : "") +
             ' · <button type="button" data-inv-edit class="text-xs text-ink-300 hover:text-ink-50">Modifier</button>' +
             ' · <button type="button" data-inv-del class="text-xs text-rose-400 hover:text-rose-300">×</button>' +
@@ -1689,6 +1947,7 @@ const ADMIN_EMAIL = "contact@konclav.ch";
       const id = tr.dataset.invoice;
       if (e.target.closest("[data-inv-pdf]")) downloadInvoicePdf(id);
       else if (e.target.closest("[data-inv-remind]")) remindInvoice(id);
+      else if (e.target.closest("[data-inv-credit]")) createCreditNote(id);
       else if (e.target.closest("[data-inv-edit]")) editInvoice(id);
       else if (e.target.closest("[data-inv-del]")) deleteInvoice(id);
     });
@@ -1719,6 +1978,77 @@ const ADMIN_EMAIL = "contact@konclav.ch";
         loadInvoices();
       } catch (e) { toast("Échec du rappel : " + e.message, "error"); }
     }
+
+    async function createCreditNote(id) {
+      const inv = invoicesList.find((x) => x.id === id);
+      if (!inv) return;
+      if (!confirm("Créer un avoir (note de crédit) pour " + inv.number + " ?\nIl reprendra les mêmes lignes, en brouillon — modifiable avant envoi.")) return;
+      try {
+        const res = await api("invoice_lines?invoice_id=eq." + encodeURIComponent(id) + "&order=position.asc");
+        const lines = await res.json();
+        await api("rpc/save_invoice", { method: "POST", body: JSON.stringify({
+          p_invoice: {
+            id: null, customer_id: inv.customer_id, issue_date: todayISO(), due_date: todayISO(),
+            currency: inv.currency, vat_rate: inv.vat_rate, issuer_iban: inv.issuer_iban,
+            notes: "Avoir sur la facture " + inv.number, doc_type: "credit_note", credit_for_invoice_id: id,
+          },
+          p_lines: lines.map((l) => ({ description: l.description, qty: l.qty, unit_price: l.unit_price })),
+        })});
+        toast("Avoir créé (brouillon) ✓");
+        loadInvoices();
+      } catch (e) { toast("Échec de la création de l'avoir : " + e.message, "error"); }
+    }
+
+    // ----- Rapprochement bancaire (texte libre → factures payées) -----
+    let rcMatches = [];
+    root.querySelector("[data-bi-reconcile]").addEventListener("click", () => {
+      root.querySelector("[data-rc-text]").value = "";
+      root.querySelector("[data-rc-results]").innerHTML = '<p class="text-xs text-ink-500">Collez votre relevé puis cliquez « Analyser » : les factures ouvertes dont le numéro ou le montant exact apparaît seront proposées.</p>';
+      root.querySelector("[data-rc-apply]").hidden = true;
+      openModal("reconcile");
+    });
+    root.querySelector("[data-rc-analyze]").addEventListener("click", () => {
+      const text = root.querySelector("[data-rc-text]").value.toLowerCase();
+      if (!text.trim()) return;
+      const open = invoicesList.filter((i) => (i.status === "sent" || i.status === "overdue") && i.doc_type !== "credit_note");
+      rcMatches = open.map((i) => {
+        const numHit = text.indexOf(String(i.number).toLowerCase()) !== -1;
+        const amt = (Number(i.total) || 0).toFixed(2);
+        const amtHit = text.indexOf(amt) !== -1 || text.indexOf(amt.replace(".", ",")) !== -1;
+        return { inv: i, strong: numHit, weak: !numHit && amtHit };
+      }).filter((m) => m.strong || m.weak);
+      const el = root.querySelector("[data-rc-results]");
+      if (!rcMatches.length) {
+        el.innerHTML = '<p class="text-xs text-rose-400">Aucune facture ouverte ne correspond (ni numéro, ni montant exact).</p>';
+        root.querySelector("[data-rc-apply]").hidden = true;
+        return;
+      }
+      el.innerHTML = rcMatches.map((m, idx) =>
+        '<label class="flex items-center gap-2 rounded-lg border border-white/[0.06] bg-white/[0.01] px-3 py-2 text-xs">' +
+        '<input type="checkbox" data-rc-check="' + idx + '"' + (m.strong ? " checked" : "") + ' />' +
+        '<span class="font-mono text-ink-200">' + esc(m.inv.number) + "</span>" +
+        '<span class="text-ink-500">' + esc((m.inv.customer && m.inv.customer.asso_name) || "") + "</span>" +
+        '<span class="ml-auto tabular-nums text-ink-50">' + fmtCHF(m.inv.total, m.inv.currency) + "</span>" +
+        '<span class="' + (m.strong ? "text-emerald-400" : "text-amber-400") + '">' + (m.strong ? "n° trouvé" : "montant seul") + "</span>" +
+        "</label>").join("");
+      root.querySelector("[data-rc-apply]").hidden = false;
+    });
+    root.querySelector("[data-rc-apply]").addEventListener("click", async (e) => {
+      const checked = Array.from(root.querySelectorAll("[data-rc-check]:checked")).map((c) => rcMatches[+c.dataset.rcCheck]).filter(Boolean);
+      if (!checked.length) { toast("Aucune facture cochée.", "error"); return; }
+      e.target.disabled = true;
+      let ok = 0;
+      for (const m of checked) {
+        try {
+          await api("invoices?id=eq." + encodeURIComponent(m.inv.id), { method: "PATCH", headers: { Prefer: "return=minimal" }, body: JSON.stringify({ status: "paid", paid_at: new Date().toISOString() }) });
+          ok++;
+        } catch {}
+      }
+      e.target.disabled = false;
+      closeModals();
+      toast(ok + " facture(s) marquée(s) payée(s) ✓" + (ok < checked.length ? " — " + (checked.length - ok) + " échec(s)" : ""));
+      loadInvoices();
+    });
 
     function exportInvoicesCsv() {
       if (!invoicesList.length) { toast("Aucune facture à exporter.", "error"); return; }
