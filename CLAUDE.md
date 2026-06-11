@@ -163,7 +163,12 @@ Le formulaire d'inscription n'utilise PLUS Google Forms. Architecture :
   - **Provisionnement** (Edge Function `cockpit-orgs`, validée explicitement) : bouton 🚀 sur le lead → crée `organizations` + compte auth président (mdp temporaire affiché UNE fois au cockpit, `mustChangePassword=true`, pattern de `create-member-account`) + `users` (role admin, associationRole president = bootstrap org neuve, dérogation documentée à la règle red-team) + lie `customers.org_id`/`leads.provisioned_org_id` (uuid souples, PAS de FK vers les tables de l'app) + email d'accès Resend + rollback complet si échec. GET = liste orgs (membres, président, dernière connexion), PATCH = suspendre/réactiver (`isActive`). Gate : email admin + aal2 si 2FA (fail closed).
   - **Recherche globale ⌘K / Ctrl+K** : leads + clients + factures, navigation clavier, saut contextuel (ouvre le card lead / le modal facture).
   - Périmètre app strictement limité à `organizations` + `users` via `cockpit-orgs` — aucune autre table de l'app touchée, aucune FK depuis nos tables.
-- Reste du backlog produit (audit 11/06) : abos récurrents + relances auto factures, lien fiche asso unifiée, Kanban leads, audit log avant impersonation, export comptable, édition contenu site. Ordre suggéré dans la conv.
+- **Sprint 3 cockpit (11/06/2026) — facturation récurrente** — migration `sprint3_subscriptions_billing` :
+  - Table `subscriptions` (RLS admin, FK customers CASCADE) + colonnes `invoices.subscription_id` (FK interne SET NULL) / `last_reminder_at` / `reminder_count`.
+  - `billing_daily()` (security definer, gate admin OU session_user postgres) : flip sent→overdue + génère les factures d'abonnement échues en **draft** (rattrapage max 24 périodes). Appelée par **pg_cron** `konclav-billing-daily` (05:00 UTC, quotidien) ET en opportuniste à l'ouverture de l'onglet Factures.
+  - Edge Function `cockpit-invoice-reminder` : relance manuelle par facture (Resend, ton courtois puis ferme selon reminder_count, passe sent→overdue si échu). Même gate que les autres fonctions cockpit.
+  - Front : sous-onglet Abonnements (CRUD, pause/reprise), bouton Relancer + compteur, badge 🔄 sur factures auto, export CSV (`;` + BOM Excel), vue Kanban leads (drag & drop = statut + lead_event), lignes Assos dépliables (factures/encaissé/en cours du client lié).
+- Reste du backlog produit (audit 11/06) : fiche asso unifiée complète, audit log avant impersonation (impersonation pas construite), édition contenu site, monitoring (logs Edge Functions / statut Resend). Ordre suggéré dans la conv.
 
 ## Régénérer l'OG image
 
