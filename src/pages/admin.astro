@@ -194,7 +194,13 @@ const ADMIN_EMAIL = "contact@konclav.ch";
       <!-- ===== PANEL : LEADS ===== -->
       <div data-panel="leads" role="tabpanel" hidden>
         <div class="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-4" data-ck-stats></div>
-        <div class="mt-8 flex flex-wrap items-center gap-2" data-ck-filters role="group" aria-label="Filtrer par statut"></div>
+        <div class="mt-8 flex flex-wrap items-center justify-between gap-3">
+          <div class="flex flex-wrap items-center gap-2" data-ck-filters role="group" aria-label="Filtrer par statut"></div>
+          <div class="flex gap-1" role="group" aria-label="Vue">
+            <button type="button" data-view="list" class="ck-pill ck-pill-on">Liste</button>
+            <button type="button" data-view="kanban" class="ck-pill">Kanban</button>
+          </div>
+        </div>
         <div class="mt-6 space-y-3" data-ck-list aria-live="polite"></div>
         <p data-ck-empty hidden class="mt-12 text-center text-sm text-ink-500">Aucune demande pour ce filtre.</p>
       </div>
@@ -232,6 +238,8 @@ const ADMIN_EMAIL = "contact@konclav.ch";
         <nav class="mt-6 flex flex-wrap gap-1" role="tablist" aria-label="Sous-sections facturation">
           <button type="button" data-subtab="invoices" role="tab" aria-selected="true"
             class="ck-subtab ck-subtab-on">Factures</button>
+          <button type="button" data-subtab="subscriptions" role="tab" aria-selected="false"
+            class="ck-subtab">Abonnements</button>
           <button type="button" data-subtab="customers" role="tab" aria-selected="false"
             class="ck-subtab">Clients</button>
         </nav>
@@ -240,10 +248,16 @@ const ADMIN_EMAIL = "contact@konclav.ch";
         <div data-subpanel="invoices">
           <div class="mt-6 flex flex-wrap items-center justify-between gap-3">
             <h2 class="text-xl font-semibold tracking-tight text-ink-50">Factures</h2>
-            <button type="button" data-bi-new
-              class="rounded-xl bg-accent-500 px-4 py-2 text-sm font-semibold text-white shadow-[var(--shadow-cta)] transition-colors hover:bg-accent-400">
-              + Nouvelle facture
-            </button>
+            <div class="flex gap-2">
+              <button type="button" data-bi-csv
+                class="rounded-xl border border-white/10 bg-white/[0.02] px-4 py-2 text-sm font-medium text-ink-300 transition-colors hover:border-white/20 hover:text-ink-50">
+                Exporter CSV
+              </button>
+              <button type="button" data-bi-new
+                class="rounded-xl bg-accent-500 px-4 py-2 text-sm font-semibold text-white shadow-[var(--shadow-cta)] transition-colors hover:bg-accent-400">
+                + Nouvelle facture
+              </button>
+            </div>
           </div>
           <div data-bi-content aria-live="polite">
             <p class="mt-12 text-center text-sm text-ink-500">Chargement…</p>
@@ -260,6 +274,21 @@ const ADMIN_EMAIL = "contact@konclav.ch";
             </button>
           </div>
           <div data-bc-content aria-live="polite">
+            <p class="mt-12 text-center text-sm text-ink-500">Chargement…</p>
+          </div>
+        </div>
+
+        <!-- Sous-panel abonnements -->
+        <div data-subpanel="subscriptions" hidden>
+          <div class="mt-6 flex flex-wrap items-center justify-between gap-3">
+            <h2 class="text-xl font-semibold tracking-tight text-ink-50">Abonnements</h2>
+            <button type="button" data-bs-new
+              class="rounded-xl bg-accent-500 px-4 py-2 text-sm font-semibold text-white shadow-[var(--shadow-cta)] transition-colors hover:bg-accent-400">
+              + Nouvel abonnement
+            </button>
+          </div>
+          <p class="mt-2 text-xs text-ink-500">Les factures d'abonnement se génèrent automatiquement en brouillon à chaque échéance — chaque nuit (6h) et à l'ouverture de l'onglet Factures.</p>
+          <div data-bs-content aria-live="polite">
             <p class="mt-12 text-center text-sm text-ink-500">Chargement…</p>
           </div>
         </div>
@@ -405,6 +434,67 @@ const ADMIN_EMAIL = "contact@konclav.ch";
       </div>
     </div>
 
+    <!-- ===== MODAL : abonnement ===== -->
+    <div data-modal="subscription" hidden class="ck-modal" role="dialog" aria-modal="true" aria-labelledby="ck-sub-title">
+      <div class="ck-modal-back"></div>
+      <div class="ck-modal-card">
+        <div class="flex items-center justify-between border-b border-white/[0.06] px-5 py-4">
+          <h3 id="ck-sub-title" class="text-base font-semibold text-ink-50">Nouvel abonnement</h3>
+          <button type="button" data-modal-close class="text-ink-400 hover:text-ink-50" aria-label="Fermer">✕</button>
+        </div>
+        <form data-bs-form class="space-y-3 px-5 py-5">
+          <input type="hidden" data-bs-id />
+          <label class="block text-xs">
+            <span class="mb-1 block font-medium text-ink-400">Client *</span>
+            <select data-bs-field="customer_id" required class="ck-input"></select>
+          </label>
+          <label class="block text-xs">
+            <span class="mb-1 block font-medium text-ink-400">Libellé (repris sur la facture)</span>
+            <input data-bs-field="label" value="Abonnement Konclav" class="ck-input" />
+          </label>
+          <div class="grid grid-cols-1 gap-3 sm:grid-cols-3">
+            <label class="block text-xs">
+              <span class="mb-1 block font-medium text-ink-400">Montant *</span>
+              <input data-bs-field="amount" type="number" min="0.05" step="0.05" required class="ck-input" />
+            </label>
+            <label class="block text-xs">
+              <span class="mb-1 block font-medium text-ink-400">Devise</span>
+              <select data-bs-field="currency" class="ck-input">
+                <option value="CHF">CHF</option>
+                <option value="EUR">EUR</option>
+              </select>
+            </label>
+            <label class="block text-xs">
+              <span class="mb-1 block font-medium text-ink-400">TVA (%)</span>
+              <input data-bs-field="vat_rate" type="number" min="0" max="100" step="0.01" value="0" class="ck-input" />
+            </label>
+          </div>
+          <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <label class="block text-xs">
+              <span class="mb-1 block font-medium text-ink-400">Intervalle</span>
+              <select data-bs-field="billing_interval" class="ck-input">
+                <option value="yearly">Annuel</option>
+                <option value="monthly">Mensuel</option>
+              </select>
+            </label>
+            <label class="block text-xs">
+              <span class="mb-1 block font-medium text-ink-400">Prochaine facture le</span>
+              <input data-bs-field="next_invoice_date" type="date" class="ck-input" />
+            </label>
+          </div>
+          <label class="block text-xs">
+            <span class="mb-1 block font-medium text-ink-400">IBAN émetteur (repris sur les factures générées)</span>
+            <input data-bs-field="issuer_iban" class="ck-input" placeholder="CH00 0000 0000 0000 0000 0" />
+          </label>
+          <p data-bs-error role="alert" hidden class="text-sm text-rose-400"></p>
+          <div class="flex justify-end gap-2 pt-2">
+            <button type="button" data-modal-close class="rounded-lg border border-white/10 px-4 py-2 text-sm text-ink-300 hover:border-white/20 hover:text-ink-50">Annuler</button>
+            <button type="submit" data-bs-submit class="rounded-lg bg-accent-500 px-4 py-2 text-sm font-semibold text-white hover:bg-accent-400 disabled:cursor-not-allowed disabled:opacity-60">Enregistrer</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
     <!-- ===== MODAL : email lead ===== -->
     <div data-modal="email" hidden class="ck-modal" role="dialog" aria-modal="true" aria-labelledby="ck-email-title">
       <div class="ck-modal-back"></div>
@@ -528,7 +618,7 @@ const ADMIN_EMAIL = "contact@konclav.ch";
     const tabs = root.querySelectorAll("[data-tab]");
     const panels = { overview: root.querySelector('[data-panel="overview"]'), leads: root.querySelector('[data-panel="leads"]'), orgs: root.querySelector('[data-panel="orgs"]'), audience: root.querySelector('[data-panel="audience"]'), billing: root.querySelector('[data-panel="billing"]') };
     const subtabs = root.querySelectorAll("[data-subtab]");
-    const subpanels = { invoices: root.querySelector('[data-subpanel="invoices"]'), customers: root.querySelector('[data-subpanel="customers"]') };
+    const subpanels = { invoices: root.querySelector('[data-subpanel="invoices"]'), customers: root.querySelector('[data-subpanel="customers"]'), subscriptions: root.querySelector('[data-subpanel="subscriptions"]') };
 
     const esc = (s) => String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
     const fmtCHF = (n, c) => (c || "CHF") + " " + (Number(n) || 0).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, "'");
@@ -665,6 +755,7 @@ const ADMIN_EMAIL = "contact@konclav.ch";
       Object.entries(subpanels).forEach(([k, el]) => { if (el) el.hidden = k !== name; });
       if (name === "invoices") loadInvoices();
       if (name === "customers") loadCustomers();
+      if (name === "subscriptions") loadSubscriptions();
     }
     tabs.forEach((t) => t.addEventListener("click", () => switchTab(t.dataset.tab)));
     subtabs.forEach((t) => t.addEventListener("click", () => switchSubtab(t.dataset.subtab)));
@@ -694,6 +785,7 @@ const ADMIN_EMAIL = "contact@konclav.ch";
     const statusOf = (v) => STATUSES.find((s) => s.value === v) || { value: v, label: v, color: "#8b8b94" };
     let leads = [];
     let leadFilter = "all";
+    let leadView = "list";
     const statsEl = root.querySelector("[data-ck-stats]");
     const filtersEl = root.querySelector("[data-ck-filters]");
     const listEl = root.querySelector("[data-ck-list]");
@@ -729,6 +821,9 @@ const ADMIN_EMAIL = "contact@konclav.ch";
           (on ? "border-accent-500/60 bg-accent-500/15 text-ink-50" : "border-white/10 bg-white/[0.02] text-ink-400 hover:border-white/20 hover:text-ink-50") +
           '">' + esc(s.label) + (s.value === "all" ? "" : " · " + (counts[s.value] || 0)) + "</button>";
       }).join("");
+      if (focusLeadId) leadView = "list";
+      syncViewPills();
+      if (leadView === "kanban") { renderKanban(); return; }
       const shown = leadFilter === "all" ? leads : leads.filter((l) => l.status === leadFilter);
       emptyEl.hidden = shown.length > 0;
       listEl.innerHTML = shown.map(leadCard).join("");
@@ -856,6 +951,58 @@ const ADMIN_EMAIL = "contact@konclav.ch";
         })
         .catch(() => {});
     }
+
+    // ----- Vue Kanban -----
+    function syncViewPills() {
+      root.querySelectorAll("[data-view]").forEach((x) => { x.className = "ck-pill" + (x.dataset.view === leadView ? " ck-pill-on" : ""); });
+    }
+    root.querySelectorAll("[data-view]").forEach((b) => b.addEventListener("click", () => {
+      leadView = b.dataset.view;
+      renderLeads();
+    }));
+    function renderKanban() {
+      emptyEl.hidden = true;
+      listEl.innerHTML = '<div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">' +
+        STATUSES.map((s) => {
+          const items = leads.filter((l) => l.status === s.value);
+          return '<div class="rounded-2xl border border-white/10 bg-white/[0.02] p-3">' +
+            '<p class="mb-2 flex items-center gap-2 px-1 text-xs font-semibold" style="color:' + s.color + '">' +
+            '<span class="h-2 w-2 rounded-full" style="background:' + s.color + '"></span>' + esc(s.label) + " · " + items.length + "</p>" +
+            '<div class="min-h-16 space-y-2" data-kb-drop="' + s.value + '">' +
+            items.map((l) =>
+              '<div draggable="true" data-kb-card="' + esc(l.id) + '" class="cursor-grab rounded-xl border border-white/10 bg-ink-900 p-3 transition-colors hover:border-white/20 active:cursor-grabbing">' +
+              '<p class="truncate text-sm font-semibold text-ink-50">' + esc(l.asso_name) + "</p>" +
+              '<p class="mt-0.5 truncate text-[11px] text-ink-500">' + esc((l.first_name || "") + " " + (l.last_name || "")) + (l.canton ? " · " + esc(l.canton) : "") + "</p>" +
+              (l.next_action_at ? '<p class="mt-1 text-[11px] ' + (l.next_action_at <= todayISO() ? "text-rose-400" : "text-ink-500") + '">🔔 ' + fmtDate(l.next_action_at) + "</p>" : "") +
+              (l.provisioned_org_id ? '<p class="mt-1 text-[11px] text-emerald-400">App ✓</p>' : "") +
+              "</div>"
+            ).join("") + "</div></div>";
+        }).join("") + "</div>";
+    }
+    let dragLeadId = null;
+    listEl.addEventListener("dragstart", (e) => {
+      const card = e.target.closest && e.target.closest("[data-kb-card]");
+      if (card) { dragLeadId = card.dataset.kbCard; e.dataTransfer.effectAllowed = "move"; }
+    });
+    listEl.addEventListener("dragover", (e) => {
+      if (dragLeadId && e.target.closest && e.target.closest("[data-kb-drop]")) e.preventDefault();
+    });
+    listEl.addEventListener("drop", (e) => {
+      const zone = e.target.closest && e.target.closest("[data-kb-drop]");
+      if (!zone || !dragLeadId) return;
+      e.preventDefault();
+      const id = dragLeadId; dragLeadId = null;
+      const status = zone.dataset.kbDrop;
+      const lead = leads.find((l) => l.id === id);
+      if (!lead || lead.status === status) return;
+      const prev = lead.status;
+      lead.status = status;
+      renderLeads();
+      patchLead(id, { status }).then(() => {
+        logLeadEvent(id, "status_change", "Statut → " + statusOf(status).label);
+        toast("Statut mis à jour ✓");
+      }).catch(() => { lead.status = prev; renderLeads(); toast("Échec du changement de statut.", "error"); });
+    });
 
     // =========================================================
     // ============ MODULE 1B : APERÇU (dashboard) ==============
@@ -1095,7 +1242,7 @@ const ADMIN_EMAIL = "contact@konclav.ch";
         '<tr><th scope="col" class="px-4 py-3 text-left">Association</th><th scope="col" class="px-4 py-3 text-left">Président</th><th scope="col" class="px-4 py-3 text-right">Membres</th><th scope="col" class="px-4 py-3 text-left">Dernière connexion</th><th scope="col" class="px-4 py-3 text-left">Statut</th><th scope="col" class="px-4 py-3"><span class="sr-only">Actions</span></th></tr></thead>' +
         '<tbody class="divide-y divide-white/[0.06]">' +
         orgs.map((o) =>
-          '<tr data-org="' + esc(o.id) + '" data-org-active="' + (o.is_active ? "1" : "") + '" data-org-name="' + esc(o.name) + '">' +
+          '<tr data-org="' + esc(o.id) + '" data-org-active="' + (o.is_active ? "1" : "") + '" data-org-name="' + esc(o.name) + '" data-org-customer="' + esc(o.customer_id || "") + '">' +
           '<td class="px-4 py-3"><p class="font-semibold text-ink-50">' + esc(o.name) + '</p><p class="font-mono text-[11px] text-ink-500">' + esc(o.slug) + "</p></td>" +
           '<td class="px-4 py-3">' + (o.president
             ? '<p class="text-ink-200">' + esc(o.president.name) + '</p><p class="text-xs text-ink-500">' + esc(o.president.email) + "</p>"
@@ -1105,12 +1252,39 @@ const ADMIN_EMAIL = "contact@konclav.ch";
           '<td class="px-4 py-3">' + (o.is_active
             ? '<span class="rounded-md bg-emerald-400/10 px-2 py-0.5 text-[11px] font-medium text-emerald-400">Active</span>'
             : '<span class="rounded-md bg-rose-400/10 px-2 py-0.5 text-[11px] font-medium text-rose-400">Suspendue</span>') + "</td>" +
-          '<td class="px-4 py-3 text-right"><button type="button" data-org-toggle class="text-xs ' +
+          '<td class="px-4 py-3 text-right whitespace-nowrap">' +
+          '<button type="button" data-org-detail class="text-xs text-accent-300 hover:text-accent-400">Détails</button>' +
+          ' · <button type="button" data-org-toggle class="text-xs ' +
           (o.is_active ? "text-rose-400 hover:text-rose-300" : "text-emerald-400 hover:text-emerald-300") + '">' +
           (o.is_active ? "Suspendre" : "Réactiver") + "</button></td></tr>"
         ).join("") + "</tbody></table></div>";
     }
+    async function toggleOrgDetail(tr) {
+      const next = tr.nextElementSibling;
+      if (next && next.dataset.orgDetail) { next.remove(); return; }
+      const custId = tr.dataset.orgCustomer;
+      const detail = document.createElement("tr");
+      detail.dataset.orgDetail = "1";
+      detail.innerHTML = '<td colspan="6" class="bg-white/[0.01] px-4 py-3 text-xs text-ink-500">Chargement…</td>';
+      tr.after(detail);
+      const cell = detail.firstElementChild;
+      if (!custId) { cell.textContent = "Aucune fiche client liée — créez-la dans Facturation → Clients."; return; }
+      try {
+        const res = await api("invoices?customer_id=eq." + encodeURIComponent(custId) + "&select=total,status&limit=200");
+        const invs = await res.json();
+        const paid = invs.filter((i) => i.status === "paid").reduce((s, i) => s + (+i.total || 0), 0);
+        const open = invs.filter((i) => i.status === "sent" || i.status === "overdue").reduce((s, i) => s + (+i.total || 0), 0);
+        cell.innerHTML =
+          '<span class="text-ink-300">' + invs.length + " facture(s)</span> · " +
+          '<span class="text-emerald-400">' + fmtCHF(paid, "CHF") + " encaissé</span> · " +
+          '<span class="text-amber-400">' + fmtCHF(open, "CHF") + " en cours</span> · " +
+          '<button type="button" data-goto-billing class="text-accent-300 hover:text-accent-400">Ouvrir la facturation</button>';
+      } catch { cell.textContent = "Erreur de chargement."; }
+    }
     ogContent.addEventListener("click", async (e) => {
+      if (e.target.closest("[data-goto-billing]")) { switchTab("billing"); return; }
+      const det = e.target.closest("[data-org-detail]");
+      if (det) { toggleOrgDetail(det.closest("[data-org]")); return; }
       const btn = e.target.closest("[data-org-toggle]"); if (!btn) return;
       const tr = btn.closest("[data-org]");
       const active = !!tr.dataset.orgActive;
@@ -1309,11 +1483,139 @@ const ADMIN_EMAIL = "contact@konclav.ch";
       finally { btn.disabled = false; }
     });
 
+    // ----- Abonnements -----
+    let subsList = [];
+    const bsContent = root.querySelector("[data-bs-content]");
+    const INTERVALS = { monthly: "Mensuel", yearly: "Annuel" };
+    async function loadSubscriptions() {
+      const signal = freshSignal("subs");
+      bsContent.innerHTML = '<p class="mt-12 text-center text-sm text-ink-500">Chargement…</p>';
+      try {
+        const res = await api("subscriptions?select=*,customer:customers(asso_name)&order=created_at.desc", { signal });
+        subsList = await res.json();
+        renderSubscriptions();
+      } catch (e) {
+        if (isAbort(e)) return;
+        bsContent.innerHTML = '<p class="mt-12 text-center text-sm text-rose-400">Erreur : ' + esc(String(e)) + "</p>";
+      }
+    }
+    function renderSubscriptions() {
+      if (!subsList.length) {
+        bsContent.innerHTML = '<p class="mt-12 text-center text-sm text-ink-500">Aucun abonnement. Créez-en un : les factures se généreront toutes seules à chaque échéance.</p>';
+        return;
+      }
+      bsContent.innerHTML = '<div class="mt-6 overflow-x-auto rounded-2xl border border-white/10 bg-white/[0.02]">' +
+        '<table class="w-full text-sm">' +
+        '<thead class="bg-white/[0.03] text-xs uppercase tracking-wide text-ink-500">' +
+        '<tr><th scope="col" class="px-4 py-3 text-left">Client</th><th scope="col" class="px-4 py-3 text-left">Libellé</th><th scope="col" class="px-4 py-3 text-right">Montant</th><th scope="col" class="px-4 py-3 text-left">Intervalle</th><th scope="col" class="px-4 py-3 text-left">Prochaine facture</th><th scope="col" class="px-4 py-3 text-left">Statut</th><th scope="col" class="px-4 py-3"><span class="sr-only">Actions</span></th></tr></thead>' +
+        '<tbody class="divide-y divide-white/[0.06]">' +
+        subsList.map((s) =>
+          '<tr data-sub="' + esc(s.id) + '">' +
+          '<td class="px-4 py-3 font-semibold text-ink-50">' + esc((s.customer && s.customer.asso_name) || "—") + "</td>" +
+          '<td class="px-4 py-3 text-ink-300">' + esc(s.label) + "</td>" +
+          '<td class="px-4 py-3 text-right tabular-nums text-ink-50">' + fmtCHF(s.amount, s.currency) + "</td>" +
+          '<td class="px-4 py-3 text-ink-300">' + (INTERVALS[s.billing_interval] || esc(s.billing_interval)) + "</td>" +
+          '<td class="px-4 py-3 text-ink-300">' + fmtDate(s.next_invoice_date) + "</td>" +
+          '<td class="px-4 py-3">' + (s.active
+            ? '<span class="rounded-md bg-emerald-400/10 px-2 py-0.5 text-[11px] font-medium text-emerald-400">Actif</span>'
+            : '<span class="rounded-md bg-white/[0.06] px-2 py-0.5 text-[11px] font-medium text-ink-400">En pause</span>') + "</td>" +
+          '<td class="px-4 py-3 text-right whitespace-nowrap">' +
+          '<button type="button" data-sub-edit class="text-xs text-accent-300 hover:text-accent-400">Modifier</button>' +
+          ' · <button type="button" data-sub-toggle class="text-xs text-ink-300 hover:text-ink-50">' + (s.active ? "Pause" : "Reprendre") + "</button>" +
+          ' · <button type="button" data-sub-del class="text-xs text-rose-400 hover:text-rose-300">×</button>' +
+          "</td></tr>"
+        ).join("") + "</tbody></table></div>";
+    }
+    bsContent.addEventListener("click", async (e) => {
+      const tr = e.target.closest("[data-sub]"); if (!tr) return;
+      const id = tr.dataset.sub;
+      const s = subsList.find((x) => x.id === id);
+      if (e.target.closest("[data-sub-edit]")) editSubscription(id);
+      else if (e.target.closest("[data-sub-toggle]") && s) {
+        try {
+          await api("subscriptions?id=eq." + encodeURIComponent(id), { method: "PATCH", headers: { Prefer: "return=minimal" }, body: JSON.stringify({ active: !s.active }) });
+          toast(s.active ? "Abonnement en pause." : "Abonnement réactivé ✓");
+          loadSubscriptions();
+        } catch (err) { toast("Échec : " + err.message, "error"); }
+      } else if (e.target.closest("[data-sub-del]") && s) {
+        if (!confirm("Supprimer cet abonnement ?\nLes factures déjà générées sont conservées.")) return;
+        try {
+          await api("subscriptions?id=eq." + encodeURIComponent(id), { method: "DELETE", headers: { Prefer: "return=minimal" } });
+          toast("Abonnement supprimé.");
+          loadSubscriptions();
+        } catch (err) { toast("Échec : " + err.message, "error"); }
+      }
+    });
+    root.querySelector("[data-bs-new]").addEventListener("click", () => editSubscription(null));
+
+    const bsForm = root.querySelector("[data-bs-form]");
+    const bsIdInput = root.querySelector("[data-bs-id]");
+    const bsError = root.querySelector("[data-bs-error]");
+    const bsTitle = document.getElementById("ck-sub-title");
+    async function editSubscription(id) {
+      if (!customers.length) { try { const r = await api("customers?select=id,asso_name&order=asso_name.asc"); customers = await r.json(); } catch {} }
+      const sel = bsForm.querySelector('[data-bs-field="customer_id"]');
+      sel.innerHTML = '<option value="">— Sélectionner —</option>' + customers.map((c) => '<option value="' + esc(c.id) + '">' + esc(c.asso_name) + "</option>").join("");
+      bsForm.querySelector('[data-bs-field="label"]').value = "Abonnement Konclav";
+      bsForm.querySelector('[data-bs-field="amount"]').value = "";
+      bsForm.querySelector('[data-bs-field="currency"]').value = "CHF";
+      bsForm.querySelector('[data-bs-field="vat_rate"]').value = 0;
+      bsForm.querySelector('[data-bs-field="billing_interval"]').value = "yearly";
+      bsForm.querySelector('[data-bs-field="next_invoice_date"]').value = todayISO();
+      bsForm.querySelector('[data-bs-field="issuer_iban"]').value = "";
+      bsIdInput.value = "";
+      bsError.hidden = true;
+      bsTitle.textContent = id ? "Modifier l'abonnement" : "Nouvel abonnement";
+      if (id) {
+        const s = subsList.find((x) => x.id === id);
+        if (s) {
+          bsIdInput.value = s.id;
+          ["customer_id", "label", "amount", "currency", "vat_rate", "billing_interval", "next_invoice_date", "issuer_iban"].forEach((k) => {
+            const f = bsForm.querySelector('[data-bs-field="' + k + '"]'); if (f && s[k] != null) f.value = s[k];
+          });
+        }
+      }
+      openModal("subscription");
+    }
+    bsForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const data = {
+        customer_id: bsForm.querySelector('[data-bs-field="customer_id"]').value || null,
+        label: bsForm.querySelector('[data-bs-field="label"]').value.trim() || "Abonnement Konclav",
+        amount: +bsForm.querySelector('[data-bs-field="amount"]').value || 0,
+        currency: bsForm.querySelector('[data-bs-field="currency"]').value || "CHF",
+        vat_rate: +bsForm.querySelector('[data-bs-field="vat_rate"]').value || 0,
+        billing_interval: bsForm.querySelector('[data-bs-field="billing_interval"]').value || "yearly",
+        next_invoice_date: bsForm.querySelector('[data-bs-field="next_invoice_date"]').value || todayISO(),
+        issuer_iban: bsForm.querySelector('[data-bs-field="issuer_iban"]').value.replace(/\s/g, "") || null,
+      };
+      if (!data.customer_id) { bsError.textContent = "Client requis."; bsError.hidden = false; return; }
+      if (data.amount <= 0) { bsError.textContent = "Montant requis."; bsError.hidden = false; return; }
+      const id = bsIdInput.value;
+      const btn = root.querySelector("[data-bs-submit]");
+      btn.disabled = true; bsError.hidden = true;
+      try {
+        if (id) await api("subscriptions?id=eq." + encodeURIComponent(id), { method: "PATCH", headers: { Prefer: "return=minimal" }, body: JSON.stringify(data) });
+        else await api("subscriptions", { method: "POST", headers: { Prefer: "return=minimal" }, body: JSON.stringify(data) });
+        closeModals();
+        toast(id ? "Abonnement mis à jour ✓" : "Abonnement créé ✓ — facture générée à l'échéance");
+        await loadSubscriptions();
+      } catch (err) { bsError.textContent = err.message || "Erreur."; bsError.hidden = false; }
+      finally { btn.disabled = false; }
+    });
+
     // ----- Factures -----
     async function loadInvoices() {
       const signal = freshSignal("invoices");
       biContent.innerHTML = '<p class="mt-12 text-center text-sm text-ink-500">Chargement…</p>';
       try {
+        // Filet opportuniste (en plus du cron 6h) : génère les factures d'abonnement
+        // échues et passe les factures dépassées en retard.
+        try {
+          const bd = await api("rpc/billing_daily", { method: "POST", body: "{}", signal });
+          const d = await bd.json();
+          if (d && d.generated > 0) toast(d.generated + " facture(s) d'abonnement générée(s) 📄");
+        } catch (e) { if (isAbort(e)) throw e; }
         const res = await api("invoices?select=*,customer:customers(asso_name,contact_name)&order=issue_date.desc", { signal });
         invoicesList = await res.json();
         renderInvoices();
@@ -1362,7 +1664,7 @@ const ADMIN_EMAIL = "contact@konclav.ch";
         invoicesList.map((inv) => {
           const st = invoiceStatus(inv.status);
           return '<tr data-invoice="' + esc(inv.id) + '">' +
-            '<td class="px-4 py-3 font-mono text-xs text-ink-200">' + esc(inv.number) + '</td>' +
+            '<td class="px-4 py-3 font-mono text-xs text-ink-200">' + esc(inv.number) + (inv.subscription_id ? ' <span title="Générée par abonnement">🔄</span>' : "") + '</td>' +
             '<td class="px-4 py-3 text-ink-200">' + esc((inv.customer && inv.customer.asso_name) || "—") + '</td>' +
             '<td class="px-4 py-3 text-ink-300">' + fmtDate(inv.issue_date) + '</td>' +
             '<td class="px-4 py-3 ' + (isLate(inv) ? 'font-medium text-rose-400' : 'text-ink-300') + '">' + fmtDate(inv.due_date) + '</td>' +
@@ -1372,6 +1674,9 @@ const ADMIN_EMAIL = "contact@konclav.ch";
             '</select></td>' +
             '<td class="px-4 py-3 text-right whitespace-nowrap">' +
             '<button type="button" data-inv-pdf class="text-xs text-accent-300 hover:text-accent-400">PDF</button>' +
+            ((inv.status === "sent" || inv.status === "overdue")
+              ? ' · <button type="button" data-inv-remind class="text-xs text-amber-400 hover:text-amber-300">Relancer' + (inv.reminder_count > 0 ? " · " + inv.reminder_count : "") + '</button>'
+              : "") +
             ' · <button type="button" data-inv-edit class="text-xs text-ink-300 hover:text-ink-50">Modifier</button>' +
             ' · <button type="button" data-inv-del class="text-xs text-rose-400 hover:text-rose-300">×</button>' +
             '</td></tr>';
@@ -1383,6 +1688,7 @@ const ADMIN_EMAIL = "contact@konclav.ch";
       const tr = e.target.closest("[data-invoice]"); if (!tr) return;
       const id = tr.dataset.invoice;
       if (e.target.closest("[data-inv-pdf]")) downloadInvoicePdf(id);
+      else if (e.target.closest("[data-inv-remind]")) remindInvoice(id);
       else if (e.target.closest("[data-inv-edit]")) editInvoice(id);
       else if (e.target.closest("[data-inv-del]")) deleteInvoice(id);
     });
@@ -1399,6 +1705,36 @@ const ADMIN_EMAIL = "contact@konclav.ch";
     });
 
     root.querySelector("[data-bi-new]").addEventListener("click", () => editInvoice(null));
+    root.querySelector("[data-bi-csv]").addEventListener("click", exportInvoicesCsv);
+
+    async function remindInvoice(id) {
+      const inv = invoicesList.find((x) => x.id === id);
+      if (!inv) return;
+      if (!confirm("Envoyer un rappel de paiement pour " + inv.number + " à « " + ((inv.customer && inv.customer.asso_name) || "ce client") + " » ?")) return;
+      try {
+        const res = await fn("cockpit-invoice-reminder", { method: "POST", json: { invoice_id: id } });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(data.error || "HTTP " + res.status);
+        toast("Rappel envoyé ✓ (relance n°" + data.reminder_count + ")");
+        loadInvoices();
+      } catch (e) { toast("Échec du rappel : " + e.message, "error"); }
+    }
+
+    function exportInvoicesCsv() {
+      if (!invoicesList.length) { toast("Aucune facture à exporter.", "error"); return; }
+      const head = "Numéro;Client;Émise;Échéance;Statut;Devise;Sous-total;TVA %;TVA;Total;Payée le";
+      const rows = invoicesList.map((i) => [
+        i.number, (i.customer && i.customer.asso_name) || "", i.issue_date || "", i.due_date || "", i.status,
+        i.currency, i.subtotal, i.vat_rate, i.vat_amount, i.total, i.paid_at ? i.paid_at.slice(0, 10) : "",
+      ].map((v) => '"' + String(v ?? "").replace(/"/g, '""') + '"').join(";"));
+      const blob = new Blob(["﻿" + head + "\n" + rows.join("\n")], { type: "text/csv;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url; a.download = "konclav-factures-" + todayISO() + ".csv";
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 5000);
+      toast("Export CSV téléchargé ✓");
+    }
 
     async function downloadInvoicePdf(id) {
       try {
