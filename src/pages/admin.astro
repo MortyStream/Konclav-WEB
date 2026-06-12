@@ -220,7 +220,12 @@ const ADMIN_EMAIL = "contact@konclav.ch";
       <!-- ===== PANEL : AUDIENCE ===== -->
       <div data-panel="audience" role="tabpanel" hidden>
         <div class="mt-8 flex flex-wrap items-center justify-between gap-3">
-          <h2 class="text-xl font-semibold tracking-tight text-ink-50">Audience du site</h2>
+          <div class="flex items-center gap-3">
+            <h2 class="text-xl font-semibold tracking-tight text-ink-50">Audience du site</h2>
+            <span data-au-live hidden class="inline-flex items-center gap-1.5 rounded-full border border-emerald-400/25 bg-emerald-400/10 px-2.5 py-1 text-[11px] font-medium text-emerald-400">
+              <span class="ck-live-dot" aria-hidden="true"></span><span data-au-live-n>0 en ce moment</span>
+            </span>
+          </div>
           <div class="flex gap-1" data-au-periods role="group" aria-label="Période">
             <button type="button" data-period="24h" class="ck-pill">24h</button>
             <button type="button" data-period="7d"  class="ck-pill ck-pill-on">7 j</button>
@@ -701,16 +706,18 @@ const ADMIN_EMAIL = "contact@konclav.ch";
   @media (max-width: 640px) { .ck-line { grid-template-columns: 1fr 1fr 1fr; } .ck-line .ck-line-rm { grid-column: span 3; } }
   .ck-sparkline { stroke: var(--color-accent-400); stroke-width: 1.5; fill: none; }
   .ck-sparkfill { fill: rgba(113,112,255,.10); }
-  .ck-bar { fill: url(#ck-bar-grad); transition: opacity .15s; }
-  .ck-bar:hover { opacity: .72; }
-  .ck-bar-empty { fill: rgba(255,255,255,.04); }
   .ck-axis-label { fill: var(--color-ink-500); font-size: 10px; font-family: inherit; }
   .ck-grid-line { stroke: rgba(255,255,255,.05); }
   .ck-delta-up { color: #4ade80; }
   .ck-delta-down { color: #f87171; }
   .ck-delta-flat { color: var(--color-ink-500); }
-  .ck-au-toggle { padding: .25rem .65rem; border-radius: 999px; font-size: .7rem; font-weight: 500; border: 1px solid rgba(255,255,255,.10); background: rgba(255,255,255,.02); color: var(--color-ink-400); }
-  .ck-au-toggle.is-on { border-color: rgba(113,112,255,.6); background: rgba(113,112,255,.12); color: var(--color-ink-50); }
+  .ck-skel { position: relative; overflow: hidden; background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.05); }
+  .ck-skel::after { content: ""; position: absolute; inset: 0; transform: translateX(-100%); background: linear-gradient(90deg, transparent, rgba(255,255,255,.045), transparent); animation: ck-shimmer 1.4s infinite; }
+  @keyframes ck-shimmer { to { transform: translateX(100%); } }
+  .ck-live-dot { width: 7px; height: 7px; border-radius: 999px; background: #4ade80; animation: ck-pulse 2s infinite; }
+  @keyframes ck-pulse { 0% { box-shadow: 0 0 0 0 rgba(74,222,128,.45); } 70% { box-shadow: 0 0 0 6px rgba(74,222,128,0); } 100% { box-shadow: 0 0 0 0 rgba(74,222,128,0); } }
+  .ck-tip { position: absolute; z-index: 10; pointer-events: none; transform: translate(-50%, calc(-100% - 14px)); min-width: 11rem; border-radius: .65rem; border: 1px solid rgba(255,255,255,.10); background: rgba(15,16,17,.96); padding: .55rem .75rem; font-size: .72rem; color: var(--color-ink-300); box-shadow: 0 12px 32px rgba(0,0,0,.55); backdrop-filter: blur(6px); }
+  @media (prefers-reduced-motion: reduce) { .ck-skel::after, .ck-live-dot { animation: none; } }
   .ck-toasts { position: fixed; bottom: 1.25rem; left: 50%; transform: translateX(-50%); z-index: 80; display: flex; flex-direction: column; align-items: center; gap: .5rem; width: min(92vw, 28rem); pointer-events: none; }
   .ck-toast { pointer-events: auto; max-width: 100%; border-radius: .75rem; border: 1px solid rgba(255,255,255,.10); background: var(--color-ink-900); padding: .6rem 1rem; font-size: .8rem; color: var(--color-ink-50); box-shadow: 0 8px 24px rgba(0,0,0,.5); transition: opacity .3s; animation: ck-toast-in .25s cubic-bezier(0.16, 1, 0.3, 1); }
   .ck-toast-ok { border-color: rgba(74,222,128,.35); }
@@ -1446,9 +1453,18 @@ const ADMIN_EMAIL = "contact@konclav.ch";
     }
 
     let auData = null;
+    let auLiveTimer = null;
+    function auSkeleton() {
+      const k = '<div class="ck-skel h-28 rounded-2xl"></div>';
+      const c = '<div class="ck-skel h-44 rounded-2xl"></div>';
+      return '<div class="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">' + k + k + k + k + "</div>" +
+        '<div class="ck-skel mt-6 h-80 rounded-2xl"></div>' +
+        '<div class="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-3">' + c + c + c + "</div>";
+    }
     async function loadAudience() {
       const signal = freshSignal("audience");
-      auContent.innerHTML = '<p class="mt-12 text-center text-sm text-ink-500">Chargement…</p>';
+      auContent.innerHTML = auSkeleton();
+      startLivePolling();
       try {
         const res = await api("rpc/cockpit_analytics", { method: "POST", body: JSON.stringify({ p_period: auPeriod }), signal });
         auData = await res.json();
@@ -1458,15 +1474,62 @@ const ADMIN_EMAIL = "contact@konclav.ch";
         auContent.innerHTML = '<p class="mt-12 text-center text-sm text-rose-400">Erreur : ' + esc(String(e)) + '</p>';
       }
     }
-    // Toggle pages vues / visiteurs sur le graphique (pas de refetch)
+    // Badge « en ce moment » : poll 30 s, s'éteint quand on quitte l'onglet
+    function startLivePolling() {
+      const pill = root.querySelector("[data-au-live]");
+      const tick = async () => {
+        if (!panels.audience || panels.audience.hidden) {
+          clearInterval(auLiveTimer); auLiveTimer = null;
+          if (pill) pill.hidden = true;
+          return;
+        }
+        try {
+          const res = await api("rpc/cockpit_live", { method: "POST", body: "{}" });
+          const d = await res.json();
+          const n = d && typeof d.active === "number" ? d.active : 0;
+          if (pill) {
+            pill.hidden = false;
+            root.querySelector("[data-au-live-n]").textContent = n + " en ce moment";
+          }
+        } catch {}
+      };
+      if (!auLiveTimer) auLiveTimer = setInterval(tick, 30_000);
+      tick();
+    }
+    // KPI cliquable = sélecteur de métrique du graphe (pas de refetch)
     auContent.addEventListener("click", (e) => {
-      const b = e.target.closest("[data-au-metric]");
+      const b = e.target.closest("[data-au-kpi]");
       if (!b || !auData) return;
-      auMetric = b.dataset.auMetric;
+      auMetric = b.dataset.auKpi;
       renderAudience(auData);
     });
 
-    // Mini-sparkline pour fond de KPI (rempli + ligne)
+    // ===== Audience v2 — chart engine (courbe lissée + crosshair + ghost) =====
+    const REDUCED_CK = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const AU_METRICS = {
+      v: { label: "Visiteurs", color: "#7170ff" },
+      s: { label: "Sessions", color: "#9b9bff" },
+      y: { label: "Pages vues", color: "#5e6ad2" },
+    };
+    const AU_PERIOD_LABEL = { "24h": "24 dernières heures", "7d": "7 derniers jours", "30d": "30 derniers jours", "90d": "90 derniers jours" };
+    const AU_CHART = { W: 920, H: 300, padL: 44, padR: 16, padT: 20, padB: 34 };
+
+    function fmtBucket(iso) {
+      try {
+        const d = new Date(iso);
+        if (auPeriod === "24h") return d.toLocaleTimeString("fr-CH", { hour: "2-digit", minute: "2-digit" });
+        return d.toLocaleDateString("fr-CH", { day: "2-digit", month: "short" });
+      } catch { return ""; }
+    }
+    function fmtBucketFull(iso) {
+      try {
+        const d = new Date(iso);
+        if (auPeriod === "24h") return d.toLocaleString("fr-CH", { weekday: "short", day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" });
+        return d.toLocaleDateString("fr-CH", { weekday: "long", day: "2-digit", month: "long" });
+      } catch { return ""; }
+    }
+
+    // Mini-sparkline pour fond de KPI
     function miniSpark(points, field, color) {
       if (!points || !points.length) return '';
       const vals = points.map((p) => Number(p[field]) || 0);
@@ -1482,62 +1545,149 @@ const ADMIN_EMAIL = "contact@konclav.ch";
         "</svg>";
     }
 
-    // Graphique en barres avec axes, grille, tooltip natif (<title>)
-    function barChart(points, field, label) {
-      if (!points || !points.length) return '<p class="py-6 text-center text-xs text-ink-500">Pas encore de données.</p>';
-      const vals = points.map((p) => Number(p[field]) || 0);
-      const max = Math.max(1, ...vals);
-      const w = 800, h = 260, padL = 40, padR = 10, padT = 16, padB = 36;
-      const innerW = w - padL - padR;
-      const innerH = h - padT - padB;
-      const barW = innerW / points.length;
-      const barGap = Math.min(8, barW * 0.25);
-      const fmtBucket = (iso) => {
-        try {
-          const d = new Date(iso);
-          if (auPeriod === "24h") return d.toLocaleTimeString("fr-CH", { hour: "2-digit", minute: "2-digit" });
-          return d.toLocaleDateString("fr-CH", { day: "2-digit", month: "short" });
-        } catch { return ""; }
-      };
-      const fmtFull = (iso) => {
-        try {
-          const d = new Date(iso);
-          if (auPeriod === "24h") return d.toLocaleString("fr-CH", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" });
-          return d.toLocaleDateString("fr-CH", { weekday: "short", day: "2-digit", month: "long" });
-        } catch { return ""; }
-      };
+    // Catmull-Rom → Bézier, avec clamp vertical (pas de débordement sous l'axe)
+    function smoothPath(pts, top, bottom) {
+      if (!pts.length) return "";
+      if (pts.length === 1) return "M" + pts[0][0].toFixed(1) + " " + pts[0][1].toFixed(1);
+      const cl = (y) => Math.max(top, Math.min(bottom, y));
+      let d = "M" + pts[0][0].toFixed(1) + " " + pts[0][1].toFixed(1);
+      for (let i = 0; i < pts.length - 1; i++) {
+        const p0 = pts[Math.max(0, i - 1)], p1 = pts[i], p2 = pts[i + 1], p3 = pts[Math.min(pts.length - 1, i + 2)];
+        const c1x = p1[0] + (p2[0] - p0[0]) / 6, c1y = cl(p1[1] + (p2[1] - p0[1]) / 6);
+        const c2x = p2[0] - (p3[0] - p1[0]) / 6, c2y = cl(p2[1] - (p3[1] - p1[1]) / 6);
+        d += " C" + c1x.toFixed(1) + " " + c1y.toFixed(1) + " " + c2x.toFixed(1) + " " + c2y.toFixed(1) + " " + p2[0].toFixed(1) + " " + p2[1].toFixed(1);
+      }
+      return d;
+    }
 
-      // Y-axis : 3 paliers (0, max/2, max) avec « jolis » nombres
-      const niceMax = max <= 5 ? max : Math.ceil(max / 5) * 5;
-      const yTicks = [0, Math.round(niceMax / 2), niceMax];
-      const yAxis = yTicks.map((v) => {
-        const y = padT + innerH - (v / Math.max(niceMax, 1)) * innerH;
-        return '<text x="' + (padL - 6) + '" y="' + (y + 3) + '" text-anchor="end" class="ck-axis-label">' + fmtNum(v) + "</text>" +
-               '<line x1="' + padL + '" x2="' + (w - padR) + '" y1="' + y + '" y2="' + y + '" class="ck-grid-line" />';
+    function auGeometry(series, prevSeries, metric) {
+      const { W, H, padL, padR, padT, padB } = AU_CHART;
+      const innerW = W - padL - padR, innerH = H - padT - padB;
+      const n = series.length;
+      const vals = series.map((p) => Number(p[metric]) || 0);
+      const prevVals = (prevSeries || []).map((p) => Number(p[metric]) || 0);
+      const rawMax = Math.max(1, ...vals, ...prevVals);
+      const niceMax = rawMax <= 5 ? rawMax : Math.ceil(rawMax / 5) * 5;
+      const xAt = (i) => padL + (n <= 1 ? innerW / 2 : (i / (n - 1)) * innerW);
+      const yAt = (v) => padT + innerH - (v / niceMax) * innerH;
+      return { W, H, padL, padR, padT, padB, innerW, innerH, n, vals, prevVals, niceMax, xAt, yAt, bottom: padT + innerH };
+    }
+
+    function areaChart(series, prevSeries, metric) {
+      if (!series.length) return '<p class="py-12 text-center text-sm text-ink-500">Pas encore de données sur cette période.</p>';
+      const g = auGeometry(series, prevSeries, metric);
+      const m = AU_METRICS[metric];
+
+      const pts = g.vals.map((v, i) => [g.xAt(i), g.yAt(v)]);
+      const line = smoothPath(pts, g.padT, g.bottom);
+      const area = line + " L" + g.xAt(g.n - 1).toFixed(1) + " " + g.bottom + " L" + g.xAt(0).toFixed(1) + " " + g.bottom + " Z";
+
+      let ghost = "";
+      if (g.prevVals.length > 1) {
+        const k = g.prevVals.length;
+        const gpts = g.prevVals.map((v, i) => [g.padL + (i / (k - 1)) * g.innerW, g.yAt(v)]);
+        ghost = '<path d="' + smoothPath(gpts, g.padT, g.bottom) + '" fill="none" stroke="rgba(139,139,148,.45)" stroke-width="1.5" stroke-dasharray="4 5" />';
+      }
+
+      const yTicks = [0, Math.round(g.niceMax / 2), g.niceMax];
+      const grid = yTicks.map((v) => {
+        const y = g.yAt(v);
+        return '<line x1="' + g.padL + '" x2="' + (g.W - g.padR) + '" y1="' + y + '" y2="' + y + '" class="ck-grid-line" />' +
+          '<text x="' + (g.padL - 8) + '" y="' + (y + 3) + '" text-anchor="end" class="ck-axis-label">' + fmtNum(v) + "</text>";
       }).join("");
 
-      // X-axis : tronqué à ~7 labels si plus de points
-      const xStep = Math.max(1, Math.ceil(points.length / 7));
-      let bars = "", xLabels = "";
-      points.forEach((p, i) => {
-        const v = Number(p[field]) || 0;
-        const x = padL + i * barW;
-        const barH = Math.max(0, (v / Math.max(niceMax, 1)) * innerH);
-        const y = padT + innerH - barH;
-        const finalBarW = Math.max(2, barW - barGap);
-        const finalX = x + barGap / 2;
-        const cls = v > 0 ? "ck-bar" : "ck-bar-empty";
-        bars += '<rect x="' + finalX.toFixed(1) + '" y="' + (v > 0 ? y.toFixed(1) : (padT + innerH - 2)) + '" width="' + finalBarW.toFixed(1) + '" height="' + (v > 0 ? barH.toFixed(1) : 2) + '" rx="2" class="' + cls + '"><title>' + fmtFull(p.x) + " — " + fmtNum(v) + " " + label + "</title></rect>";
-        if (i % xStep === 0 || i === points.length - 1) {
-          xLabels += '<text x="' + (x + barW / 2).toFixed(1) + '" y="' + (h - padB + 18) + '" text-anchor="middle" class="ck-axis-label">' + fmtBucket(p.x) + "</text>";
-        }
+      const xStep = Math.max(1, Math.ceil(g.n / 6));
+      let xLabels = "";
+      series.forEach((p, i) => {
+        if (i % xStep !== 0 && i !== g.n - 1) return;
+        xLabels += '<text x="' + g.xAt(i).toFixed(1) + '" y="' + (g.H - 10) + '" text-anchor="middle" class="ck-axis-label">' + esc(fmtBucket(p.x)) + "</text>";
       });
 
-      return '<svg viewBox="0 0 ' + w + " " + h + '" class="w-full" preserveAspectRatio="xMidYMid meet">' +
-        '<defs><linearGradient id="ck-bar-grad" x1="0" y1="0" x2="0" y2="1">' +
-        '<stop offset="0%" stop-color="#7170ff" stop-opacity="0.95" />' +
-        '<stop offset="100%" stop-color="#5e6ad2" stop-opacity="0.55" />' +
-        "</linearGradient></defs>" + yAxis + bars + xLabels + "</svg>";
+      return '<div class="relative" data-au-wrap>' +
+        '<svg viewBox="0 0 ' + g.W + " " + g.H + '" class="w-full cursor-crosshair" preserveAspectRatio="xMidYMid meet">' +
+        '<defs><linearGradient id="auArea" x1="0" y1="0" x2="0" y2="1">' +
+        '<stop offset="0%" stop-color="' + m.color + '" stop-opacity="0.32" />' +
+        '<stop offset="100%" stop-color="' + m.color + '" stop-opacity="0.02" />' +
+        "</linearGradient></defs>" +
+        grid + ghost +
+        '<path d="' + area + '" fill="url(#auArea)" data-au-area />' +
+        '<path d="' + line + '" fill="none" stroke="' + m.color + '" stroke-width="2.5" stroke-linecap="round" data-au-line />' +
+        '<g data-au-cross style="display:none">' +
+        '<line data-au-cross-line y1="' + g.padT + '" y2="' + g.bottom + '" stroke="rgba(255,255,255,.18)" stroke-width="1" />' +
+        '<circle data-au-cross-dot r="4.5" fill="' + m.color + '" stroke="#0f1011" stroke-width="2.5" />' +
+        "</g>" + xLabels + "</svg>" +
+        '<div data-au-tip class="ck-tip" hidden></div>' +
+        "</div>";
+    }
+
+    function wireAudienceChart(series, prevSeries) {
+      const wrap = auContent.querySelector("[data-au-wrap]");
+      if (!wrap) return;
+      const svg = wrap.querySelector("svg");
+      const tip = wrap.querySelector("[data-au-tip]");
+      const cross = svg.querySelector("[data-au-cross]");
+      const crossLine = svg.querySelector("[data-au-cross-line]");
+      const crossDot = svg.querySelector("[data-au-cross-dot]");
+      const linePath = svg.querySelector("[data-au-line]");
+
+      // Animation : la courbe se dessine
+      if (linePath && !REDUCED_CK) {
+        try {
+          const len = linePath.getTotalLength();
+          linePath.style.strokeDasharray = String(len);
+          linePath.style.strokeDashoffset = String(len);
+          requestAnimationFrame(() => {
+            linePath.style.transition = "stroke-dashoffset .9s cubic-bezier(0.16, 1, 0.3, 1)";
+            linePath.style.strokeDashoffset = "0";
+          });
+        } catch {}
+      }
+
+      const g = auGeometry(series, prevSeries, auMetric);
+      const m = AU_METRICS[auMetric];
+      const onMove = (e) => {
+        const rect = svg.getBoundingClientRect();
+        if (!rect.width) return;
+        const sx = ((e.clientX - rect.left) / rect.width) * g.W;
+        let i = Math.round(((sx - g.padL) / Math.max(1, g.innerW)) * (g.n - 1));
+        i = Math.max(0, Math.min(g.n - 1, i));
+        const x = g.xAt(i), y = g.yAt(g.vals[i]);
+        cross.style.display = "";
+        crossLine.setAttribute("x1", x); crossLine.setAttribute("x2", x);
+        crossDot.setAttribute("cx", x); crossDot.setAttribute("cy", y);
+        const prevV = g.prevVals.length
+          ? g.prevVals[Math.round(i * (g.prevVals.length - 1) / Math.max(1, g.n - 1))] ?? null
+          : null;
+        tip.hidden = false;
+        tip.innerHTML = '<p class="font-medium text-ink-50">' + esc(fmtBucketFull(series[i].x)) + "</p>" +
+          '<p class="mt-1 flex items-center gap-1.5"><span class="inline-block h-2 w-2 shrink-0 rounded-full" style="background:' + m.color + '"></span>' + esc(m.label) +
+          '<span class="ml-auto pl-3 font-semibold tabular-nums text-ink-50">' + fmtNum(g.vals[i]) + "</span></p>" +
+          (prevV !== null
+            ? '<p class="mt-0.5 flex items-center gap-1.5 text-ink-500"><span class="inline-block h-2 w-2 shrink-0 rounded-full bg-ink-500/50"></span>période préc.<span class="ml-auto pl-3 tabular-nums">' + fmtNum(prevV) + "</span></p>"
+            : "");
+        let px = (x / g.W) * rect.width;
+        px = Math.max(92, Math.min(rect.width - 92, px));
+        tip.style.left = px + "px";
+        tip.style.top = ((y / g.H) * rect.height) + "px";
+      };
+      svg.addEventListener("mousemove", onMove);
+      svg.addEventListener("mouseleave", () => { cross.style.display = "none"; tip.hidden = true; });
+    }
+
+    // Compteur animé sur les KPIs
+    function countUpAll() {
+      if (REDUCED_CK) return;
+      auContent.querySelectorAll("[data-count]").forEach((el) => {
+        const target = +el.dataset.count || 0;
+        if (target <= 0 || target > 100000) return;
+        const t0 = performance.now(), dur = 600;
+        const step = (t) => {
+          const k = Math.min(1, (t - t0) / dur);
+          el.textContent = fmtNum(Math.round(target * (1 - Math.pow(1 - k, 3))));
+          if (k < 1) requestAnimationFrame(step);
+        };
+        requestAnimationFrame(step);
+      });
     }
 
     // Delta : ↑/↓ vs période précédente
@@ -1553,7 +1703,7 @@ const ADMIN_EMAIL = "contact@konclav.ch";
       return '<span class="' + cls + '">' + arrow + " " + Math.abs(pct) + "% <span class=\"text-ink-500 font-normal\">vs " + fmtNum(p) + "</span></span>";
     }
 
-    let auMetric = "y"; // 'y' = pages vues, 'v' = visiteurs
+    let auMetric = "y"; // métrique du graphe : 'y' pages vues · 'v' visiteurs · 's' sessions
 
     function renderAudience(data) {
       const s = data.stats || {};
@@ -1566,16 +1716,27 @@ const ADMIN_EMAIL = "contact@konclav.ch";
       const avgTime = visits > 0 ? Math.round(totaltime / visits) : 0;
       const prevAvg = (Number(prev.visits) || 0) > 0 ? Math.round((Number(prev.totaltime) || 0) / Number(prev.visits)) : 0;
       const bounceRate = visits > 0 ? Math.round((bounces / visits) * 100) : 0;
-      const series = Array.isArray(data.series) ? data.series.map((p) => ({ x: p.x, y: Number(p.y) || 0, v: Number(p.v) || 0 })) : [];
+      const series = Array.isArray(data.series) ? data.series.map((p) => ({ x: p.x, y: Number(p.y) || 0, v: Number(p.v) || 0, s: Number(p.s) || 0 })) : [];
+      const prevSeries = Array.isArray(data.prev_series) ? data.prev_series.map((p) => ({ x: p.x, y: Number(p.y) || 0, v: Number(p.v) || 0, s: Number(p.s) || 0 })) : [];
 
-      const kpiCard = (label, value, deltaHtml, points, field, color) =>
-        '<div class="relative overflow-hidden rounded-2xl border border-white/10 bg-white/[0.02] p-5">' +
-        (points.length ? '<div class="pointer-events-none absolute inset-x-0 bottom-0 h-1/2 opacity-40">' + miniSpark(points, field, color) + "</div>" : "") +
-        '<div class="relative">' +
-        '<p class="text-[10px] font-medium uppercase tracking-[0.14em] text-ink-500">' + esc(label) + "</p>" +
-        '<p class="mt-1 text-3xl font-semibold tracking-tight text-ink-50 tabular-nums">' + esc(value) + "</p>" +
-        '<p class="mt-1.5 text-xs font-medium">' + deltaHtml + "</p>" +
-        "</div></div>";
+      // KPI = bouton sélecteur du graphe (ring accent si actif)
+      const kpiCard = (key, label, value, deltaHtml, sparkField, color) => {
+        const selectable = !!key;
+        const on = selectable && auMetric === key;
+        return '<button type="button" ' + (selectable ? 'data-au-kpi="' + key + '"' : 'disabled') +
+          ' class="relative overflow-hidden rounded-2xl border p-5 text-left transition-all duration-200 ' +
+          (on
+            ? "border-accent-500/60 bg-accent-500/[0.07] shadow-[0_0_28px_rgba(94,106,210,0.18)]"
+            : "border-white/10 bg-white/[0.02]" + (selectable ? " hover:border-white/25 hover:bg-white/[0.04]" : "")) + '">' +
+          (sparkField && series.length
+            ? '<div class="pointer-events-none absolute inset-x-0 bottom-0 h-1/2 transition-opacity ' + (on ? "opacity-60" : "opacity-25") + '">' + miniSpark(series, sparkField, color) + "</div>"
+            : "") +
+          '<div class="relative">' +
+          '<p class="text-[10px] font-medium uppercase tracking-[0.14em] ' + (on ? "text-accent-300" : "text-ink-500") + '">' + esc(label) + "</p>" +
+          '<p class="mt-1 text-3xl font-semibold tracking-tight text-ink-50 tabular-nums" ' + (typeof value === "number" ? 'data-count="' + value + '"' : "") + ">" + (typeof value === "number" ? fmtNum(value) : esc(value)) + "</p>" +
+          '<p class="mt-1.5 text-xs font-medium">' + deltaHtml + "</p>" +
+          "</div></button>";
+      };
 
       const listSection = (items, mapper) => {
         if (!items || !items.length) return '<p class="py-2 text-xs text-ink-500">—</p>';
@@ -1605,24 +1766,27 @@ const ADMIN_EMAIL = "contact@konclav.ch";
       const pageLabel = (p) => '<span class="font-mono text-[11px]">' + esc(p.x || "/") + "</span>";
 
       const hasEvents = Array.isArray(data.events) && data.events.length > 0;
-      const chartLabel = auMetric === "v" ? "visiteurs" : "pages vues";
+      const mSel = AU_METRICS[auMetric];
+      const rangeLabel = series.length
+        ? fmtBucket(series[0].x) + " — " + fmtBucket(series[series.length - 1].x)
+        : "";
 
       auContent.innerHTML =
         '<div class="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">' +
-        kpiCard("Visiteurs", fmtNum(visitors), delta(visitors, prev.visitors), series, "v", "#7170ff") +
-        kpiCard("Sessions", fmtNum(visits), delta(visits, prev.visits), series, "y", "#9b9bff") +
-        kpiCard("Pages vues", fmtNum(pageviews), delta(pageviews, prev.pageviews), series, "y", "#5e6ad2") +
-        kpiCard("Temps moy.", fmtDuration(avgTime), delta(avgTime, prevAvg) + ' <span class="text-ink-500 font-normal">· ' + bounceRate + "% rebond</span>", [], "y", "#7170ff") +
+        kpiCard("v", "Visiteurs", visitors, delta(visitors, prev.visitors), "v", "#7170ff") +
+        kpiCard("s", "Sessions", visits, delta(visits, prev.visits), "s", "#9b9bff") +
+        kpiCard("y", "Pages vues", pageviews, delta(pageviews, prev.pageviews), "y", "#5e6ad2") +
+        kpiCard(null, "Temps moy.", fmtDuration(avgTime), delta(avgTime, prevAvg) + ' <span class="text-ink-500 font-normal">· ' + bounceRate + "% rebond</span>", null, "#7170ff") +
         "</div>" +
 
         '<div class="mt-6 rounded-2xl border border-white/10 bg-white/[0.02] p-5">' +
-        '<div class="mb-3 flex items-center justify-between gap-3">' +
-        '<h3 class="text-sm font-semibold text-ink-50">Trafic <span class="ml-1 text-xs font-normal text-ink-500">sur ' + esc(auPeriod) + "</span></h3>" +
-        '<div class="flex gap-1" role="group" aria-label="Métrique">' +
-        '<button type="button" data-au-metric="y" class="ck-au-toggle ' + (auMetric === "y" ? "is-on" : "") + '">Pages vues</button>' +
-        '<button type="button" data-au-metric="v" class="ck-au-toggle ' + (auMetric === "v" ? "is-on" : "") + '">Visiteurs</button>' +
-        "</div></div>" +
-        barChart(series, auMetric, chartLabel) +
+        '<div class="mb-2 flex flex-wrap items-center justify-between gap-3">' +
+        '<h3 class="flex items-center gap-2 text-sm font-semibold text-ink-50">' +
+        '<span class="inline-block h-2.5 w-2.5 rounded-full" style="background:' + mSel.color + '"></span>' + esc(mSel.label) +
+        '<span class="text-xs font-normal text-ink-500">· ' + esc(AU_PERIOD_LABEL[auPeriod] || auPeriod) + "</span></h3>" +
+        '<p class="text-xs text-ink-500"><span class="mr-3 inline-flex items-center gap-1.5"><span class="inline-block h-px w-4 border-t border-dashed border-ink-500"></span>période précédente</span>' + esc(rangeLabel) + "</p>" +
+        "</div>" +
+        areaChart(series, prevSeries, auMetric) +
         "</div>" +
 
         '<div class="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-3">' +
@@ -1657,6 +1821,9 @@ const ADMIN_EMAIL = "contact@konclav.ch";
         "</div>" +
 
         '<p class="mt-6 text-center text-xs text-ink-500">Mesure d\'audience interne · hébergée à Zurich (Supabase) · sans cookie, anonyme by design</p>';
+
+      wireAudienceChart(series, prevSeries);
+      countUpAll();
     }
 
     // =========================================================
