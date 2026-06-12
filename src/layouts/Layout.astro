@@ -148,7 +148,8 @@ const imageUrl = new URL(image, Astro.site ?? Astro.url.origin).toString();
         const supportsHover = window.matchMedia('(hover: hover)').matches;
 
         // Split-text — wrap text nodes in <span class="word"> while preserving nested elements (e.g. .italic-display)
-        document.querySelectorAll('[data-split-text]').forEach((el) => {
+        // Exposé en global pour pouvoir relancer après une override de contenu.
+        window.__splitText = function (el) {
           let wi = 0;
           const wrapText = (node) => {
             const text = node.nodeValue || '';
@@ -176,6 +177,47 @@ const imageUrl = new URL(image, Astro.site ?? Astro.url.origin).toString();
             });
           };
           walk(el);
+        };
+
+        // Content overrides — applique les valeurs configurées dans le cockpit
+        // (cockpit_settings.site_content via Edge Function website-content) AVANT
+        // que split-text n'enrobe les mots, pour préserver l'animation.
+        const CONTENT_EP = "https://ehbdngidjrkhfrprfgqg.supabase.co/functions/v1/website-content";
+        const CONTENT_KEY = "k_site_content_v1";
+        const CONTENT_TTL = 86400000; // 24 h
+
+        const applyContent = (overrides) => {
+          if (!overrides) return;
+          document.querySelectorAll("[data-content-key]").forEach((el) => {
+            const k = el.getAttribute("data-content-key");
+            if (k && Object.prototype.hasOwnProperty.call(overrides, k)) {
+              const next = overrides[k];
+              const current = el.querySelector(".word") ? el.textContent.trim() : el.textContent.trim();
+              if (current === next) return;
+              el.textContent = next; // textContent = pas de XSS, écrase d'éventuels .word
+              if (el.hasAttribute("data-split-text") && !reduced) window.__splitText(el);
+            }
+          });
+        };
+
+        if (!location.pathname.startsWith("/admin")) {
+          try {
+            const raw = localStorage.getItem(CONTENT_KEY);
+            if (raw) {
+              const cached = JSON.parse(raw);
+              if (cached && cached.t && (Date.now() - cached.t) < CONTENT_TTL) applyContent(cached.o);
+            }
+          } catch (e) {}
+          fetch(CONTENT_EP).then((r) => r.ok ? r.json() : null).then((data) => {
+            if (!data || !data.overrides) return;
+            applyContent(data.overrides);
+            try { localStorage.setItem(CONTENT_KEY, JSON.stringify({ t: Date.now(), o: data.overrides })); } catch (e) {}
+          }).catch(() => {});
+        }
+
+        // Lance split-text initial (sur le texte par défaut ou déjà overridé)
+        document.querySelectorAll('[data-split-text]').forEach((el) => {
+          if (!el.querySelector('.word')) window.__splitText(el);
         });
 
         // Reveal au scroll (toggle .is-visible)

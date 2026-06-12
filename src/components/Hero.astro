@@ -36,6 +36,7 @@ import CTAButton from "./CTAButton.astro";
         <h1
           data-reveal
           data-split-text
+          data-content-key="hero.title"
           class="display-hero mt-7 text-balance text-ink-50"
         >
           Gérez votre association dans une seule app !
@@ -43,6 +44,7 @@ import CTAButton from "./CTAButton.astro";
 
         <p
           data-reveal
+          data-content-key="hero.subtitle"
           class="mt-7 max-w-xl text-pretty text-base leading-relaxed text-ink-400 sm:text-lg"
         >
           Konclav, c'est <em class="not-italic font-semibold text-ink-50">l'intranet
@@ -56,7 +58,7 @@ import CTAButton from "./CTAButton.astro";
           class="mt-10 flex flex-col items-start gap-3 sm:flex-row sm:items-center"
         >
           <CTAButton href="/inscription" joinOpen size="lg">
-            S'inscrire
+            <span data-content-key="hero.cta_primary">S'inscrire</span>
           </CTAButton>
           <CTAButton href="#features" variant="secondary" size="lg" arrow={false}>
             Voir les fonctionnalités

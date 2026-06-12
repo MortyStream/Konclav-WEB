@@ -586,6 +586,26 @@ const ADMIN_EMAIL = "contact@konclav.ch";
       </div>
     </div>
 
+    <!-- ===== MODAL : édition du contenu du site ===== -->
+    <div data-modal="sitecontent" hidden class="ck-modal" role="dialog" aria-modal="true" aria-labelledby="ck-sc-title">
+      <div class="ck-modal-back"></div>
+      <div class="ck-modal-card ck-modal-wide">
+        <div class="flex items-center justify-between border-b border-white/[0.06] px-5 py-4">
+          <h3 id="ck-sc-title" class="text-base font-semibold text-ink-50">Contenu du site</h3>
+          <button type="button" data-modal-close class="text-ink-400 hover:text-ink-50" aria-label="Fermer">✕</button>
+        </div>
+        <div class="space-y-3 px-5 py-5">
+          <p class="text-xs text-ink-500">Modifie les textes les plus visibles du site sans toucher au code. Laisser vide = remettre le texte par défaut du site. La mise à jour est visible immédiatement sur konclav.ch (cache navigateur 24 h pour la fluidité).</p>
+          <div data-sc-list class="space-y-4"></div>
+          <p data-sc-error role="alert" hidden class="text-sm text-rose-400"></p>
+          <div class="flex justify-end gap-2 pt-1">
+            <button type="button" data-modal-close class="rounded-lg border border-white/10 px-4 py-2 text-sm text-ink-300 hover:border-white/20 hover:text-ink-50">Annuler</button>
+            <button type="button" data-sc-save class="rounded-lg bg-accent-500 px-4 py-2 text-sm font-semibold text-white hover:bg-accent-400">Enregistrer</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- ===== MODAL : édition des templates d'onboarding ===== -->
     <div data-modal="onboarding" hidden class="ck-modal" role="dialog" aria-modal="true" aria-labelledby="ck-onb-title">
       <div class="ck-modal-back"></div>
@@ -1287,9 +1307,64 @@ const ADMIN_EMAIL = "contact@konclav.ch";
           '<span class="shrink-0 text-ink-500">' + fmtDate(r.sent_at || r.scheduled_for) + "</span></div>").join("");
       }
       onbCard += "</div>";
+      // Card contenu du site
+      const scCard = '<div class="rounded-2xl border border-white/10 bg-white/[0.02] p-5">' +
+        '<div class="mb-2 flex items-center justify-between"><h3 class="text-sm font-semibold text-ink-50">✏️ Contenu du site</h3>' +
+        '<button type="button" data-sc-open class="text-xs text-accent-300 hover:text-accent-400">Éditer</button></div>' +
+        '<p class="text-xs text-ink-500">Hero, sous-titre, CTA final — modifiables sans toucher au code, appliqués en direct sur konclav.ch.</p></div>';
       return '<div class="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-2">' + convCard + onbCard + "</div>" +
-             '<div class="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-2">' + sysCard + bugsCard + "</div>";
+             '<div class="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-3">' + sysCard + bugsCard + scCard + "</div>";
     }
+
+    // ----- Édition du contenu du site -----
+    const SITE_CONTENT_FIELDS = [
+      { key: "hero.title", label: "Hero — titre principal (H1)", placeholder: "Gérez votre association dans une seule app !", multiline: false, max: 120 },
+      { key: "hero.subtitle", label: "Hero — sous-titre", placeholder: "Konclav, c'est l'intranet privé pensé pour les associations suisses. Tâches, agenda, documents, cotisations, AG, votations — toute la vie associative dans une seule app mobile.", multiline: true, max: 500, hint: "Le formatting italique du défaut est perdu si tu modifies (sécurité)." },
+      { key: "hero.cta_primary", label: "Hero — bouton principal", placeholder: "S'inscrire", multiline: false, max: 40 },
+      { key: "cta_final.eyebrow", label: "Bas de page — eyebrow", placeholder: "On se cale ?", multiline: false, max: 40 },
+      { key: "cta_final.title", label: "Bas de page — titre", placeholder: "Prêt à inscrire votre asso ?", multiline: false, max: 120 },
+      { key: "cta_final.subtitle", label: "Bas de page — sous-titre", placeholder: "Un court formulaire pour nous présenter votre asso. On étudie chaque demande et on revient vers vous sous 48h ouvrées.", multiline: true, max: 500 },
+    ];
+    let scCache = null;
+    async function loadSiteContent() {
+      if (scCache) return scCache;
+      try {
+        const res = await api("cockpit_settings?key=eq.site_content&select=value");
+        const rows = await res.json();
+        scCache = rows[0] && rows[0].value && typeof rows[0].value === "object" ? rows[0].value : {};
+      } catch { scCache = {}; }
+      return scCache;
+    }
+    ovContent.addEventListener("click", async (e) => {
+      if (!e.target.closest("[data-sc-open]")) return;
+      const current = await loadSiteContent();
+      root.querySelector("[data-sc-list]").innerHTML = SITE_CONTENT_FIELDS.map((f) => {
+        const value = typeof current[f.key] === "string" ? current[f.key] : "";
+        const input = f.multiline
+          ? '<textarea data-sc-field="' + esc(f.key) + '" rows="3" maxlength="' + f.max + '" class="ck-input" placeholder="' + esc(f.placeholder) + '">' + esc(value) + '</textarea>'
+          : '<input data-sc-field="' + esc(f.key) + '" maxlength="' + f.max + '" class="ck-input" placeholder="' + esc(f.placeholder) + '" value="' + esc(value) + '" />';
+        return '<div class="rounded-xl border border-white/[0.06] bg-white/[0.01] p-3">' +
+          '<p class="mb-1.5 text-xs font-semibold text-ink-50">' + esc(f.label) + '</p>' +
+          '<p class="mb-2 text-[11px] text-ink-500">Défaut : <span class="italic">' + esc(f.placeholder.slice(0, 120)) + (f.placeholder.length > 120 ? "…" : "") + '</span>' + (f.hint ? ' · ' + esc(f.hint) : "") + '</p>' +
+          input + "</div>";
+      }).join("");
+      root.querySelector("[data-sc-error]").hidden = true;
+      openModal("sitecontent");
+    });
+    root.querySelector("[data-sc-save]").addEventListener("click", async () => {
+      const errEl = root.querySelector("[data-sc-error]");
+      const value = {};
+      SITE_CONTENT_FIELDS.forEach((f) => {
+        const v = (root.querySelector('[data-sc-field="' + f.key + '"]').value || "").trim();
+        if (v) value[f.key] = v.slice(0, f.max);
+      });
+      try {
+        await api("cockpit_settings", { method: "POST", headers: { Prefer: "resolution=merge-duplicates,return=minimal" }, body: JSON.stringify({ key: "site_content", value }) });
+        scCache = value;
+        toast("Contenu du site mis à jour ✓ — visible immédiatement sur konclav.ch");
+        closeModals();
+      } catch (e) { errEl.textContent = e.message || "Erreur."; errEl.hidden = false; }
+    });
 
     // ----- Édition des templates onboarding -----
     let onbCache = null;
