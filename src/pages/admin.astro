@@ -2028,10 +2028,18 @@ const ADMIN_EMAIL = "contact@konclav.ch";
     async function loadOrgs() {
       ogContent.innerHTML = '<p class="mt-12 text-center text-sm text-ink-500">Chargement…</p>';
       try {
-        const res = await fn("cockpit-orgs");
-        const data = await res.json().catch(() => ({}));
-        if (!res.ok) throw new Error(data.error || "HTTP " + res.status);
-        renderOrgs(data.orgs || []);
+        // En parallèle : la liste des orgs (Edge Function) + les abos (PostgREST direct)
+        const [ogRes, subsRes] = await Promise.all([
+          fn("cockpit-orgs"),
+          api("subscriptions?select=id,customer_id,amount,currency,billing_interval,active"),
+        ]);
+        const data = await ogRes.json().catch(() => ({}));
+        if (!ogRes.ok) throw new Error(data.error || "HTTP " + ogRes.status);
+        subsList = await subsRes.json().catch(() => []);
+        // Annoter chaque org avec son abo (lien : org.customer_id → sub.customer_id)
+        const subByCust = new Map(subsList.map((s) => [s.customer_id, s]));
+        const orgs = (data.orgs || []).map((o) => ({ ...o, subscription: o.customer_id ? subByCust.get(o.customer_id) || null : null }));
+        renderOrgs(orgs);
       } catch (e) {
         ogContent.innerHTML = '<p class="mt-12 text-center text-sm text-rose-400">Erreur : ' + esc(e.message || String(e)) + "</p>";
       }
@@ -2086,12 +2094,28 @@ const ADMIN_EMAIL = "contact@konclav.ch";
             const c = days === null ? "#8b8b94" : days <= 7 ? "#4ade80" : days <= 30 ? "#fbbf24" : "#f87171";
             return '<td class="px-4 py-3 text-xs text-ink-400"><span class="mr-1.5 inline-block h-2 w-2 rounded-full align-middle" style="background:' + c + '"></span>' + (o.last_login ? fmtDate(o.last_login) : "jamais") + "</td>";
           })() +
-          '<td class="px-4 py-3">' + (o.customer_id
-            ? '<button type="button" data-org-billing class="inline-flex items-center gap-1 rounded-md bg-emerald-400/10 px-2 py-0.5 text-[11px] font-medium text-emerald-400 hover:bg-emerald-400/20">✓ Fiche liée</button>'
-            : (o.president
-              ? '<button type="button" data-org-link-billing class="inline-flex items-center gap-1 rounded-md border border-accent-500/40 bg-accent-500/10 px-2 py-1 text-[11px] font-medium text-accent-300 hover:bg-accent-500/20">+ Créer fiche client</button>'
-              : '<button type="button" data-org-link-billing-manual class="inline-flex items-center gap-1 rounded-md border border-white/10 bg-white/[0.02] px-2 py-1 text-[11px] font-medium text-ink-400 hover:border-white/25 hover:text-ink-50" title="Pas de président → renseigner les coordonnées manuellement">+ Créer fiche…</button>')) +
-          "</td>" +
+          '<td class="px-4 py-3">' + (function () {
+            if (!o.customer_id) {
+              return o.president
+                ? '<button type="button" data-org-link-billing class="inline-flex items-center gap-1 rounded-md border border-accent-500/40 bg-accent-500/10 px-2 py-1 text-[11px] font-medium text-accent-300 hover:bg-accent-500/20">+ Créer fiche client</button>'
+                : '<button type="button" data-org-link-billing-manual class="inline-flex items-center gap-1 rounded-md border border-white/10 bg-white/[0.02] px-2 py-1 text-[11px] font-medium text-ink-400 hover:border-white/25 hover:text-ink-50" title="Pas de président → renseigner les coordonnées manuellement">+ Créer fiche…</button>';
+            }
+            const sub = o.subscription;
+            let tarifBlock;
+            if (!sub) {
+              tarifBlock = '<button type="button" data-org-set-price class="inline-flex items-center gap-1 rounded-md border border-white/10 bg-white/[0.02] px-2 py-0.5 text-[11px] font-medium text-ink-400 hover:border-accent-500/40 hover:bg-accent-500/10 hover:text-accent-300" title="Définir un tarif récurrent — sinon l\'asso ne sera jamais facturée automatiquement">Gratuite <span class="text-ink-600">· définir un tarif</span></button>';
+            } else {
+              const period = sub.billing_interval === "monthly" ? "/mois" : "/an";
+              const color = sub.active ? "text-ink-50" : "text-ink-500";
+              const dot = sub.active ? '<span class="inline-block h-1.5 w-1.5 rounded-full bg-emerald-400"></span>' : '<span class="inline-block h-1.5 w-1.5 rounded-full bg-amber-400"></span>';
+              tarifBlock = '<button type="button" data-org-set-price class="inline-flex items-center gap-1.5 rounded-md border border-white/10 bg-white/[0.02] px-2 py-0.5 text-[11px] font-medium ' + color + ' hover:border-accent-500/40 hover:text-accent-300" title="Éditer le tarif">' +
+                dot + '<span class="tabular-nums">' + fmtCHF(sub.amount, sub.currency) + period + "</span>" +
+                (sub.active ? "" : ' <span class="text-amber-400">· pause</span>') + "</button>";
+            }
+            return '<div class="flex flex-col items-start gap-1">' +
+              '<button type="button" data-org-billing class="inline-flex items-center gap-1 rounded-md bg-emerald-400/10 px-2 py-0.5 text-[10px] font-medium text-emerald-400 hover:bg-emerald-400/20">✓ Fiche liée</button>' +
+              tarifBlock + "</div>";
+          })() + "</td>" +
           '<td class="px-4 py-3 text-right whitespace-nowrap">' +
           '<button type="button" data-org-detail class="text-xs text-accent-300 hover:text-accent-400">Détails</button>' +
           ' · <button type="button" data-org-toggle class="text-xs ' +
@@ -2128,6 +2152,16 @@ const ADMIN_EMAIL = "contact@konclav.ch";
       // Fiche client déjà liée → ouvrir la liste Clients
       const open = e.target.closest("[data-org-billing]");
       if (open) { switchTab("billing"); switchSubtab("customers"); return; }
+      // Tarif : éditer l'abo existant ou en créer un (pré-rempli sur l'asso)
+      const price = e.target.closest("[data-org-set-price]");
+      if (price) {
+        const tr = price.closest("[data-org]");
+        const customerId = tr.dataset.orgCustomer;
+        const sub = subsList.find((s) => s.customer_id === customerId);
+        if (sub) editSubscription(sub.id);
+        else editSubscription(null, { customer_id: customerId });
+        return;
+      }
       // Création auto de la fiche client à partir de l'asso (1 clic)
       const quick = e.target.closest("[data-org-link-billing]");
       if (quick) {
@@ -2520,7 +2554,7 @@ const ADMIN_EMAIL = "contact@konclav.ch";
     const bsIdInput = root.querySelector("[data-bs-id]");
     const bsError = root.querySelector("[data-bs-error]");
     const bsTitle = document.getElementById("ck-sub-title");
-    async function editSubscription(id) {
+    async function editSubscription(id, defaults) {
       if (!customers.length) { try { const r = await api("customers?select=id,asso_name&order=asso_name.asc"); customers = await r.json(); } catch {} }
       const sel = bsForm.querySelector('[data-bs-field="customer_id"]');
       sel.innerHTML = '<option value="">— Sélectionner —</option>' + customers.map((c) => '<option value="' + esc(c.id) + '">' + esc(c.asso_name) + "</option>").join("");
@@ -2542,6 +2576,8 @@ const ADMIN_EMAIL = "contact@konclav.ch";
             const f = bsForm.querySelector('[data-bs-field="' + k + '"]'); if (f && s[k] != null) f.value = s[k];
           });
         }
+      } else if (defaults && defaults.customer_id) {
+        sel.value = defaults.customer_id;
       }
       openModal("subscription");
     }
@@ -2566,8 +2602,10 @@ const ADMIN_EMAIL = "contact@konclav.ch";
         if (id) await api("subscriptions?id=eq." + encodeURIComponent(id), { method: "PATCH", headers: { Prefer: "return=minimal" }, body: JSON.stringify(data) });
         else await api("subscriptions", { method: "POST", headers: { Prefer: "return=minimal" }, body: JSON.stringify(data) });
         closeModals();
-        toast(id ? "Abonnement mis à jour ✓" : "Abonnement créé ✓ — facture générée à l'échéance");
-        await loadSubscriptions();
+        toast(id ? "Tarif mis à jour ✓" : "Tarif défini ✓ — facture générée à l'échéance");
+        // Reload là où l'asso/abo est visible (peu importe d'où on a édité)
+        if (!panels.orgs.hidden) loadOrgs();
+        if (!subpanels.subscriptions.hidden) await loadSubscriptions();
       } catch (err) { bsError.textContent = err.message || "Erreur."; bsError.hidden = false; }
       finally { btn.disabled = false; }
     });
