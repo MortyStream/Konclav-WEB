@@ -177,6 +177,9 @@ Le formulaire d'inscription n'utilise PLUS Google Forms. Architecture :
   - Pastille santé par asso (last_login : 🟢≤7 j 🟡≤30 j 🔴 au-delà/jamais), onglet actif persisté (sessionStorage `ck_tab`).
   - **Upgrades** : Astro 6.4.6, Express 5.2.1 (smoke tests : 200 sur /, /tarifs/, /admin/, 301 /demo, 404 fallback, CSP OK), @astrojs/sitemap 3.7.3. `scripts/og-gen.mjs` versionné + tâche `npm run og` (Playwright à installer ponctuellement, H1 dupliqué dans le script — à synchroniser si le Hero change).
 - Reste du backlog produit : impersonation + audit log (nécessite du code côté APP — à coordonner avec la conv de l'app), annonces in-app (idem), édition du contenu du site depuis le cockpit (gros chantier), /blog, i18n, logo SVG (demande le fichier vectoriel source).
+- **À ressortir le jour où il y a une audience** (décidé 12/06 — pas prioritaire tant qu'il n'y a personne qui voit le site à part Kévin) :
+  - **/blog** — content collection Astro, articles en Markdown (SEO + partages LinkedIn). Idée d'angles : « préparer une AG », « gérer les cotisations sans Excel », « nLPD pour les assos »
+  - **/changelog** — content collection idem, une entrée par release/feature de l'app (rassure les prospects que le produit vit, rappel des nouveautés aux clients actuels)
 
 ## Régénérer l'OG image
 
