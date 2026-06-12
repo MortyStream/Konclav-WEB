@@ -586,6 +586,26 @@ const ADMIN_EMAIL = "contact@konclav.ch";
       </div>
     </div>
 
+    <!-- ===== MODAL : édition des templates d'onboarding ===== -->
+    <div data-modal="onboarding" hidden class="ck-modal" role="dialog" aria-modal="true" aria-labelledby="ck-onb-title">
+      <div class="ck-modal-back"></div>
+      <div class="ck-modal-card ck-modal-wide">
+        <div class="flex items-center justify-between border-b border-white/[0.06] px-5 py-4">
+          <h3 id="ck-onb-title" class="text-base font-semibold text-ink-50">Emails d'onboarding</h3>
+          <button type="button" data-modal-close class="text-ink-400 hover:text-ink-50" aria-label="Fermer">✕</button>
+        </div>
+        <div class="space-y-3 px-5 py-5">
+          <p class="text-xs text-ink-500">Envoyés automatiquement à chaque provisionnement d'asso. Variables : <code class="rounded bg-white/[0.06] px-1">{"{prenom}"}</code> et <code class="rounded bg-white/[0.06] px-1">{"{asso}"}</code>. Le délai est en jours.</p>
+          <div data-onb-list class="space-y-3"></div>
+          <p data-onb-error role="alert" hidden class="text-sm text-rose-400"></p>
+          <div class="flex justify-end gap-2 pt-1">
+            <button type="button" data-modal-close class="rounded-lg border border-white/10 px-4 py-2 text-sm text-ink-300 hover:border-white/20 hover:text-ink-50">Annuler</button>
+            <button type="button" data-onb-save class="rounded-lg bg-accent-500 px-4 py-2 text-sm font-semibold text-white hover:bg-accent-400">Enregistrer</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- ===== MODAL : édition des modèles email ===== -->
     <div data-modal="templates" hidden class="ck-modal" role="dialog" aria-modal="true" aria-labelledby="ck-tpl-title">
       <div class="ck-modal-back"></div>
@@ -1094,14 +1114,20 @@ const ADMIN_EMAIL = "contact@konclav.ch";
     async function loadOverview() {
       const signal = freshSignal("overview");
       ovContent.innerHTML = '<p class="mt-12 text-center text-sm text-ink-500">Chargement…</p>';
+      // Tick d'onboarding opportuniste (filet en plus du cron) — fire-and-forget
+      fn("cockpit-onboarding-tick", { method: "POST", json: {} })
+        .then((r) => r.ok ? r.json() : null)
+        .then((d) => { if (d && d.sent > 0) toast(d.sent + " email(s) d'onboarding envoyé(s) ✉️"); })
+        .catch(() => {});
       try {
-        const [leadsRes, invRes, anaRes, evRes, monRes, sysRes] = await Promise.all([
+        const [leadsRes, invRes, anaRes, evRes, monRes, sysRes, onbRes] = await Promise.all([
           api("leads?select=id,asso_name,status,created_at,next_action_at,first_name,last_name,source,provisioned_org_id&order=created_at.desc", { signal }),
           api("invoices?select=id,number,total,currency,status,due_date,paid_at,doc_type&order=due_date.asc", { signal }),
           api("rpc/cockpit_analytics", { method: "POST", body: JSON.stringify({ p_period: "7d" }), signal }).catch(() => null),
           api("lead_events?select=lead_id,type,detail,created_at&or=(type.eq.provisioned,type.eq.status_change)&limit=1000", { signal }).catch(() => null),
           api("rpc/cockpit_monitoring", { method: "POST", body: "{}", signal }).catch(() => null),
           fn("cockpit-monitoring").catch(() => null),
+          api("scheduled_emails?select=template_key,recipient_email,org_name,status,scheduled_for,sent_at&order=scheduled_for.desc&limit=20", { signal }).catch(() => null),
         ]);
         const allLeads = await leadsRes.json();
         const invs = await invRes.json();
@@ -1109,7 +1135,8 @@ const ADMIN_EMAIL = "contact@konclav.ch";
         const events = evRes ? await evRes.json().catch(() => []) : [];
         const mon = monRes ? await monRes.json().catch(() => null) : null;
         const sys = sysRes && sysRes.ok ? await sysRes.json().catch(() => null) : null;
-        renderOverview(allLeads, invs, ana, events, mon, sys);
+        const onb = onbRes ? await onbRes.json().catch(() => []) : [];
+        renderOverview(allLeads, invs, ana, events, mon, sys, onb);
       } catch (e) {
         if (isAbort(e)) return;
         ovContent.innerHTML = '<p class="mt-12 text-center text-sm text-rose-400">Erreur : ' + esc(String(e)) + "</p>";
@@ -1134,7 +1161,7 @@ const ADMIN_EMAIL = "contact@konclav.ch";
       return { total, converted, rate, avgDays, topSource };
     }
 
-    function renderOverview(allLeads, invs, ana, events, mon, sys) {
+    function renderOverview(allLeads, invs, ana, events, mon, sys, onb) {
       const today = todayISO();
       const weekAgo = addDaysISO(today, -7);
       const due = allLeads
@@ -1181,12 +1208,12 @@ const ADMIN_EMAIL = "contact@konclav.ch";
           '<span class="ml-3 shrink-0 text-ink-500">' + fmtDate(l.created_at) + "</span></button></li>",
           "Aucune demande cette semaine.") +
         "</div></div>" +
-        renderOverviewExtras(allLeads, events, mon, sys) +
+        renderOverviewExtras(allLeads, events, mon, sys, onb) +
         (visitors !== null
           ? '<p class="mt-6 text-center text-xs text-ink-500">' + fmtNum(visitors) + ' visiteurs sur konclav.ch ces 7 derniers jours · <button type="button" data-goto="audience" class="text-accent-300 hover:text-accent-400">voir l\'audience</button></p>'
           : "");
     }
-    function renderOverviewExtras(allLeads, events, mon, sys) {
+    function renderOverviewExtras(allLeads, events, mon, sys, onb) {
       const cv = conversionStats(allLeads, events);
       const statLine = (label, value) =>
         '<div class="flex items-center justify-between py-1 text-xs"><span class="text-ink-500">' + label + '</span><span class="font-medium text-ink-200">' + value + "</span></div>";
@@ -1238,8 +1265,74 @@ const ADMIN_EMAIL = "contact@konclav.ch";
       }
       bugsCard += "</div>";
 
-      return '<div class="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-3">' + convCard + sysCard + bugsCard + "</div>";
+      const onbRows = Array.isArray(onb) ? onb : [];
+      const pending = onbRows.filter((r) => r.status === "pending").length;
+      const failedOnb = onbRows.filter((r) => r.status === "failed").length;
+      const ONB_LABEL = { onboarding_d1: "J+1", onboarding_d7: "J+7", onboarding_d14: "J+14" };
+      const ONB_ICON = { sent: "✓", pending: "⏳", failed: "✗", sending: "⏳", canceled: "⊘" };
+      const ONB_COLOR = { sent: "text-emerald-400", pending: "text-amber-400", failed: "text-rose-400", sending: "text-amber-400", canceled: "text-ink-500" };
+      let onbCard = '<div class="rounded-2xl border border-white/10 bg-white/[0.02] p-5">' +
+        '<div class="mb-2 flex items-center justify-between"><h3 class="text-sm font-semibold text-ink-50">📬 Onboarding (envois auto)</h3>' +
+        '<button type="button" data-onb-open class="text-xs text-accent-300 hover:text-accent-400">Modifier</button></div>' +
+        '<p class="mb-3 text-xs text-ink-500">' + pending + " en attente · " + onbRows.filter((r) => r.status === "sent").length + " envoyé(s)" +
+          (failedOnb ? ' · <span class="text-rose-400">' + failedOnb + " échec(s)</span>" : "") + "</p>";
+      if (!onbRows.length) {
+        onbCard += '<p class="text-xs text-ink-500">Rien à envoyer pour l\'instant — les emails se programment au provisionnement.</p>';
+      } else {
+        onbCard += onbRows.slice(0, 5).map((r) =>
+          '<div class="flex items-center gap-2 border-b border-white/[0.04] py-1.5 text-xs last:border-0">' +
+          '<span class="' + (ONB_COLOR[r.status] || "text-ink-400") + '">' + (ONB_ICON[r.status] || "·") + "</span>" +
+          '<span class="rounded bg-white/[0.04] px-1.5 py-0.5 text-[10px] text-ink-400">' + esc(ONB_LABEL[r.template_key] || r.template_key) + "</span>" +
+          '<span class="min-w-0 flex-1 truncate text-ink-200">' + esc(r.org_name || r.recipient_email) + "</span>" +
+          '<span class="shrink-0 text-ink-500">' + fmtDate(r.sent_at || r.scheduled_for) + "</span></div>").join("");
+      }
+      onbCard += "</div>";
+      return '<div class="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-2">' + convCard + onbCard + "</div>" +
+             '<div class="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-2">' + sysCard + bugsCard + "</div>";
     }
+
+    // ----- Édition des templates onboarding -----
+    let onbCache = null;
+    async function loadOnbTemplates() {
+      if (onbCache) return onbCache;
+      try {
+        const res = await api("cockpit_settings?key=eq.onboarding_emails&select=value");
+        const rows = await res.json();
+        onbCache = rows[0] && Array.isArray(rows[0].value) ? rows[0].value : [];
+      } catch { onbCache = []; }
+      return onbCache;
+    }
+    ovContent.addEventListener("click", async (e) => {
+      if (!e.target.closest("[data-onb-open]")) return;
+      const tpls = await loadOnbTemplates();
+      root.querySelector("[data-onb-list]").innerHTML = tpls.map((t, i) =>
+        '<div class="rounded-xl border border-white/[0.06] bg-white/[0.01] p-3">' +
+        '<div class="mb-2 flex items-center justify-between"><p class="text-xs font-semibold text-ink-50">' + esc(t.label || t.key) + "</p>" +
+        '<label class="text-xs text-ink-500">Délai (jours) <input data-onb-delay="' + i + '" type="number" min="0" max="365" value="' + (t.delay_days != null ? t.delay_days : 0) + '" class="ml-1 w-16 rounded border border-white/10 bg-white/[0.03] px-2 py-1 text-xs text-ink-50 tabular-nums" /></label></div>' +
+        '<input data-onb-subject="' + i + '" value="' + esc(t.subject || "") + '" class="ck-input mb-2" aria-label="Sujet" />' +
+        '<textarea data-onb-body="' + i + '" rows="6" class="ck-input" aria-label="Corps">' + esc(t.body || "") + "</textarea>" +
+        "</div>").join("");
+      root.querySelector("[data-onb-error]").hidden = true;
+      openModal("onboarding");
+    });
+    root.querySelector("[data-onb-save]").addEventListener("click", async () => {
+      const tpls = await loadOnbTemplates();
+      const errEl = root.querySelector("[data-onb-error]");
+      const value = tpls.map((t, i) => ({
+        key: t.key,
+        label: t.label,
+        delay_days: Math.max(0, Math.min(365, +root.querySelector('[data-onb-delay="' + i + '"]').value || 0)),
+        subject: root.querySelector('[data-onb-subject="' + i + '"]').value,
+        body: root.querySelector('[data-onb-body="' + i + '"]').value,
+      }));
+      if (value.some((v) => !v.subject || !v.body)) { errEl.textContent = "Sujet et corps obligatoires."; errEl.hidden = false; return; }
+      try {
+        await api("cockpit_settings", { method: "POST", headers: { Prefer: "resolution=merge-duplicates,return=minimal" }, body: JSON.stringify({ key: "onboarding_emails", value }) });
+        onbCache = value;
+        toast("Templates onboarding enregistrés ✓");
+        closeModals();
+      } catch (e) { errEl.textContent = e.message || "Erreur."; errEl.hidden = false; }
+    });
     ovContent.addEventListener("click", (e) => {
       const lb = e.target.closest("[data-goto-lead]");
       if (lb) { focusLeadId = lb.dataset.gotoLead; switchTab("leads"); return; }
