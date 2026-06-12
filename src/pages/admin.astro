@@ -193,7 +193,7 @@ const ADMIN_EMAIL = "contact@konclav.ch";
 
       <!-- ===== PANEL : LEADS ===== -->
       <div data-panel="leads" role="tabpanel" hidden>
-        <div class="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-4" data-ck-stats></div>
+        <div class="mt-8" data-ck-stats></div>
         <div class="mt-8 flex flex-wrap items-center justify-between gap-3">
           <div class="flex flex-wrap items-center gap-2" data-ck-filters role="group" aria-label="Filtrer par statut"></div>
           <div class="flex items-center gap-1" role="group" aria-label="Vue">
@@ -717,6 +717,9 @@ const ADMIN_EMAIL = "contact@konclav.ch";
   .ck-live-dot { width: 7px; height: 7px; border-radius: 999px; background: #4ade80; animation: ck-pulse 2s infinite; }
   @keyframes ck-pulse { 0% { box-shadow: 0 0 0 0 rgba(74,222,128,.45); } 70% { box-shadow: 0 0 0 6px rgba(74,222,128,0); } 100% { box-shadow: 0 0 0 0 rgba(74,222,128,0); } }
   .ck-tip { position: absolute; z-index: 10; pointer-events: none; transform: translate(-50%, calc(-100% - 14px)); min-width: 11rem; border-radius: .65rem; border: 1px solid rgba(255,255,255,.10); background: rgba(15,16,17,.96); padding: .55rem .75rem; font-size: .72rem; color: var(--color-ink-300); box-shadow: 0 12px 32px rgba(0,0,0,.55); backdrop-filter: blur(6px); }
+  .ck-avatar { box-shadow: inset 0 0 0 1px rgba(255,255,255,.10); letter-spacing: -0.02em; }
+  .ck-funnel-step { transition: transform .2s; }
+  .ck-funnel-step:hover { transform: translateY(-1px); }
   @media (prefers-reduced-motion: reduce) { .ck-skel::after, .ck-live-dot { animation: none; } }
   .ck-toasts { position: fixed; bottom: 1.25rem; left: 50%; transform: translateX(-50%); z-index: 80; display: flex; flex-direction: column; align-items: center; gap: .5rem; width: min(92vw, 28rem); pointer-events: none; }
   .ck-toast { pointer-events: auto; max-width: 100%; border-radius: .75rem; border: 1px solid rgba(255,255,255,.10); background: var(--color-ink-900); padding: .6rem 1rem; font-size: .8rem; color: var(--color-ink-50); box-shadow: 0 8px 24px rgba(0,0,0,.5); transition: opacity .3s; animation: ck-toast-in .25s cubic-bezier(0.16, 1, 0.3, 1); }
@@ -780,6 +783,100 @@ const ADMIN_EMAIL = "contact@konclav.ch";
       return aborters[key].signal;
     }
     const isAbort = (e) => !!e && (e.name === "AbortError" || e.code === 20);
+
+    // ===== Helpers visuels partagés (Aperçu, Facturation, Assos, Inscriptions) =====
+    function colorFromName(name) {
+      const s = String(name || "");
+      let h = 0;
+      for (let i = 0; i < s.length; i++) h = ((h << 5) - h + s.charCodeAt(i)) | 0;
+      const hue = Math.abs(h) % 360;
+      return "hsl(" + hue + ", 55%, 58%)";
+    }
+    function initials(name) {
+      const parts = String(name || "").trim().split(/\s+/).filter(Boolean);
+      if (!parts.length) return "—";
+      if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+      return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+    }
+    function avatarBadge(name, sizeClass) {
+      const c = colorFromName(name);
+      const cls = sizeClass || "h-9 w-9 text-[11px]";
+      return '<span class="ck-avatar inline-flex shrink-0 items-center justify-center rounded-full font-semibold text-white ' + cls + '" style="background:linear-gradient(135deg,' + c + ',hsl(' + (Math.abs(name.length * 37) % 360) + ',55%,42%))">' + esc(initials(name)) + "</span>";
+    }
+    // Mois courant + N précédents : retourne [{key:'YYYY-MM', label:'jan 26', total:0}, ...] ordonnés du plus ancien au plus récent
+    function monthsSeries(n) {
+      const out = [];
+      const d = new Date();
+      d.setDate(1);
+      for (let i = n - 1; i >= 0; i--) {
+        const m = new Date(d.getFullYear(), d.getMonth() - i, 1);
+        const key = m.getFullYear() + "-" + String(m.getMonth() + 1).padStart(2, "0");
+        out.push({ key, label: m.toLocaleDateString("fr-CH", { month: "short", year: "2-digit" }), total: 0 });
+      }
+      return out;
+    }
+    // MRR : somme des abos actifs (mensuel direct, annuel / 12)
+    function computeMRR(subs) {
+      if (!Array.isArray(subs)) return 0;
+      return subs.filter((s) => s.active).reduce((sum, s) => {
+        const amt = Number(s.amount) || 0;
+        return sum + (s.billing_interval === "monthly" ? amt : amt / 12);
+      }, 0);
+    }
+    // Aging des impayés : combien dort dans chaque bucket (jours depuis échéance)
+    function agingBuckets(invs, today) {
+      const buckets = { "0_30": 0, "31_60": 0, "61_90": 0, "90p": 0 };
+      const t = new Date(today + "T00:00:00Z").getTime();
+      invs.forEach((inv) => {
+        if (inv.status !== "sent" && inv.status !== "overdue") return;
+        if (inv.doc_type === "credit_note") return;
+        if (!inv.due_date) return;
+        const dueT = new Date(inv.due_date + "T00:00:00Z").getTime();
+        if (dueT > t) return; // pas encore échue
+        const days = Math.floor((t - dueT) / 86_400_000);
+        const amt = Number(inv.total) || 0;
+        if (days <= 30) buckets["0_30"] += amt;
+        else if (days <= 60) buckets["31_60"] += amt;
+        else if (days <= 90) buckets["61_90"] += amt;
+        else buckets["90p"] += amt;
+      });
+      return buckets;
+    }
+    // Mini-graphe en barres pour montants mensuels (Aperçu MRR, Facturation revenus)
+    function monthlyBarsSvg(months, color, formatY) {
+      if (!months || !months.length) return "";
+      const W = 720, H = 220, padL = 56, padR = 12, padT = 14, padB = 32;
+      const innerW = W - padL - padR, innerH = H - padT - padB;
+      const max = Math.max(1, ...months.map((m) => Number(m.total) || 0));
+      const niceMax = max <= 5 ? max : Math.ceil(max / 5) * 5;
+      const barW = innerW / months.length;
+      const barGap = Math.min(10, barW * 0.28);
+      const yTicks = [0, niceMax / 2, niceMax];
+      const grid = yTicks.map((v) => {
+        const y = padT + innerH - (v / niceMax) * innerH;
+        return '<line x1="' + padL + '" x2="' + (W - padR) + '" y1="' + y + '" y2="' + y + '" class="ck-grid-line" />' +
+          '<text x="' + (padL - 8) + '" y="' + (y + 3) + '" text-anchor="end" class="ck-axis-label">' + esc(formatY(v)) + "</text>";
+      }).join("");
+      let bars = "", xLabels = "";
+      const xStep = Math.max(1, Math.ceil(months.length / 8));
+      months.forEach((m, i) => {
+        const v = Number(m.total) || 0;
+        const x = padL + i * barW;
+        const barH = (v / niceMax) * innerH;
+        const y = padT + innerH - barH;
+        const w = Math.max(2, barW - barGap);
+        const finalX = x + barGap / 2;
+        bars += '<rect x="' + finalX.toFixed(1) + '" y="' + (v > 0 ? y.toFixed(1) : (padT + innerH - 2)) + '" width="' + w.toFixed(1) + '" height="' + (v > 0 ? barH.toFixed(1) : 2) + '" rx="3" fill="url(#ck-month-grad)"><title>' + esc(m.label) + " — " + esc(formatY(v)) + "</title></rect>";
+        if (i % xStep === 0 || i === months.length - 1) {
+          xLabels += '<text x="' + (x + barW / 2).toFixed(1) + '" y="' + (H - 10) + '" text-anchor="middle" class="ck-axis-label">' + esc(m.label) + "</text>";
+        }
+      });
+      return '<svg viewBox="0 0 ' + W + " " + H + '" class="w-full" preserveAspectRatio="xMidYMid meet">' +
+        '<defs><linearGradient id="ck-month-grad" x1="0" y1="0" x2="0" y2="1">' +
+        '<stop offset="0%" stop-color="' + color + '" stop-opacity="0.95" />' +
+        '<stop offset="100%" stop-color="' + color + '" stop-opacity="0.45" />' +
+        "</linearGradient></defs>" + grid + bars + xLabels + "</svg>";
+    }
 
     // ===== Auth (REST) =====
     const store = {
@@ -949,12 +1046,43 @@ const ADMIN_EMAIL = "contact@konclav.ch";
     function renderLeads() {
       const counts = { all: leads.length };
       STATUSES.forEach((s) => { counts[s.value] = leads.filter((l) => l.status === s.value).length; });
-      statsEl.innerHTML = [["Total", counts.all, "#f4f4f5"]].concat(STATUSES.map((s) => [s.label + "s", counts[s.value], s.color])).slice(0, 4)
-        .map(([label, n, color]) =>
-          '<div class="rounded-2xl border border-white/10 bg-white/[0.02] p-4">' +
-          '<p class="text-2xl font-semibold tabular-nums" style="color:' + color + '">' + n + "</p>" +
-          '<p class="mt-0.5 text-xs text-ink-500">' + esc(label) + "</p></div>"
-        ).join("");
+
+      // Funnel : Nouveau → Contacté → Converti (Refusé à part), avec taux de passage
+      const FUNNEL = [
+        { key: "new", label: "Nouveaux" },
+        { key: "contacted", label: "Contactés" },
+        { key: "converted", label: "Convertis" },
+      ];
+      const declined = counts.declined || 0;
+      const funnelMax = Math.max(1, ...FUNNEL.map((f) => counts[f.key] || 0));
+      const totalForRate = (counts.new || 0) + (counts.contacted || 0) + (counts.converted || 0);
+      const overallRate = totalForRate > 0 ? Math.round(((counts.converted || 0) / totalForRate) * 100) : 0;
+
+      const arrow = '<span class="hidden self-center text-xl text-ink-600 sm:inline">→</span>';
+      const funnelStep = (f, idx) => {
+        const n = counts[f.key] || 0;
+        const prev = idx > 0 ? (counts[FUNNEL[idx - 1].key] || 0) : null;
+        const widthPct = Math.max(8, Math.round((n / funnelMax) * 100));
+        const passRate = prev !== null && prev > 0 ? Math.round((n / prev) * 100) : null;
+        const color = STATUSES.find((s) => s.value === f.key)?.color || "#7170ff";
+        return '<button type="button" data-filter="' + f.key + '" class="ck-funnel-step group flex-1 rounded-xl border border-white/10 bg-white/[0.02] p-4 text-left transition-colors hover:border-white/25">' +
+          '<div class="flex items-baseline justify-between gap-2"><span class="text-[10px] font-medium uppercase tracking-[0.14em] text-ink-500">' + f.label + "</span>" +
+          (passRate !== null ? '<span class="text-[10px] font-medium text-ink-400">' + passRate + "% du précédent</span>" : "") + "</div>" +
+          '<p class="mt-1 text-3xl font-semibold tabular-nums" style="color:' + color + '">' + n + "</p>" +
+          '<div class="mt-2 h-1.5 overflow-hidden rounded-full bg-white/[0.04]"><div class="h-full rounded-full transition-all duration-500" style="width:' + widthPct + "%;background:" + color + '"></div></div>' +
+          "</button>";
+      };
+
+      statsEl.innerHTML =
+        '<div class="rounded-2xl border border-accent-500/25 bg-gradient-to-br from-accent-500/[0.06] to-transparent p-4">' +
+        '<div class="mb-3 flex items-baseline justify-between gap-3">' +
+        '<h3 class="text-xs font-medium uppercase tracking-[0.14em] text-accent-300">Pipeline · ' + counts.all + " lead" + (counts.all > 1 ? "s" : "") + "</h3>" +
+        '<p class="text-xs text-ink-400">Taux de conversion <span class="ml-1 font-semibold text-ink-50 tabular-nums">' + overallRate + "%</span>" +
+        (declined > 0 ? ' <span class="ml-2 text-ink-500">· ' + declined + " refusé" + (declined > 1 ? "s" : "") + "</span>" : "") + "</p>" +
+        "</div>" +
+        '<div class="flex flex-col gap-3 sm:flex-row">' +
+        funnelStep(FUNNEL[0], 0) + arrow + funnelStep(FUNNEL[1], 1) + arrow + funnelStep(FUNNEL[2], 2) +
+        "</div></div>";
       filtersEl.innerHTML = [{ value: "all", label: "Tous" }].concat(STATUSES).map((s) => {
         const on = leadFilter === s.value;
         return '<button type="button" data-filter="' + s.value + '" class="rounded-full border px-3.5 py-1.5 text-xs font-medium transition-colors ' +
@@ -1148,18 +1276,26 @@ const ADMIN_EMAIL = "contact@konclav.ch";
     // ============ MODULE 1B : APERÇU (dashboard) ==============
     // =========================================================
     const ovContent = root.querySelector("[data-ov-content]");
+    function ovSkeleton() {
+      const k = '<div class="ck-skel h-28 rounded-2xl"></div>';
+      const c = '<div class="ck-skel h-44 rounded-2xl"></div>';
+      return '<div class="mt-8 grid grid-cols-2 gap-3 lg:grid-cols-4">' + k + k + k + k + "</div>" +
+        '<div class="ck-skel mt-6 h-72 rounded-2xl"></div>' +
+        '<div class="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-2">' + c + c + "</div>";
+    }
     async function loadOverview() {
       const signal = freshSignal("overview");
-      ovContent.innerHTML = '<p class="mt-12 text-center text-sm text-ink-500">Chargement…</p>';
+      ovContent.innerHTML = ovSkeleton();
       // Tick d'onboarding opportuniste (filet en plus du cron) — fire-and-forget
       fn("cockpit-onboarding-tick", { method: "POST", json: {} })
         .then((r) => r.ok ? r.json() : null)
         .then((d) => { if (d && d.sent > 0) toast(d.sent + " email(s) d'onboarding envoyé(s) ✉️"); })
         .catch(() => {});
       try {
-        const [leadsRes, invRes, anaRes, evRes, monRes, sysRes, onbRes] = await Promise.all([
+        const [leadsRes, invRes, subsRes, anaRes, evRes, monRes, sysRes, onbRes] = await Promise.all([
           api("leads?select=id,asso_name,status,created_at,next_action_at,first_name,last_name,source,provisioned_org_id&order=created_at.desc", { signal }),
-          api("invoices?select=id,number,total,currency,status,due_date,paid_at,doc_type&order=due_date.asc", { signal }),
+          api("invoices?select=id,number,total,currency,status,due_date,paid_at,doc_type,subscription_id&order=due_date.asc", { signal }),
+          api("subscriptions?select=id,amount,currency,billing_interval,active,next_invoice_date", { signal }).catch(() => null),
           api("rpc/cockpit_analytics", { method: "POST", body: JSON.stringify({ p_period: "7d" }), signal }).catch(() => null),
           api("lead_events?select=lead_id,type,detail,created_at&or=(type.eq.provisioned,type.eq.status_change)&limit=1000", { signal }).catch(() => null),
           api("rpc/cockpit_monitoring", { method: "POST", body: "{}", signal }).catch(() => null),
@@ -1168,12 +1304,13 @@ const ADMIN_EMAIL = "contact@konclav.ch";
         ]);
         const allLeads = await leadsRes.json();
         const invs = await invRes.json();
+        const subs = subsRes ? await subsRes.json().catch(() => []) : [];
         const ana = anaRes ? await anaRes.json().catch(() => null) : null;
         const events = evRes ? await evRes.json().catch(() => []) : [];
         const mon = monRes ? await monRes.json().catch(() => null) : null;
         const sys = sysRes && sysRes.ok ? await sysRes.json().catch(() => null) : null;
         const onb = onbRes ? await onbRes.json().catch(() => []) : [];
-        renderOverview(allLeads, invs, ana, events, mon, sys, onb);
+        renderOverview(allLeads, invs, subs, ana, events, mon, sys, onb);
       } catch (e) {
         if (isAbort(e)) return;
         ovContent.innerHTML = '<p class="mt-12 text-center text-sm text-rose-400">Erreur : ' + esc(String(e)) + "</p>";
@@ -1198,7 +1335,7 @@ const ADMIN_EMAIL = "contact@konclav.ch";
       return { total, converted, rate, avgDays, topSource };
     }
 
-    function renderOverview(allLeads, invs, ana, events, mon, sys, onb) {
+    function renderOverview(allLeads, invs, subs, ana, events, mon, sys, onb) {
       const today = todayISO();
       const weekAgo = addDaysISO(today, -7);
       const due = allLeads
@@ -1212,36 +1349,94 @@ const ADMIN_EMAIL = "contact@konclav.ch";
         .reduce((s, i) => s + (Number(i.total) || 0), 0);
       const visitors = ana && ana.stats ? Number(ana.stats.visitors) || 0 : null;
 
-      const kpiCard = (label, value, color, tab) =>
-        '<button type="button" data-goto="' + tab + '" class="rounded-2xl border border-white/10 bg-white/[0.02] p-5 text-left transition-colors hover:border-white/20">' +
-        '<p class="text-3xl font-semibold tracking-tight tabular-nums" style="color:' + color + '">' + value + "</p>" +
-        '<p class="mt-1 text-xs text-ink-500">' + esc(label) + "</p></button>";
+      // Business KPIs : MRR (récurrent), ARR, encaissé ce mois, en attente
+      const mrr = computeMRR(subs);
+      const arr = mrr * 12;
+      const activeSubs = (subs || []).filter((s) => s.active).length;
+      const dueOpen = invs.filter((i) => (i.status === "sent" || i.status === "overdue") && i.doc_type !== "credit_note")
+        .reduce((s, i) => s + (Number(i.total) || 0), 0);
+
+      // Revenus encaissés par mois (12 derniers)
+      const months = monthsSeries(12);
+      const byMonth = new Map(months.map((m) => [m.key, m]));
+      invs.forEach((i) => {
+        if (i.status !== "paid" || !i.paid_at) return;
+        const k = i.paid_at.slice(0, 7);
+        const sign = i.doc_type === "credit_note" ? -1 : 1;
+        const m = byMonth.get(k);
+        if (m) m.total += sign * (Number(i.total) || 0);
+      });
+      const maxMonthlyRevenue = Math.max(...months.map((m) => m.total));
+
+      // KPI principal façon Stripe : grand chiffre + sparkline + delta vs mois précédent
+      const prevMonthRevenue = months.length >= 2 ? months[months.length - 2].total : 0;
+      const monthDelta = delta(paidMonth, prevMonthRevenue);
+
+      const heroKpi = (label, value, deltaHtml, sublabel) =>
+        '<div class="relative overflow-hidden rounded-2xl border border-accent-500/30 bg-gradient-to-br from-accent-500/[0.10] via-white/[0.02] to-white/[0.02] p-6 shadow-[0_0_36px_rgba(94,106,210,0.12)]">' +
+        '<p class="text-[10px] font-medium uppercase tracking-[0.18em] text-accent-300">' + esc(label) + "</p>" +
+        '<p class="mt-2 text-5xl font-semibold tracking-tight text-ink-50 tabular-nums">' + esc(value) + "</p>" +
+        (sublabel ? '<p class="mt-1 text-xs text-ink-400">' + sublabel + "</p>" : "") +
+        (deltaHtml ? '<p class="mt-2 text-xs font-medium">' + deltaHtml + "</p>" : "") +
+        "</div>";
+
+      const kpiCard = (label, value, deltaHtml, color, tab) =>
+        '<button type="button" data-goto="' + tab + '" class="rounded-2xl border border-white/10 bg-white/[0.02] p-5 text-left transition-all hover:border-white/25 hover:bg-white/[0.04]">' +
+        '<p class="text-[10px] font-medium uppercase tracking-[0.14em] text-ink-500">' + esc(label) + "</p>" +
+        '<p class="mt-1 text-2xl font-semibold tracking-tight tabular-nums" style="color:' + color + '">' + esc(value) + "</p>" +
+        (deltaHtml ? '<p class="mt-1.5 text-[11px] font-medium">' + deltaHtml + "</p>" : "") +
+        "</button>";
+
       const miniList = (items, mapper, emptyMsg) =>
         items.length
           ? '<ul class="space-y-1.5">' + items.slice(0, 6).map(mapper).join("") + "</ul>"
           : '<p class="text-sm text-ink-500">' + emptyMsg + "</p>";
 
       ovContent.innerHTML =
-        '<div class="mt-8 grid grid-cols-2 gap-3 lg:grid-cols-4">' +
-        kpiCard("Leads à relancer", String(due.length), due.length ? "#f87171" : "#4ade80", "leads") +
-        kpiCard("Nouvelles demandes (7 j)", String(newLeads.length), "#7170ff", "leads") +
-        kpiCard("Factures en retard", lateInvs.length ? lateInvs.length + " · " + fmtCHF(lateSum, "CHF") : "0", lateInvs.length ? "#f87171" : "#4ade80", "billing") +
-        kpiCard("Encaissé ce mois-ci", fmtCHF(paidMonth, "CHF"), "#4ade80", "billing") +
+        // === Bloc business principal : MRR héros + 3 KPIs ===
+        '<div class="mt-8 grid grid-cols-1 gap-3 lg:grid-cols-12">' +
+        '<div class="lg:col-span-6">' +
+        heroKpi("MRR · Revenu récurrent", fmtCHF(mrr, "CHF"),
+          activeSubs > 0 ? '<span class="text-emerald-400">' + activeSubs + " abo" + (activeSubs > 1 ? "s" : "") + " actif" + (activeSubs > 1 ? "s" : "") + "</span>" : '<span class="text-ink-500">aucun abonnement actif</span>',
+          'ARR <span class="text-ink-200 tabular-nums">' + fmtCHF(arr, "CHF") + "</span>") +
         "</div>" +
+        '<div class="grid grid-cols-1 gap-3 sm:grid-cols-3 lg:col-span-6">' +
+        kpiCard("Encaissé · mois en cours", fmtCHF(paidMonth, "CHF"), monthDelta, "#4ade80", "billing") +
+        kpiCard("En attente", fmtCHF(dueOpen, "CHF"), lateSum > 0 ? '<span class="ck-delta-down">dont ' + fmtCHF(lateSum, "CHF") + " en retard</span>" : '<span class="text-ink-500">aucun retard</span>', dueOpen > 0 ? "#fbbf24" : "#a1a1aa", "billing") +
+        kpiCard("Nouveaux leads · 7 j", String(newLeads.length), due.length > 0 ? '<span class="ck-delta-down">' + due.length + " à relancer</span>" : '<span class="text-emerald-400">tout est à jour</span>', "#7170ff", "leads") +
+        "</div>" +
+        "</div>" +
+
+        // === Grand graphique encaissé / 12 mois ===
+        '<div class="mt-6 rounded-2xl border border-white/10 bg-white/[0.02] p-5">' +
+        '<div class="mb-2 flex flex-wrap items-center justify-between gap-3">' +
+        '<h3 class="flex items-center gap-2 text-sm font-semibold text-ink-50">' +
+        '<span class="inline-block h-2.5 w-2.5 rounded-full bg-emerald-400"></span>' +
+        "Encaissé par mois <span class=\"text-xs font-normal text-ink-500\">· 12 derniers mois</span></h3>" +
+        '<p class="text-xs text-ink-500">Total période · <span class="font-medium text-ink-200">' + fmtCHF(months.reduce((s, m) => s + m.total, 0), "CHF") + "</span></p>" +
+        "</div>" +
+        (maxMonthlyRevenue > 0
+          ? monthlyBarsSvg(months, "#4ade80", (v) => fmtCHF(v, "CHF"))
+          : '<div class="flex h-44 items-center justify-center text-sm text-ink-500">Aucun encaissement enregistré sur les 12 derniers mois.</div>') +
+        "</div>" +
+
+        // === Listes À relancer / Dernières demandes ===
         '<div class="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-2">' +
         '<div class="rounded-2xl border border-white/10 bg-white/[0.02] p-5">' +
         '<h3 class="mb-3 text-sm font-semibold text-ink-50">🔔 À relancer</h3>' +
         miniList(due, (l) =>
-          '<li><button type="button" data-goto-lead="' + esc(l.id) + '" class="flex w-full items-center justify-between rounded-lg border border-white/[0.06] bg-white/[0.01] px-3 py-2 text-left text-xs transition-colors hover:border-white/15">' +
-          '<span class="truncate text-ink-200">' + esc(l.asso_name) + ' <span class="text-ink-500">· ' + esc((l.first_name || "") + " " + (l.last_name || "")) + "</span></span>" +
+          '<li><button type="button" data-goto-lead="' + esc(l.id) + '" class="flex w-full items-center gap-3 rounded-lg border border-white/[0.06] bg-white/[0.01] px-3 py-2 text-left text-xs transition-colors hover:border-white/15">' +
+          avatarBadge(l.asso_name, "h-7 w-7 text-[10px]") +
+          '<span class="min-w-0 flex-1 truncate"><span class="block truncate text-ink-200">' + esc(l.asso_name) + '</span><span class="block truncate text-[10px] text-ink-500">' + esc((l.first_name || "") + " " + (l.last_name || "")) + "</span></span>" +
           '<span class="ml-3 shrink-0 tabular-nums text-rose-400">' + fmtDate(l.next_action_at) + "</span></button></li>",
           "Rien en attente — tout est à jour ✓") +
         "</div>" +
         '<div class="rounded-2xl border border-white/10 bg-white/[0.02] p-5">' +
         '<h3 class="mb-3 text-sm font-semibold text-ink-50">Dernières demandes</h3>' +
         miniList(newLeads, (l) =>
-          '<li><button type="button" data-goto-lead="' + esc(l.id) + '" class="flex w-full items-center justify-between rounded-lg border border-white/[0.06] bg-white/[0.01] px-3 py-2 text-left text-xs transition-colors hover:border-white/15">' +
-          '<span class="truncate text-ink-200">' + esc(l.asso_name) + "</span>" +
+          '<li><button type="button" data-goto-lead="' + esc(l.id) + '" class="flex w-full items-center gap-3 rounded-lg border border-white/[0.06] bg-white/[0.01] px-3 py-2 text-left text-xs transition-colors hover:border-white/15">' +
+          avatarBadge(l.asso_name, "h-7 w-7 text-[10px]") +
+          '<span class="min-w-0 flex-1 truncate text-ink-200">' + esc(l.asso_name) + "</span>" +
           '<span class="ml-3 shrink-0 text-ink-500">' + fmtDate(l.created_at) + "</span></button></li>",
           "Aucune demande cette semaine.") +
         "</div></div>" +
@@ -1846,14 +2041,35 @@ const ADMIN_EMAIL = "contact@konclav.ch";
         ogContent.innerHTML = '<p class="mt-12 text-center text-sm text-ink-500">Aucune asso provisionnée pour l\'instant.<br>Ouvrez un lead dans « Inscriptions » et cliquez « 🚀 Provisionner ».</p>';
         return;
       }
-      ogContent.innerHTML = '<div class="mt-6 overflow-x-auto rounded-2xl border border-white/10 bg-white/[0.02]">' +
+      // Mini-stats : actives, suspendues, total membres, fraîcheur médiane
+      const active = orgs.filter((o) => o.is_active).length;
+      const suspended = orgs.length - active;
+      const totalMembers = orgs.reduce((s, o) => s + (o.member_count || 0), 0);
+      const fresh = orgs.filter((o) => {
+        if (!o.last_login) return false;
+        return (Date.now() - new Date(o.last_login)) / 86400000 <= 7;
+      }).length;
+      const summaryCard = (label, value, color) =>
+        '<div class="rounded-xl border border-white/10 bg-white/[0.02] px-4 py-3">' +
+        '<p class="text-2xl font-semibold tabular-nums" style="color:' + color + '">' + value + "</p>" +
+        '<p class="mt-0.5 text-[11px] uppercase tracking-wide text-ink-500">' + esc(label) + "</p></div>";
+
+      ogContent.innerHTML =
+        '<div class="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">' +
+        summaryCard("Actives", active, "#4ade80") +
+        summaryCard("Suspendues", suspended, suspended > 0 ? "#f87171" : "#8b8b94") +
+        summaryCard("Membres", totalMembers, "#f4f4f5") +
+        summaryCard("Actives 7j", fresh, "#7170ff") +
+        "</div>" +
+        '<div class="mt-6 overflow-x-auto rounded-2xl border border-white/10 bg-white/[0.02]">' +
         '<table class="w-full text-sm">' +
         '<thead class="bg-white/[0.03] text-xs uppercase tracking-wide text-ink-500">' +
         '<tr><th scope="col" class="px-4 py-3 text-left">Association</th><th scope="col" class="px-4 py-3 text-left">Président</th><th scope="col" class="px-4 py-3 text-right">Membres</th><th scope="col" class="px-4 py-3 text-left">Dernière connexion</th><th scope="col" class="px-4 py-3 text-left">Statut</th><th scope="col" class="px-4 py-3"><span class="sr-only">Actions</span></th></tr></thead>' +
         '<tbody class="divide-y divide-white/[0.06]">' +
         orgs.map((o) =>
           '<tr data-org="' + esc(o.id) + '" data-org-active="' + (o.is_active ? "1" : "") + '" data-org-name="' + esc(o.name) + '" data-org-customer="' + esc(o.customer_id || "") + '">' +
-          '<td class="px-4 py-3"><p class="font-semibold text-ink-50">' + esc(o.name) + '</p><p class="font-mono text-[11px] text-ink-500">' + esc(o.slug) + "</p></td>" +
+          '<td class="px-4 py-3"><div class="flex items-center gap-3">' + avatarBadge(o.name) +
+          '<div class="min-w-0"><p class="truncate font-semibold text-ink-50">' + esc(o.name) + '</p><p class="font-mono text-[11px] text-ink-500">' + esc(o.slug) + "</p></div></div></td>" +
           '<td class="px-4 py-3">' + (o.president
             ? '<p class="text-ink-200">' + esc(o.president.name) + '</p><p class="text-xs text-ink-500">' + esc(o.president.email) + "</p>"
             : '<span class="text-ink-500">—</span>') + "</td>" +
@@ -2349,13 +2565,57 @@ const ADMIN_EMAIL = "contact@konclav.ch";
         '<p class="text-2xl font-semibold tabular-nums" style="color:' + color + '">' + esc(value) + '</p>' +
         '<p class="mt-0.5 text-xs text-ink-500">' + esc(label) + '</p></div>';
 
+      // 6 derniers mois d'encaissement
+      const months6 = monthsSeries(6);
+      const byMonth6 = new Map(months6.map((m) => [m.key, m]));
+      invoicesList.forEach((i) => {
+        if (i.status !== "paid" || !i.paid_at) return;
+        const k = i.paid_at.slice(0, 7);
+        const sign = i.doc_type === "credit_note" ? -1 : 1;
+        const m = byMonth6.get(k);
+        if (m) m.total += sign * (Number(i.total) || 0);
+      });
+      const has6mData = months6.some((m) => m.total > 0);
+
+      // Aging des impayés
+      const aging = agingBuckets(invoicesList, today);
+      const totalAging = aging["0_30"] + aging["31_60"] + aging["61_90"] + aging["90p"];
+      const agingRow = (label, value, color) => {
+        const pct = totalAging > 0 ? Math.round((value / totalAging) * 100) : 0;
+        return '<div>' +
+          '<div class="flex items-baseline justify-between text-xs"><span class="text-ink-500">' + label + "</span>" +
+          '<span class="tabular-nums font-medium" style="color:' + color + '">' + fmtCHF(value, "CHF") + "</span></div>" +
+          '<div class="mt-1 h-1.5 overflow-hidden rounded-full bg-white/[0.04]"><div class="h-full rounded-full" style="width:' + pct + "%;background:" + color + '"></div></div>' +
+          "</div>";
+      };
+
       biContent.innerHTML =
         '<div class="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">' +
         kpi("Encaissé ce mois-ci", fmtCHF(sums.paidMonth, "CHF"), "#4ade80") +
         kpi("En attente", fmtCHF(sums.due, "CHF"), "#fbbf24") +
         kpi("En retard", fmtCHF(sums.late, "CHF"), sums.late > 0 ? "#f87171" : "#8b8b94") +
         kpi("Encaissé total", fmtCHF(sums.paidAll, "CHF"), "#f4f4f5") +
-        '</div>' +
+        "</div>" +
+        '<div class="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-3">' +
+        '<div class="rounded-2xl border border-white/10 bg-white/[0.02] p-5 lg:col-span-2">' +
+        '<h3 class="mb-3 text-sm font-semibold text-ink-50">Encaissé · 6 derniers mois</h3>' +
+        (has6mData
+          ? monthlyBarsSvg(months6, "#4ade80", (v) => fmtCHF(v, "CHF"))
+          : '<div class="flex h-44 items-center justify-center text-sm text-ink-500">Aucun encaissement enregistré sur la période.</div>') +
+        "</div>" +
+        '<div class="rounded-2xl border border-white/10 bg-white/[0.02] p-5">' +
+        '<h3 class="mb-1 text-sm font-semibold text-ink-50">Aging des impayés</h3>' +
+        '<p class="mb-3 text-xs text-ink-500">Combien dort, depuis combien de temps</p>' +
+        (totalAging > 0
+          ? '<div class="space-y-3">' +
+            agingRow("0-30 j", aging["0_30"], "#fbbf24") +
+            agingRow("31-60 j", aging["31_60"], "#fb923c") +
+            agingRow("61-90 j", aging["61_90"], "#f87171") +
+            agingRow("90 j et +", aging["90p"], "#ef4444") +
+            "</div>" +
+            '<p class="mt-4 border-t border-white/[0.06] pt-3 text-xs"><span class="text-ink-500">Total dormant</span> <span class="float-right font-semibold tabular-nums text-rose-400">' + fmtCHF(totalAging, "CHF") + "</span></p>"
+          : '<div class="flex h-44 items-center justify-center text-sm text-emerald-400">Tous les paiements sont à jour ✓</div>') +
+        "</div></div>" +
         '<div class="mt-6 overflow-hidden rounded-2xl border border-white/10 bg-white/[0.02]">' +
         '<table class="w-full text-sm">' +
         '<thead class="bg-white/[0.03] text-xs uppercase tracking-wide text-ink-500">' +
