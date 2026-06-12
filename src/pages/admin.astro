@@ -2054,22 +2054,29 @@ const ADMIN_EMAIL = "contact@konclav.ch";
         '<p class="text-2xl font-semibold tabular-nums" style="color:' + color + '">' + value + "</p>" +
         '<p class="mt-0.5 text-[11px] uppercase tracking-wide text-ink-500">' + esc(label) + "</p></div>";
 
+      const linked = orgs.filter((o) => o.customer_id).length;
+
       ogContent.innerHTML =
-        '<div class="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">' +
+        '<div class="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-5">' +
         summaryCard("Actives", active, "#4ade80") +
         summaryCard("Suspendues", suspended, suspended > 0 ? "#f87171" : "#8b8b94") +
         summaryCard("Membres", totalMembers, "#f4f4f5") +
         summaryCard("Actives 7j", fresh, "#7170ff") +
+        summaryCard("Liées à facturation", linked + "/" + orgs.length, linked === orgs.length ? "#4ade80" : "#fbbf24") +
         "</div>" +
         '<div class="mt-6 overflow-x-auto rounded-2xl border border-white/10 bg-white/[0.02]">' +
         '<table class="w-full text-sm">' +
         '<thead class="bg-white/[0.03] text-xs uppercase tracking-wide text-ink-500">' +
-        '<tr><th scope="col" class="px-4 py-3 text-left">Association</th><th scope="col" class="px-4 py-3 text-left">Président</th><th scope="col" class="px-4 py-3 text-right">Membres</th><th scope="col" class="px-4 py-3 text-left">Dernière connexion</th><th scope="col" class="px-4 py-3 text-left">Statut</th><th scope="col" class="px-4 py-3"><span class="sr-only">Actions</span></th></tr></thead>' +
+        '<tr><th scope="col" class="px-4 py-3 text-left">Association</th><th scope="col" class="px-4 py-3 text-left">Président</th><th scope="col" class="px-4 py-3 text-right">Membres</th><th scope="col" class="px-4 py-3 text-left">Dernière connexion</th><th scope="col" class="px-4 py-3 text-left">Facturation</th><th scope="col" class="px-4 py-3"><span class="sr-only">Actions</span></th></tr></thead>' +
         '<tbody class="divide-y divide-white/[0.06]">' +
         orgs.map((o) =>
-          '<tr data-org="' + esc(o.id) + '" data-org-active="' + (o.is_active ? "1" : "") + '" data-org-name="' + esc(o.name) + '" data-org-customer="' + esc(o.customer_id || "") + '">' +
+          '<tr data-org="' + esc(o.id) + '" data-org-active="' + (o.is_active ? "1" : "") + '" data-org-name="' + esc(o.name) + '" data-org-customer="' + esc(o.customer_id || "") + '" data-org-president-name="' + esc(o.president?.name || "") + '" data-org-president-email="' + esc(o.president?.email || "") + '">' +
           '<td class="px-4 py-3"><div class="flex items-center gap-3">' + avatarBadge(o.name) +
-          '<div class="min-w-0"><p class="truncate font-semibold text-ink-50">' + esc(o.name) + '</p><p class="font-mono text-[11px] text-ink-500">' + esc(o.slug) + "</p></div></div></td>" +
+          '<div class="min-w-0"><p class="flex items-center gap-2 truncate font-semibold text-ink-50">' + esc(o.name) +
+          (o.is_active
+            ? ''
+            : ' <span class="rounded-md bg-rose-400/10 px-1.5 py-0.5 text-[10px] font-medium text-rose-400">Suspendue</span>') +
+          '</p><p class="font-mono text-[11px] text-ink-500">' + esc(o.slug) + "</p></div></div></td>" +
           '<td class="px-4 py-3">' + (o.president
             ? '<p class="text-ink-200">' + esc(o.president.name) + '</p><p class="text-xs text-ink-500">' + esc(o.president.email) + "</p>"
             : '<span class="text-ink-500">—</span>') + "</td>" +
@@ -2079,9 +2086,12 @@ const ADMIN_EMAIL = "contact@konclav.ch";
             const c = days === null ? "#8b8b94" : days <= 7 ? "#4ade80" : days <= 30 ? "#fbbf24" : "#f87171";
             return '<td class="px-4 py-3 text-xs text-ink-400"><span class="mr-1.5 inline-block h-2 w-2 rounded-full align-middle" style="background:' + c + '"></span>' + (o.last_login ? fmtDate(o.last_login) : "jamais") + "</td>";
           })() +
-          '<td class="px-4 py-3">' + (o.is_active
-            ? '<span class="rounded-md bg-emerald-400/10 px-2 py-0.5 text-[11px] font-medium text-emerald-400">Active</span>'
-            : '<span class="rounded-md bg-rose-400/10 px-2 py-0.5 text-[11px] font-medium text-rose-400">Suspendue</span>') + "</td>" +
+          '<td class="px-4 py-3">' + (o.customer_id
+            ? '<button type="button" data-org-billing class="inline-flex items-center gap-1 rounded-md bg-emerald-400/10 px-2 py-0.5 text-[11px] font-medium text-emerald-400 hover:bg-emerald-400/20">✓ Fiche liée</button>'
+            : (o.president
+              ? '<button type="button" data-org-link-billing class="inline-flex items-center gap-1 rounded-md border border-accent-500/40 bg-accent-500/10 px-2 py-1 text-[11px] font-medium text-accent-300 hover:bg-accent-500/20">+ Créer fiche client</button>'
+              : '<button type="button" data-org-link-billing-manual class="inline-flex items-center gap-1 rounded-md border border-white/10 bg-white/[0.02] px-2 py-1 text-[11px] font-medium text-ink-400 hover:border-white/25 hover:text-ink-50" title="Pas de président → renseigner les coordonnées manuellement">+ Créer fiche…</button>')) +
+          "</td>" +
           '<td class="px-4 py-3 text-right whitespace-nowrap">' +
           '<button type="button" data-org-detail class="text-xs text-accent-300 hover:text-accent-400">Détails</button>' +
           ' · <button type="button" data-org-toggle class="text-xs ' +
@@ -2115,6 +2125,43 @@ const ADMIN_EMAIL = "contact@konclav.ch";
       if (e.target.closest("[data-goto-billing]")) { switchTab("billing"); return; }
       const det = e.target.closest("[data-org-detail]");
       if (det) { toggleOrgDetail(det.closest("[data-org]")); return; }
+      // Fiche client déjà liée → ouvrir la liste Clients
+      const open = e.target.closest("[data-org-billing]");
+      if (open) { switchTab("billing"); switchSubtab("customers"); return; }
+      // Création auto de la fiche client à partir de l'asso (1 clic)
+      const quick = e.target.closest("[data-org-link-billing]");
+      if (quick) {
+        const tr = quick.closest("[data-org]");
+        if (!confirm("Créer une fiche client pour « " + tr.dataset.orgName + " » ?\n\nLes coordonnées seront reprises depuis l'asso (président comme contact). Vous pourrez les éditer ensuite.")) return;
+        quick.disabled = true;
+        try {
+          await api("customers", {
+            method: "POST",
+            headers: { Prefer: "return=minimal" },
+            body: JSON.stringify({
+              asso_name: tr.dataset.orgName,
+              contact_name: tr.dataset.orgPresidentName || tr.dataset.orgName,
+              contact_email: tr.dataset.orgPresidentEmail,
+              org_id: tr.dataset.org,
+            }),
+          });
+          toast("Fiche client créée ✓ — l'asso est prête à être facturée");
+          customers = []; // force le reload au prochain accès au modal facture
+          loadOrgs();
+        } catch (err) { toast("Échec : " + err.message, "error"); quick.disabled = false; }
+        return;
+      }
+      // Cas sans président → modal customer pré-rempli (parcours manuel)
+      const manual = e.target.closest("[data-org-link-billing-manual]");
+      if (manual) {
+        const tr = manual.closest("[data-org]");
+        editCustomer(null);
+        bcForm.querySelector('[data-bc-field="asso_name"]').value = tr.dataset.orgName;
+        const orgIdInput = bcForm.querySelector('[data-bc-field="org_id"]');
+        if (orgIdInput) orgIdInput.value = tr.dataset.org;
+        else bcForm.dataset.pendingOrgId = tr.dataset.org;
+        return;
+      }
       const btn = e.target.closest("[data-org-toggle]"); if (!btn) return;
       const tr = btn.closest("[data-org]");
       const active = !!tr.dataset.orgActive;
@@ -2355,6 +2402,7 @@ const ADMIN_EMAIL = "contact@konclav.ch";
       fields.forEach((f) => { f.value = f.dataset.bcField === "country" ? "CH" : ""; });
       bcIdInput.value = "";
       bcError.hidden = true;
+      delete bcForm.dataset.pendingOrgId;
       bcTitle.textContent = id ? "Modifier le client" : "Nouveau client";
       if (id) {
         const c = customers.find((x) => x.id === id);
@@ -2382,6 +2430,10 @@ const ADMIN_EMAIL = "contact@konclav.ch";
       const data = {};
       bcForm.querySelectorAll("[data-bc-field]").forEach((f) => { data[f.dataset.bcField] = (f.value || "").trim() || null; });
       if (!data.asso_name) { bcError.textContent = "Nom requis."; bcError.hidden = false; return; }
+      // Lien à une asso (cas « Créer fiche… » depuis l'onglet Assos sans président)
+      if (bcForm.dataset.pendingOrgId) {
+        data.org_id = bcForm.dataset.pendingOrgId;
+      }
       const id = bcIdInput.value;
       const btn = root.querySelector("[data-bc-submit]");
       btn.disabled = true; bcError.hidden = true;
@@ -2391,6 +2443,7 @@ const ADMIN_EMAIL = "contact@konclav.ch";
         } else {
           await api("customers", { method: "POST", headers: { Prefer: "return=minimal" }, body: JSON.stringify(data) });
         }
+        delete bcForm.dataset.pendingOrgId;
         closeModals();
         toast(id ? "Client mis à jour ✓" : "Client créé ✓");
         await loadCustomers();
