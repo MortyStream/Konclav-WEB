@@ -3106,9 +3106,26 @@ const ADMIN_EMAIL = "contact@konclav.ch";
             '<p class="mt-4 border-t border-white/[0.06] pt-3 text-xs"><span class="text-ink-500">Total dormant</span> <span class="float-right font-semibold tabular-nums text-rose-400">' + fmtCHF(totalAging, "CHF") + "</span></p>"
           : '<div class="flex h-44 items-center justify-center text-sm text-emerald-400">Tous les paiements sont à jour ✓</div>') +
         "</div></div>" +
-        '<div class="mt-6">' + tableSearchBar("invoices", "Rechercher par numéro, client…") + "</div>" +
+        '<div class="mt-6 flex flex-wrap items-end gap-3">' +
+        '<div class="flex-1 min-w-[16rem]">' + tableSearchBar("invoices", "Rechercher par numéro, client…") + "</div>" +
+        '<label class="block text-xs"><span class="mb-1 block text-ink-500">Période d\'émission</span><select data-inv-period class="rounded-lg border border-white/10 bg-white/[0.03] px-3 py-1.5 text-xs text-ink-50 focus:border-accent-500/50 focus:outline-none">' +
+        '<option value="all"' + (getTableState("invoices").period === "all" || !getTableState("invoices").period ? " selected" : "") + '>Toutes</option>' +
+        '<option value="month"' + (getTableState("invoices").period === "month" ? " selected" : "") + '>Ce mois</option>' +
+        '<option value="quarter"' + (getTableState("invoices").period === "quarter" ? " selected" : "") + '>Ce trimestre</option>' +
+        '<option value="year"' + (getTableState("invoices").period === "year" ? " selected" : "") + '>Cette année</option>' +
+        '<option value="ytd"' + (getTableState("invoices").period === "ytd" ? " selected" : "") + '>YTD</option>' +
+        "</select></label></div>" +
         (function () {
-          const shown = applyTableFilters(invoicesList, "invoices",
+          // Filtre période + recherche/tri
+          const st = getTableState("invoices");
+          const t = new Date();
+          let from = null;
+          if (st.period === "month") from = t.getFullYear() + "-" + String(t.getMonth() + 1).padStart(2, "0") + "-01";
+          else if (st.period === "quarter") { const q = Math.floor(t.getMonth() / 3) * 3; from = t.getFullYear() + "-" + String(q + 1).padStart(2, "0") + "-01"; }
+          else if (st.period === "year") from = t.getFullYear() + "-01-01";
+          else if (st.period === "ytd") from = t.getFullYear() + "-01-01";
+          const filtered = from ? invoicesList.filter((i) => i.issue_date && i.issue_date >= from) : invoicesList;
+          const shown = applyTableFilters(filtered, "invoices",
             ["number", (i) => (i.customer && i.customer.asso_name) || ""],
             {
               number: (i) => i.number,
@@ -3155,6 +3172,13 @@ const ADMIN_EMAIL = "contact@konclav.ch";
         })();
     }
     registerTable("invoices", () => { if (invoicesList.length) renderInvoices(); });
+    // Filtre période sur Factures
+    biContent.addEventListener("change", (e) => {
+      const sel = e.target.closest("[data-inv-period]");
+      if (!sel) return;
+      getTableState("invoices").period = sel.value;
+      if (invoicesList.length) renderInvoices();
+    });
 
     biContent.addEventListener("click", async (e) => {
       const tr = e.target.closest("[data-invoice]"); if (!tr) return;
