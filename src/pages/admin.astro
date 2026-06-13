@@ -226,11 +226,14 @@ const ADMIN_EMAIL = "contact@konclav.ch";
               <span class="ck-live-dot" aria-hidden="true"></span><span data-au-live-n>0 en ce moment</span>
             </span>
           </div>
-          <div class="flex gap-1" data-au-periods role="group" aria-label="Période">
-            <button type="button" data-period="24h" class="ck-pill">24h</button>
-            <button type="button" data-period="7d"  class="ck-pill ck-pill-on">7 j</button>
-            <button type="button" data-period="30d" class="ck-pill">30 j</button>
-            <button type="button" data-period="90d" class="ck-pill">90 j</button>
+          <div class="flex flex-wrap items-center gap-2">
+            <div class="flex gap-1" data-au-periods role="group" aria-label="Période">
+              <button type="button" data-period="24h" class="ck-pill">24h</button>
+              <button type="button" data-period="7d"  class="ck-pill ck-pill-on">7 j</button>
+              <button type="button" data-period="30d" class="ck-pill">30 j</button>
+              <button type="button" data-period="90d" class="ck-pill">90 j</button>
+            </div>
+            <button type="button" data-au-csv class="rounded-full border border-white/10 bg-white/[0.02] px-3 py-1.5 text-xs font-medium text-ink-300 transition-colors hover:border-white/20 hover:text-ink-50" title="Exporter la période en CSV (top pages, sources, pays, etc.)">⬇ CSV</button>
           </div>
         </div>
         <div data-au-content aria-live="polite">
@@ -1999,6 +2002,49 @@ const ADMIN_EMAIL = "contact@konclav.ch";
       if (!b || !auData) return;
       auMetric = b.dataset.auKpi;
       renderAudience(auData);
+    });
+    // Export CSV des analytics (toutes les sections en un fichier)
+    root.querySelector("[data-au-csv]").addEventListener("click", () => {
+      if (!auData) { toast("Données pas encore chargées.", "error"); return; }
+      const lines = [];
+      const csvEsc = (v) => '"' + String(v ?? "").replace(/"/g, '""') + '"';
+      const section = (title, rows) => {
+        lines.push("# " + title);
+        rows.forEach((r) => lines.push(r.map(csvEsc).join(";")));
+        lines.push("");
+      };
+      const stats = auData.stats || {};
+      section("Période : " + (auData.period || auPeriod), []);
+      section("Vue d'ensemble", [
+        ["Métrique", "Valeur"],
+        ["Visiteurs uniques", stats.visitors || 0],
+        ["Sessions", stats.visits || 0],
+        ["Pages vues", stats.pageviews || 0],
+        ["Bounces", stats.bounces || 0],
+        ["Temps total (s)", stats.totaltime || 0],
+      ]);
+      const seriesRows = [["Date", "Pages vues", "Visiteurs", "Sessions"]];
+      (auData.series || []).forEach((p) => seriesRows.push([p.x, p.y, p.v, p.s]));
+      section("Trafic par période", seriesRows);
+      const dumpTop = (title, arr) => {
+        const rows = [["Valeur", "Nombre"]];
+        (arr || []).forEach((it) => rows.push([it.x, it.y]));
+        section(title, rows);
+      };
+      dumpTop("Pages les plus vues", auData.urls);
+      dumpTop("Sources", auData.referrers);
+      dumpTop("Pays", auData.countries);
+      dumpTop("Navigateurs", auData.browsers);
+      dumpTop("Appareils", auData.devices);
+      if (Array.isArray(auData.events) && auData.events.length) dumpTop("Événements", auData.events);
+
+      const blob = new Blob(["﻿" + lines.join("\n")], { type: "text/csv;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url; a.download = "konclav-audience-" + auPeriod + "-" + todayISO() + ".csv";
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 5000);
+      toast("Export CSV téléchargé ✓");
     });
 
     // ===== Audience v2 — chart engine (courbe lissée + crosshair + ghost) =====
