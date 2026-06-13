@@ -741,11 +741,32 @@ const ADMIN_EMAIL = "contact@konclav.ch";
   .ck-subtab:hover { color: var(--color-ink-50); background: rgba(255,255,255,.03); }
   .ck-subtab-on { background: rgba(94,106,210,.12); color: var(--color-ink-50); }
   .ck-input { width: 100%; border-radius: .75rem; border: 1px solid rgba(255,255,255,.10); background: rgba(255,255,255,.03); padding: .65rem .85rem; font-size: .875rem; color: var(--color-ink-50); }
-  /* Force le rendu sombre du popup natif des <select> (sinon texte blanc / fond blanc système) */
-  [data-cockpit] select { color-scheme: dark; }
+  /* Force le rendu sombre des widgets natifs (popup select, date picker, scrollbar) */
+  [data-cockpit] select,
+  [data-cockpit] input,
+  [data-cockpit] textarea { color-scheme: dark; }
   [data-cockpit] select option { background-color: var(--color-ink-900); color: var(--color-ink-50); }
   [data-cockpit] select option:disabled { color: var(--color-ink-500); }
   [data-cockpit] select option:checked { background: linear-gradient(0deg, rgba(94,106,210,.4), rgba(94,106,210,.4)), var(--color-ink-900); color: var(--color-ink-50); }
+  /* Icône calendrier des <input type="date"> visible sur fond sombre */
+  [data-cockpit] input[type="date"]::-webkit-calendar-picker-indicator,
+  [data-cockpit] input[type="datetime-local"]::-webkit-calendar-picker-indicator,
+  [data-cockpit] input[type="time"]::-webkit-calendar-picker-indicator { filter: invert(0.85); opacity: 0.6; cursor: pointer; }
+  [data-cockpit] input[type="date"]::-webkit-calendar-picker-indicator:hover { opacity: 1; }
+  /* Autofill Chrome/Opera/Edge : pas de fond jaune blanc sur les champs login */
+  [data-cockpit] input:-webkit-autofill,
+  [data-cockpit] input:-webkit-autofill:hover,
+  [data-cockpit] input:-webkit-autofill:focus {
+    -webkit-text-fill-color: var(--color-ink-50) !important;
+    -webkit-box-shadow: 0 0 0 30px var(--color-ink-900) inset !important;
+    caret-color: var(--color-ink-50);
+    transition: background-color 9999s ease-out;
+  }
+  /* Scrollbar sombre pour les zones scrollables (modals, tableaux) */
+  [data-cockpit] *::-webkit-scrollbar { width: 10px; height: 10px; }
+  [data-cockpit] *::-webkit-scrollbar-track { background: transparent; }
+  [data-cockpit] *::-webkit-scrollbar-thumb { background: rgba(255,255,255,.08); border-radius: 999px; border: 2px solid transparent; background-clip: padding-box; }
+  [data-cockpit] *::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,.15); background-clip: padding-box; border: 2px solid transparent; }
   .ck-input:focus { outline: none; border-color: rgba(94,106,210,.50); box-shadow: 0 0 0 3px rgba(94,106,210,.20); }
   .ck-modal { position: fixed; inset: 0; z-index: 60; display: flex; align-items: center; justify-content: center; padding: 1rem; }
   .ck-modal-back { position: absolute; inset: 0; background: rgba(0,0,0,.75); backdrop-filter: blur(4px); }

@@ -746,6 +746,20 @@ body {
   }
 }
 
+/* Autofill Chrome/Opera/Edge : neutralise le fond jaune sur les champs
+   pré-remplis par le browser (formulaire d'inscription, login admin). */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill,
+textarea:-webkit-autofill:hover,
+textarea:-webkit-autofill:focus {
+  -webkit-text-fill-color: var(--color-ink-50) !important;
+  -webkit-box-shadow: 0 0 0 30px var(--color-ink-900) inset !important;
+  caret-color: var(--color-ink-50);
+  transition: background-color 9999s ease-out;
+}
+
 /* Masque la scrollbar (carrousels mockup mobile) tout en gardant le scroll */
 .no-scrollbar {
   -ms-overflow-style: none;
