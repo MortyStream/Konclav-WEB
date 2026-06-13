@@ -741,6 +741,11 @@ const ADMIN_EMAIL = "contact@konclav.ch";
   .ck-subtab:hover { color: var(--color-ink-50); background: rgba(255,255,255,.03); }
   .ck-subtab-on { background: rgba(94,106,210,.12); color: var(--color-ink-50); }
   .ck-input { width: 100%; border-radius: .75rem; border: 1px solid rgba(255,255,255,.10); background: rgba(255,255,255,.03); padding: .65rem .85rem; font-size: .875rem; color: var(--color-ink-50); }
+  /* Force le rendu sombre du popup natif des <select> (sinon texte blanc / fond blanc système) */
+  [data-cockpit] select { color-scheme: dark; }
+  [data-cockpit] select option { background-color: var(--color-ink-900); color: var(--color-ink-50); }
+  [data-cockpit] select option:disabled { color: var(--color-ink-500); }
+  [data-cockpit] select option:checked { background: linear-gradient(0deg, rgba(94,106,210,.4), rgba(94,106,210,.4)), var(--color-ink-900); color: var(--color-ink-50); }
   .ck-input:focus { outline: none; border-color: rgba(94,106,210,.50); box-shadow: 0 0 0 3px rgba(94,106,210,.20); }
   .ck-modal { position: fixed; inset: 0; z-index: 60; display: flex; align-items: center; justify-content: center; padding: 1rem; }
   .ck-modal-back { position: absolute; inset: 0; background: rgba(0,0,0,.75); backdrop-filter: blur(4px); }
