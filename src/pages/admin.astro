@@ -672,6 +672,47 @@ const ADMIN_EMAIL = "contact@konclav.ch";
       </div>
     </div>
 
+    <!-- ===== MODAL : confirmation custom (remplace confirm() natif) ===== -->
+    <div data-modal="confirm" hidden class="ck-modal" role="dialog" aria-modal="true" aria-labelledby="ck-cf-title">
+      <div class="ck-modal-back"></div>
+      <div class="ck-modal-card" style="max-width: 28rem;">
+        <div class="px-5 pt-5">
+          <div class="flex items-start gap-3">
+            <span data-cf-icon class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-lg">⚠️</span>
+            <div class="min-w-0 flex-1">
+              <h3 id="ck-cf-title" data-cf-title class="text-base font-semibold text-ink-50">Confirmer ?</h3>
+              <p data-cf-message class="mt-1.5 text-sm text-ink-300"></p>
+            </div>
+          </div>
+        </div>
+        <div class="mt-5 flex flex-col-reverse gap-2 border-t border-white/[0.06] px-5 py-4 sm:flex-row sm:justify-end">
+          <button type="button" data-modal-close class="rounded-lg border border-white/10 px-4 py-2 text-sm text-ink-300 hover:border-white/20 hover:text-ink-50">Annuler</button>
+          <button type="button" data-cf-ok class="rounded-lg bg-accent-500 px-4 py-2 text-sm font-semibold text-white hover:bg-accent-400">Confirmer</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== MODAL : aide raccourcis clavier ===== -->
+    <div data-modal="help" hidden class="ck-modal" role="dialog" aria-modal="true" aria-labelledby="ck-hp-title">
+      <div class="ck-modal-back"></div>
+      <div class="ck-modal-card" style="max-width: 26rem;">
+        <div class="flex items-center justify-between border-b border-white/[0.06] px-5 py-4">
+          <h3 id="ck-hp-title" class="text-base font-semibold text-ink-50">Raccourcis clavier</h3>
+          <button type="button" data-modal-close class="text-ink-400 hover:text-ink-50" aria-label="Fermer">✕</button>
+        </div>
+        <div class="space-y-2 px-5 py-5 text-sm">
+          <div class="flex items-center justify-between"><span class="text-ink-300">Recherche globale</span><kbd class="rounded border border-white/10 bg-white/[0.04] px-2 py-0.5 text-xs">⌘K</kbd></div>
+          <div class="flex items-center justify-between"><span class="text-ink-300">Aperçu</span><kbd class="rounded border border-white/10 bg-white/[0.04] px-2 py-0.5 text-xs">g a</kbd></div>
+          <div class="flex items-center justify-between"><span class="text-ink-300">Inscriptions</span><kbd class="rounded border border-white/10 bg-white/[0.04] px-2 py-0.5 text-xs">g i</kbd></div>
+          <div class="flex items-center justify-between"><span class="text-ink-300">Assos</span><kbd class="rounded border border-white/10 bg-white/[0.04] px-2 py-0.5 text-xs">g s</kbd></div>
+          <div class="flex items-center justify-between"><span class="text-ink-300">Audience</span><kbd class="rounded border border-white/10 bg-white/[0.04] px-2 py-0.5 text-xs">g u</kbd></div>
+          <div class="flex items-center justify-between"><span class="text-ink-300">Facturation</span><kbd class="rounded border border-white/10 bg-white/[0.04] px-2 py-0.5 text-xs">g f</kbd></div>
+          <div class="flex items-center justify-between"><span class="text-ink-300">Fermer un modal</span><kbd class="rounded border border-white/10 bg-white/[0.04] px-2 py-0.5 text-xs">Esc</kbd></div>
+          <div class="flex items-center justify-between"><span class="text-ink-300">Cette aide</span><kbd class="rounded border border-white/10 bg-white/[0.04] px-2 py-0.5 text-xs">?</kbd></div>
+        </div>
+      </div>
+    </div>
+
     <!-- ===== MODAL : gestion 2FA ===== -->
     <div data-modal="mfa" hidden class="ck-modal" role="dialog" aria-modal="true" aria-labelledby="ck-mfa-modal-title">
       <div class="ck-modal-back"></div>
@@ -720,6 +761,36 @@ const ADMIN_EMAIL = "contact@konclav.ch";
   .ck-avatar { box-shadow: inset 0 0 0 1px rgba(255,255,255,.10); letter-spacing: -0.02em; }
   .ck-funnel-step { transition: transform .2s; }
   .ck-funnel-step:hover { transform: translateY(-1px); }
+  /* Fade-in cascade pour les éléments marqués data-anim-in */
+  @keyframes ck-fade-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+  [data-anim-in] { animation: ck-fade-in .35s cubic-bezier(0.16, 1, 0.3, 1) both; }
+  [data-anim-in]:nth-child(2) { animation-delay: 40ms; }
+  [data-anim-in]:nth-child(3) { animation-delay: 80ms; }
+  [data-anim-in]:nth-child(4) { animation-delay: 120ms; }
+  [data-anim-in]:nth-child(5) { animation-delay: 160ms; }
+  [data-anim-in]:nth-child(6) { animation-delay: 200ms; }
+  @media (prefers-reduced-motion: reduce) { [data-anim-in] { animation: none; } }
+  /* Empty states */
+  .ck-empty { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1rem; padding: 3rem 1.5rem; text-align: center; }
+  .ck-empty-icon { width: 56px; height: 56px; border-radius: 16px; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, rgba(113,112,255,.18), rgba(94,106,210,.06)); border: 1px solid rgba(113,112,255,.25); color: #9b9bff; font-size: 24px; }
+  /* Tri colonnes */
+  .ck-th-sort { cursor: pointer; user-select: none; transition: color .15s; }
+  .ck-th-sort:hover { color: var(--color-ink-200); }
+  .ck-th-sort.is-active { color: var(--color-accent-300); }
+  .ck-th-sort-arrow { display: inline-block; margin-left: 4px; opacity: .6; font-size: 9px; vertical-align: middle; }
+  /* Recherche dans tableau */
+  .ck-search-input { width: 100%; padding: .5rem .85rem .5rem 2.25rem; border-radius: .65rem; border: 1px solid rgba(255,255,255,.08); background: rgba(255,255,255,.02); font-size: .85rem; color: var(--color-ink-50); transition: all .15s; }
+  .ck-search-input:focus { outline: none; border-color: rgba(94,106,210,.45); background: rgba(255,255,255,.04); }
+  .ck-search-input::placeholder { color: var(--color-ink-500); }
+  /* Tooltip d'aide (hover) */
+  .ck-info { display: inline-flex; width: 14px; height: 14px; align-items: center; justify-content: center; border-radius: 999px; border: 1px solid rgba(255,255,255,.15); color: var(--color-ink-500); font-size: 9px; font-weight: 600; margin-left: 4px; cursor: help; position: relative; }
+  .ck-info:hover { color: var(--color-ink-200); border-color: rgba(255,255,255,.25); }
+  .ck-info[data-tip]::after { content: attr(data-tip); position: absolute; bottom: calc(100% + 6px); left: 50%; transform: translateX(-50%); background: rgba(15,16,17,.96); border: 1px solid rgba(255,255,255,.10); border-radius: .5rem; padding: .4rem .6rem; font-size: .68rem; font-weight: 400; color: var(--color-ink-200); white-space: nowrap; max-width: 260px; white-space: normal; min-width: 180px; opacity: 0; pointer-events: none; transition: opacity .15s; box-shadow: 0 8px 24px rgba(0,0,0,.5); z-index: 50; }
+  .ck-info:hover[data-tip]::after { opacity: 1; }
+  /* Bouton copier inline */
+  .ck-copy-btn { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 6px; border: 1px solid rgba(255,255,255,.10); background: rgba(255,255,255,.02); font-size: 10px; font-weight: 500; color: var(--color-ink-400); transition: all .15s; }
+  .ck-copy-btn:hover { color: var(--color-ink-50); border-color: rgba(255,255,255,.25); }
+  .ck-copy-btn.is-copied { color: #4ade80; border-color: rgba(74,222,128,.4); }
   @media (prefers-reduced-motion: reduce) { .ck-skel::after, .ck-live-dot { animation: none; } }
   .ck-toasts { position: fixed; bottom: 1.25rem; left: 50%; transform: translateX(-50%); z-index: 80; display: flex; flex-direction: column; align-items: center; gap: .5rem; width: min(92vw, 28rem); pointer-events: none; }
   .ck-toast { pointer-events: auto; max-width: 100%; border-radius: .75rem; border: 1px solid rgba(255,255,255,.10); background: var(--color-ink-900); padding: .6rem 1rem; font-size: .8rem; color: var(--color-ink-50); box-shadow: 0 8px 24px rgba(0,0,0,.5); transition: opacity .3s; animation: ck-toast-in .25s cubic-bezier(0.16, 1, 0.3, 1); }
@@ -774,6 +845,91 @@ const ADMIN_EMAIL = "contact@konclav.ch";
       toastsEl.appendChild(el);
       setTimeout(() => { el.style.opacity = "0"; setTimeout(() => el.remove(), 320); }, type === "error" ? 5200 : 2600);
     }
+
+    // ckConfirm : modal de confirmation custom, remplace confirm() natif.
+    // Retourne une Promise<bool>. Usage : if (await ckConfirm({ title, message, danger })) { ... }
+    function ckConfirm(opts) {
+      return new Promise((resolve) => {
+        const o = typeof opts === "string" ? { message: opts } : (opts || {});
+        const m = root.querySelector('[data-modal="confirm"]');
+        m.querySelector("[data-cf-title]").textContent = o.title || "Confirmer ?";
+        m.querySelector("[data-cf-message]").textContent = o.message || "";
+        m.querySelector("[data-cf-icon]").textContent = o.icon || (o.danger ? "⚠️" : "✓");
+        m.querySelector("[data-cf-icon]").style.background = o.danger
+          ? "rgba(248,113,113,.15)"
+          : "rgba(113,112,255,.15)";
+        const okBtn = m.querySelector("[data-cf-ok]");
+        okBtn.textContent = o.okText || "Confirmer";
+        okBtn.className = "rounded-lg px-4 py-2 text-sm font-semibold text-white " + (o.danger
+          ? "bg-rose-500 hover:bg-rose-400"
+          : "bg-accent-500 hover:bg-accent-400");
+        const cleanup = () => {
+          okBtn.removeEventListener("click", onOk);
+          m.removeEventListener("click", onCancel);
+          document.removeEventListener("keydown", onKey);
+        };
+        const onOk = () => { cleanup(); closeModals(); resolve(true); };
+        const onCancel = (e) => {
+          if (e.target.closest("[data-modal-close]") || e.target.classList.contains("ck-modal-back")) {
+            cleanup(); closeModals(); resolve(false);
+          }
+        };
+        const onKey = (e) => { if (e.key === "Escape") { cleanup(); closeModals(); resolve(false); } };
+        okBtn.addEventListener("click", onOk);
+        m.addEventListener("click", onCancel);
+        document.addEventListener("keydown", onKey);
+        openModal("confirm");
+      });
+    }
+
+    // ckEmpty : génère un empty state élégant (icône + titre + message + CTA optionnel)
+    function ckEmpty(icon, title, message, ctaHtml) {
+      return '<div class="ck-empty">' +
+        '<div class="ck-empty-icon">' + icon + "</div>" +
+        '<div><p class="text-base font-medium text-ink-100">' + esc(title) + "</p>" +
+        (message ? '<p class="mt-1 text-sm text-ink-500">' + message + "</p>" : "") + "</div>" +
+        (ctaHtml || "") + "</div>";
+    }
+
+    // ckInfo : pastille « i » avec tooltip au survol
+    function ckInfo(tip) {
+      return '<span class="ck-info" data-tip="' + esc(tip) + '" aria-label="' + esc(tip) + '">i</span>';
+    }
+
+    // Copie vers presse-papier avec feedback visuel
+    async function ckCopy(text, btn) {
+      try {
+        await navigator.clipboard.writeText(text);
+        if (btn) {
+          const oldHtml = btn.innerHTML;
+          btn.classList.add("is-copied");
+          btn.innerHTML = "✓ copié";
+          setTimeout(() => { btn.classList.remove("is-copied"); btn.innerHTML = oldHtml; }, 1500);
+        }
+        return true;
+      } catch {
+        toast("Copie impossible — sélectionnez le texte manuellement.", "error");
+        return false;
+      }
+    }
+    // Délégation globale pour les boutons de copie + actions d'empty states
+    root.addEventListener("click", (e) => {
+      const cp = e.target.closest("[data-copy]");
+      if (cp) { e.preventDefault(); e.stopPropagation(); ckCopy(cp.dataset.copy, cp); return; }
+      // Empty state Factures → Voir les abonnements
+      if (e.target.closest("[data-goto-subs]")) { switchTab("billing"); switchSubtab("subscriptions"); return; }
+      // Empty state Assos → Aller voir les inscriptions
+      if (e.target.closest("[data-goto-leads]")) { switchTab("leads"); return; }
+      // Empty state : créer entité (client / facture / abonnement)
+      const emptyNew = e.target.closest("[data-empty-new]");
+      if (emptyNew) {
+        const kind = emptyNew.dataset.emptyNew;
+        if (kind === "customer") editCustomer(null);
+        else if (kind === "invoice") editInvoice(null);
+        else if (kind === "subscription") editSubscription(null);
+        return;
+      }
+    });
 
     // Un AbortController par module : changer d'onglet/période annule la requête précédente
     const aborters = {};
@@ -2046,7 +2202,9 @@ const ADMIN_EMAIL = "contact@konclav.ch";
     }
     function renderOrgs(orgs) {
       if (!orgs.length) {
-        ogContent.innerHTML = '<p class="mt-12 text-center text-sm text-ink-500">Aucune asso provisionnée pour l\'instant.<br>Ouvrez un lead dans « Inscriptions » et cliquez « 🚀 Provisionner ».</p>';
+        ogContent.innerHTML = ckEmpty("🏛️", "Aucune association provisionnée",
+          "Ouvre un lead dans « Inscriptions », clique « 🚀 Provisionner » — l'asso, le compte président et la fiche client se créent en une fois.",
+          '<button type="button" data-goto-leads class="rounded-xl bg-accent-500 px-4 py-2 text-sm font-semibold text-white hover:bg-accent-400">Ouvrir les inscriptions</button>');
         return;
       }
       // Mini-stats : actives, suspendues, total membres, fraîcheur médiane
@@ -2166,7 +2324,7 @@ const ADMIN_EMAIL = "contact@konclav.ch";
       const quick = e.target.closest("[data-org-link-billing]");
       if (quick) {
         const tr = quick.closest("[data-org]");
-        if (!confirm("Créer une fiche client pour « " + tr.dataset.orgName + " » ?\n\nLes coordonnées seront reprises depuis l'asso (président comme contact). Vous pourrez les éditer ensuite.")) return;
+        if (!(await ckConfirm({ title: "Créer la fiche client ?", message: "« " + tr.dataset.orgName + " » : les coordonnées seront reprises depuis l'asso (président comme contact). Tu pourras les éditer ensuite.", okText: "Créer la fiche" }))) return;
         quick.disabled = true;
         try {
           await api("customers", {
@@ -2199,9 +2357,9 @@ const ADMIN_EMAIL = "contact@konclav.ch";
       const btn = e.target.closest("[data-org-toggle]"); if (!btn) return;
       const tr = btn.closest("[data-org]");
       const active = !!tr.dataset.orgActive;
-      if (!confirm(active
-        ? "Suspendre « " + tr.dataset.orgName + " » ?\nSes membres ne pourront plus utiliser l'app jusqu'à réactivation."
-        : "Réactiver « " + tr.dataset.orgName + " » ?")) return;
+      if (!(await ckConfirm(active
+        ? { title: "Suspendre l'asso ?", message: "Les membres de « " + tr.dataset.orgName + " » ne pourront plus utiliser l'app jusqu'à réactivation.", okText: "Suspendre", danger: true, icon: "⏸️" }
+        : { title: "Réactiver l'asso ?", message: "« " + tr.dataset.orgName + " » retrouvera l'accès à l'app.", okText: "Réactiver", icon: "▶️" }))) return;
       btn.disabled = true;
       try {
         const res = await fn("cockpit-orgs", { method: "PATCH", json: { org_id: tr.dataset.org, is_active: !active } });
@@ -2215,7 +2373,7 @@ const ADMIN_EMAIL = "contact@konclav.ch";
 
     // ----- Provisionnement depuis un lead -----
     async function provisionLead(lead) {
-      if (!confirm("Provisionner « " + lead.asso_name + " » ?\n\nCela va créer :\n• l'association dans l'app Konclav\n• le compte président pour " + lead.email + " (mot de passe temporaire, à changer au 1er login)\n• la fiche client en facturation\n\nUn email avec les accès sera envoyé au président.")) return;
+      if (!(await ckConfirm({ title: "Provisionner « " + lead.asso_name + " » ?", message: "Va créer l'asso dans l'app + le compte président pour " + lead.email + " (mot de passe temporaire) + la fiche client en facturation. Un email avec les accès sera envoyé.", okText: "🚀 Provisionner", icon: "🚀" }))) return;
       try {
         const res = await fn("cockpit-orgs", { method: "POST", json: { lead_id: lead.id } });
         const data = await res.json().catch(() => ({}));
@@ -2231,12 +2389,12 @@ const ADMIN_EMAIL = "contact@konclav.ch";
       mb.innerHTML =
         '<p class="flex items-center gap-2 text-emerald-400"><span class="h-2 w-2 rounded-full bg-emerald-400"></span>« ' + esc(data.org.name) + " » est provisionnée.</p>" +
         '<table class="mt-4 w-full text-xs"><tbody>' +
-        '<tr><td class="py-1.5 pr-3 text-ink-500">Identifiant</td><td class="py-1.5 font-mono text-ink-50">' + esc(lead.email) + "</td></tr>" +
-        '<tr><td class="py-1.5 pr-3 text-ink-500">Mot de passe temporaire</td><td class="py-1.5 font-mono text-base text-ink-50">' + esc(data.temp_password) + "</td></tr>" +
+        '<tr><td class="py-1.5 pr-3 text-ink-500">Identifiant</td><td class="py-1.5 font-mono text-ink-50">' + esc(lead.email) + ' <button type="button" class="ck-copy-btn ml-2" data-copy="' + esc(lead.email) + '">⎘ copier</button></td></tr>' +
+        '<tr><td class="py-1.5 pr-3 text-ink-500">Mot de passe temporaire</td><td class="py-1.5 font-mono text-base text-ink-50">' + esc(data.temp_password) + ' <button type="button" class="ck-copy-btn ml-2" data-copy="' + esc(data.temp_password) + '">⎘ copier</button></td></tr>' +
         "</tbody></table>" +
         (data.email_sent
           ? '<p class="mt-3 text-xs text-emerald-400">Email d\'accès envoyé au président ✓</p>'
-          : '<p class="mt-3 text-xs text-rose-400">⚠ L\'email n\'est pas parti — transmettez ces accès manuellement.</p>') +
+          : '<p class="mt-3 text-xs text-rose-400">⚠ L\'email n\'est pas parti — transmets ces accès manuellement.</p>') +
         '<p class="mt-2 text-xs text-ink-500">Ce mot de passe ne sera plus jamais affiché. Le président devra le changer à sa première connexion.</p>';
       openModal("provision");
     }
@@ -2341,7 +2499,7 @@ const ADMIN_EMAIL = "contact@konclav.ch";
       const errEl = root.querySelector("[data-bb-error]");
       const seg = root.querySelector("[data-bb-segment]").value;
       const s = SEGMENTS.find((x) => x.value === seg);
-      if (!confirm("Envoyer cet email à " + (s ? s.count() : "?") + " destinataire(s) ?\nChacun reçoit un email individuel (pas de copie visible).")) return;
+      if (!(await ckConfirm({ title: "Envoyer le mailing groupé ?", message: "À " + (s ? s.count() : "?") + " destinataire(s). Chacun reçoit un email individuel (pas de copie visible).", okText: "📣 Envoyer", icon: "📣" }))) return;
       btn.disabled = true; errEl.hidden = true;
       try {
         const res = await fn("cockpit-broadcast", { method: "POST", json: {
@@ -2400,7 +2558,9 @@ const ADMIN_EMAIL = "contact@konclav.ch";
     }
     function renderCustomers() {
       if (!customers.length) {
-        bcContent.innerHTML = '<p class="mt-12 text-center text-sm text-ink-500">Aucun client. Cliquez sur « Nouveau client » pour démarrer.</p>';
+        bcContent.innerHTML = ckEmpty("👥", "Aucun client pour l'instant",
+          "Crée une fiche client manuellement, ou provisionne une asso depuis l'onglet Inscriptions — la fiche client se crée automatiquement.",
+          '<button type="button" data-empty-new="customer" class="rounded-xl bg-accent-500 px-4 py-2 text-sm font-semibold text-white hover:bg-accent-400">+ Nouveau client</button>');
         return;
       }
       bcContent.innerHTML = '<div class="mt-6 overflow-hidden rounded-2xl border border-white/10 bg-white/[0.02]">' +
@@ -2449,7 +2609,7 @@ const ADMIN_EMAIL = "contact@konclav.ch";
     }
     async function deleteCustomer(id) {
       const c = customers.find((x) => x.id === id);
-      if (!confirm("Supprimer « " + (c ? c.asso_name : "ce client") + " » ?\nRefusé s'il reste des factures à son nom — supprimez-les d'abord.")) return;
+      if (!(await ckConfirm({ title: "Supprimer le client ?", message: "« " + (c ? c.asso_name : "ce client") + " » sera retiré. Refusé s'il a encore des factures (supprime-les d'abord).", okText: "Supprimer", danger: true, icon: "🗑️" }))) return;
       try {
         await api("customers?id=eq." + encodeURIComponent(id), { method: "DELETE", headers: { Prefer: "return=minimal" } });
         toast("Client supprimé.");
@@ -2503,7 +2663,9 @@ const ADMIN_EMAIL = "contact@konclav.ch";
     }
     function renderSubscriptions() {
       if (!subsList.length) {
-        bsContent.innerHTML = '<p class="mt-12 text-center text-sm text-ink-500">Aucun abonnement. Créez-en un : les factures se généreront toutes seules à chaque échéance.</p>';
+        bsContent.innerHTML = ckEmpty("🔄", "Aucun abonnement",
+          "Configure un abonnement par asso (mensuel ou annuel) — les factures se génèrent automatiquement à chaque échéance, en brouillon pour que tu valides avant envoi.",
+          '<button type="button" data-empty-new="subscription" class="rounded-xl bg-accent-500 px-4 py-2 text-sm font-semibold text-white hover:bg-accent-400">+ Nouvel abonnement</button>');
         return;
       }
       bsContent.innerHTML = '<div class="mt-6 overflow-x-auto rounded-2xl border border-white/10 bg-white/[0.02]">' +
@@ -2540,7 +2702,7 @@ const ADMIN_EMAIL = "contact@konclav.ch";
           loadSubscriptions();
         } catch (err) { toast("Échec : " + err.message, "error"); }
       } else if (e.target.closest("[data-sub-del]") && s) {
-        if (!confirm("Supprimer cet abonnement ?\nLes factures déjà générées sont conservées.")) return;
+        if (!(await ckConfirm({ title: "Supprimer cet abonnement ?", message: "Plus aucune facture ne sera générée automatiquement. Les factures déjà émises sont conservées.", okText: "Supprimer", danger: true, icon: "🗑️" }))) return;
         try {
           await api("subscriptions?id=eq." + encodeURIComponent(id), { method: "DELETE", headers: { Prefer: "return=minimal" } });
           toast("Abonnement supprimé.");
@@ -2636,7 +2798,10 @@ const ADMIN_EMAIL = "contact@konclav.ch";
     }
     function renderInvoices() {
       if (!invoicesList.length) {
-        biContent.innerHTML = '<p class="mt-12 text-center text-sm text-ink-500">Aucune facture. Cliquez sur « Nouvelle facture » pour démarrer.</p>';
+        biContent.innerHTML = ckEmpty("🧾", "Aucune facture émise",
+          "Crée ta première facture manuellement, ou configure un abonnement pour une asso — la facture sera générée automatiquement à l'échéance.",
+          '<div class="flex gap-2"><button type="button" data-empty-new="invoice" class="rounded-xl bg-accent-500 px-4 py-2 text-sm font-semibold text-white hover:bg-accent-400">+ Nouvelle facture</button>' +
+          '<button type="button" data-goto-subs class="rounded-xl border border-white/10 bg-white/[0.02] px-4 py-2 text-sm font-medium text-ink-300 hover:border-white/20 hover:text-ink-50">Voir les abonnements</button></div>');
         return;
       }
       const today = todayISO();
@@ -2767,7 +2932,7 @@ const ADMIN_EMAIL = "contact@konclav.ch";
     async function remindInvoice(id) {
       const inv = invoicesList.find((x) => x.id === id);
       if (!inv) return;
-      if (!confirm("Envoyer un rappel de paiement pour " + inv.number + " à « " + ((inv.customer && inv.customer.asso_name) || "ce client") + " » ?")) return;
+      if (!(await ckConfirm({ title: "Envoyer un rappel ?", message: "Facture " + inv.number + " · destinataire : " + ((inv.customer && inv.customer.asso_name) || "ce client") + ".", okText: "Envoyer la relance", icon: "📨" }))) return;
       try {
         const res = await fn("cockpit-invoice-reminder", { method: "POST", json: { invoice_id: id } });
         const data = await res.json().catch(() => ({}));
@@ -2780,7 +2945,7 @@ const ADMIN_EMAIL = "contact@konclav.ch";
     async function createCreditNote(id) {
       const inv = invoicesList.find((x) => x.id === id);
       if (!inv) return;
-      if (!confirm("Créer un avoir (note de crédit) pour " + inv.number + " ?\nIl reprendra les mêmes lignes, en brouillon — modifiable avant envoi.")) return;
+      if (!(await ckConfirm({ title: "Créer un avoir ?", message: "Note de crédit pour " + inv.number + ". Reprend les mêmes lignes en brouillon, modifiable avant envoi.", okText: "Créer l'avoir", icon: "📄" }))) return;
       try {
         const res = await api("invoice_lines?invoice_id=eq." + encodeURIComponent(id) + "&order=position.asc");
         const lines = await res.json();
@@ -2879,7 +3044,7 @@ const ADMIN_EMAIL = "contact@konclav.ch";
 
     async function deleteInvoice(id) {
       const inv = invoicesList.find((x) => x.id === id);
-      if (!confirm("Supprimer la facture " + (inv ? inv.number : id) + " ?")) return;
+      if (!(await ckConfirm({ title: "Supprimer la facture ?", message: "« " + (inv ? inv.number : id) + " » sera définitivement retirée.", okText: "Supprimer", danger: true, icon: "🗑️" }))) return;
       try { await api("invoices?id=eq." + encodeURIComponent(id), { method: "DELETE", headers: { Prefer: "return=minimal" } }); toast("Facture supprimée."); loadInvoices(); }
       catch (e) { toast("Échec de la suppression : " + e.message, "error"); }
     }
@@ -3079,8 +3244,33 @@ const ADMIN_EMAIL = "contact@konclav.ch";
       if (b && qItems[+b.dataset.qI]) qItems[+b.dataset.qI].go();
     });
     searchBtn.addEventListener("click", openSearch);
+
+    // ===== Raccourcis clavier =====
+    // ⌘K / Ctrl+K  → recherche globale
+    // ? (Shift+/)  → modal d'aide
+    // g a / g i / g s / g u / g f → navigation onglets (style Linear/GitHub)
+    let gPressed = false;
+    const TAB_BY_KEY = { a: "overview", i: "leads", s: "orgs", u: "audience", f: "billing" };
     document.addEventListener("keydown", (e) => {
-      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") { e.preventDefault(); openSearch(); }
+      // Skip si l'utilisateur tape dans un champ
+      const t = e.target;
+      const inField = t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.tagName === "SELECT" || t.isContentEditable);
+
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") { e.preventDefault(); openSearch(); return; }
+      if (inField) return;
+      if (appView.hidden) return; // pas connecté
+
+      if (e.key === "?" && !e.metaKey && !e.ctrlKey) { e.preventDefault(); openModal("help"); return; }
+      if (e.key === "g" && !e.metaKey && !e.ctrlKey && !e.altKey) {
+        gPressed = true;
+        setTimeout(() => { gPressed = false; }, 1200);
+        return;
+      }
+      if (gPressed && TAB_BY_KEY[e.key]) {
+        e.preventDefault();
+        gPressed = false;
+        switchTab(TAB_BY_KEY[e.key]);
+      }
     });
 
     // =========================================================
@@ -3177,7 +3367,7 @@ const ADMIN_EMAIL = "contact@konclav.ch";
     mfaBody.addEventListener("click", async (e) => {
       const dis = e.target.closest("[data-mfa-disable]");
       if (!dis) return;
-      if (!confirm("Désactiver le 2FA ? Le mot de passe seul suffira à nouveau.")) return;
+      if (!(await ckConfirm({ title: "Désactiver le 2FA ?", message: "Le mot de passe seul suffira à nouveau pour se connecter.", okText: "Désactiver", danger: true, icon: "🔓" }))) return;
       dis.disabled = true;
       try { await mfaRequest("/" + dis.dataset.mfaDisable, { method: "DELETE" }); toast("2FA désactivé."); closeModals(); }
       catch (err) { toast("Échec : " + err.message, "error"); dis.disabled = false; }
