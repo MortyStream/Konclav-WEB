@@ -1601,9 +1601,9 @@ const ADMIN_EMAIL = "contact@konclav.ch";
       const prevMonthRevenue = months.length >= 2 ? months[months.length - 2].total : 0;
       const monthDelta = delta(paidMonth, prevMonthRevenue);
 
-      const heroKpi = (label, value, deltaHtml, sublabel) =>
+      const heroKpi = (labelHtml, value, deltaHtml, sublabel) =>
         '<div class="relative overflow-hidden rounded-2xl border border-accent-500/30 bg-gradient-to-br from-accent-500/[0.10] via-white/[0.02] to-white/[0.02] p-6 shadow-[0_0_36px_rgba(94,106,210,0.12)]">' +
-        '<p class="text-[10px] font-medium uppercase tracking-[0.18em] text-accent-300">' + esc(label) + "</p>" +
+        '<p class="text-[10px] font-medium uppercase tracking-[0.18em] text-accent-300">' + labelHtml + "</p>" +
         '<p class="mt-2 text-5xl font-semibold tracking-tight text-ink-50 tabular-nums">' + esc(value) + "</p>" +
         (sublabel ? '<p class="mt-1 text-xs text-ink-400">' + sublabel + "</p>" : "") +
         (deltaHtml ? '<p class="mt-2 text-xs font-medium">' + deltaHtml + "</p>" : "") +
@@ -1625,7 +1625,7 @@ const ADMIN_EMAIL = "contact@konclav.ch";
         // === Bloc business principal : MRR héros + 3 KPIs ===
         '<div class="mt-8 grid grid-cols-1 gap-3 lg:grid-cols-12">' +
         '<div class="lg:col-span-6">' +
-        heroKpi("MRR · Revenu récurrent", fmtCHF(mrr, "CHF"),
+        heroKpi("MRR · Revenu récurrent" + ckInfo("Monthly Recurring Revenue. Somme des abonnements actifs (annuels divisés par 12). C'est ton revenu mensuel garanti tant que personne ne résilie."), fmtCHF(mrr, "CHF"),
           activeSubs > 0 ? '<span class="text-emerald-400">' + activeSubs + " abo" + (activeSubs > 1 ? "s" : "") + " actif" + (activeSubs > 1 ? "s" : "") + "</span>" : '<span class="text-ink-500">aucun abonnement actif</span>',
           'ARR <span class="text-ink-200 tabular-nums">' + fmtCHF(arr, "CHF") + "</span>") +
         "</div>" +
@@ -1669,10 +1669,83 @@ const ADMIN_EMAIL = "contact@konclav.ch";
           '<span class="ml-3 shrink-0 text-ink-500">' + fmtDate(l.created_at) + "</span></button></li>",
           "Aucune demande cette semaine.") +
         "</div></div>" +
+
+        // === Activity feed : fil unifié des derniers événements business ===
+        renderActivityFeed(allLeads, invs, events) +
         renderOverviewExtras(allLeads, events, mon, sys, onb) +
         (visitors !== null
           ? '<p class="mt-6 text-center text-xs text-ink-500">' + fmtNum(visitors) + ' visiteurs sur konclav.ch ces 7 derniers jours · <button type="button" data-goto="audience" class="text-accent-300 hover:text-accent-400">voir l\'audience</button></p>'
           : "");
+    }
+
+    // Fil d'activité : unifie lead_events + dernières factures payées/émises + derniers leads créés
+    function renderActivityFeed(allLeads, invs, events) {
+      const items = [];
+      allLeads.slice(0, 30).forEach((l) => items.push({
+        when: l.created_at, icon: "📝", color: "#7170ff",
+        text: '<span class="text-ink-200">Nouvelle demande</span> · ' + esc(l.asso_name),
+        goto: { lead: l.id },
+      }));
+      (events || []).slice(0, 50).forEach((ev) => {
+        const lead = allLeads.find((l) => l.id === ev.lead_id);
+        if (!lead) return;
+        const isConvert = ev.type === "provisioned" || (ev.type === "status_change" && /Converti$/.test(ev.detail || ""));
+        items.push({
+          when: ev.created_at,
+          icon: isConvert ? "🚀" : "↻",
+          color: isConvert ? "#4ade80" : "#9b9bff",
+          text: '<span class="text-ink-200">' + esc(ev.detail || ev.type) + '</span> · ' + esc(lead.asso_name),
+          goto: { lead: lead.id },
+        });
+      });
+      invs.slice(0, 30).forEach((i) => {
+        if (i.status === "paid" && i.paid_at) {
+          items.push({
+            when: i.paid_at, icon: "💰", color: "#4ade80",
+            text: '<span class="text-ink-200">Facture payée</span> · ' + esc(i.number) + ' · ' + fmtCHF(i.total, i.currency),
+          });
+        }
+      });
+      items.sort((a, b) => (a.when < b.when ? 1 : -1));
+      const shown = items.slice(0, 10);
+      if (!shown.length) {
+        return '<div class="mt-6 rounded-2xl border border-white/10 bg-white/[0.02] p-5">' +
+          '<h3 class="mb-3 text-sm font-semibold text-ink-50">📰 Activité récente</h3>' +
+          '<p class="text-sm text-ink-500">Pas encore d\'activité — les nouvelles inscriptions, conversions et paiements apparaîtront ici.</p></div>';
+      }
+      return '<div class="mt-6 rounded-2xl border border-white/10 bg-white/[0.02] p-5">' +
+        '<h3 class="mb-3 text-sm font-semibold text-ink-50">📰 Activité récente</h3>' +
+        '<ol class="relative space-y-3 pl-6 before:absolute before:left-[11px] before:top-2 before:bottom-2 before:w-px before:bg-white/[0.06]">' +
+        shown.map((it) => {
+          const rel = relativeTime(it.when);
+          const clickable = it.goto && it.goto.lead;
+          const inner =
+            '<span class="absolute -left-6 top-0.5 flex h-5 w-5 items-center justify-center rounded-full text-[10px]" style="background:' + it.color + '22;border:1px solid ' + it.color + '55;color:' + it.color + '">' + it.icon + "</span>" +
+            '<div class="flex flex-wrap items-baseline justify-between gap-2 text-xs">' +
+            '<div class="min-w-0">' + it.text + "</div>" +
+            '<span class="shrink-0 text-[10px] text-ink-500" title="' + esc(it.when) + '">' + rel + "</span>" +
+            "</div>";
+          return clickable
+            ? '<li class="relative"><button type="button" data-goto-lead="' + esc(it.goto.lead) + '" class="block w-full text-left">' + inner + "</button></li>"
+            : '<li class="relative">' + inner + "</li>";
+        }).join("") +
+        "</ol></div>";
+    }
+
+    // Date relative en français (« il y a 3 min », « hier », « il y a 2 j »)
+    function relativeTime(iso) {
+      if (!iso) return "";
+      const ms = Date.now() - new Date(iso).getTime();
+      const min = Math.floor(ms / 60000);
+      if (min < 1) return "à l'instant";
+      if (min < 60) return "il y a " + min + " min";
+      const h = Math.floor(min / 60);
+      if (h < 24) return "il y a " + h + " h";
+      const d = Math.floor(h / 24);
+      if (d === 1) return "hier";
+      if (d < 7) return "il y a " + d + " j";
+      if (d < 30) return "il y a " + Math.floor(d / 7) + " sem";
+      return "il y a " + Math.floor(d / 30) + " mois";
     }
     function renderOverviewExtras(allLeads, events, mon, sys, onb) {
       const cv = conversionStats(allLeads, events);
@@ -3329,10 +3402,21 @@ const ADMIN_EMAIL = "contact@konclav.ch";
       if (!leads.length) jobs.push(api("leads?select=*&order=created_at.desc").then((r) => r.json()).then((d) => { leads = d; }).catch(() => {}));
       if (!customers.length) jobs.push(api("customers?select=*&order=asso_name.asc").then((r) => r.json()).then((d) => { customers = d; }).catch(() => {}));
       if (!invoicesList.length) jobs.push(api("invoices?select=*,customer:customers(asso_name,contact_name)&order=issue_date.desc").then((r) => r.json()).then((d) => { invoicesList = d; }).catch(() => {}));
+      if (!subsList.length) jobs.push(api("subscriptions?select=*,customer:customers(asso_name)").then((r) => r.json()).then((d) => { subsList = d; }).catch(() => {}));
+      if (!orgsCache.length) jobs.push(fn("cockpit-orgs").then((r) => r.ok ? r.json() : null).then((d) => { if (d && d.orgs) orgsCache = d.orgs; }).catch(() => {}));
       if (jobs.length) { await Promise.all(jobs); renderSearch(qInput.value); }
     }
     function searchPool() {
       const pool = [];
+      // Raccourcis de navigation toujours présents
+      const NAV = [
+        { kind: "Aller à", label: "Aperçu", sub: "Tableau de bord business", tab: "overview", hay: "apercu dashboard accueil mrr" },
+        { kind: "Aller à", label: "Inscriptions", sub: "Pipeline des leads", tab: "leads", hay: "inscriptions leads pipeline" },
+        { kind: "Aller à", label: "Assos", sub: "Associations provisionnées", tab: "orgs", hay: "assos orgs associations" },
+        { kind: "Aller à", label: "Audience", sub: "Stats du site", tab: "audience", hay: "audience analytics stats" },
+        { kind: "Aller à", label: "Facturation", sub: "Factures, clients, abonnements", tab: "billing", hay: "facturation factures clients abonnements" },
+      ];
+      NAV.forEach((n) => pool.push({ ...n, go: () => { closeModals(); switchTab(n.tab); } }));
       leads.forEach((l) => pool.push({
         kind: "Lead", label: l.asso_name, sub: (l.first_name || "") + " " + (l.last_name || "") + " · " + l.email,
         hay: (l.asso_name + " " + l.first_name + " " + l.last_name + " " + l.email + " " + (l.canton || "")).toLowerCase(),
@@ -3341,12 +3425,25 @@ const ADMIN_EMAIL = "contact@konclav.ch";
       customers.forEach((c) => pool.push({
         kind: "Client", label: c.asso_name, sub: (c.contact_name || "") + " · " + (c.contact_email || ""),
         hay: (c.asso_name + " " + (c.contact_name || "") + " " + (c.contact_email || "")).toLowerCase(),
-        go: () => { closeModals(); switchTab("billing"); switchSubtab("customers"); },
+        go: () => { closeModals(); switchTab("billing"); switchSubtab("customers"); editCustomer(c.id); },
       }));
       invoicesList.forEach((i) => pool.push({
         kind: "Facture", label: i.number, sub: ((i.customer && i.customer.asso_name) || "—") + " · " + fmtCHF(i.total, i.currency),
         hay: (i.number + " " + ((i.customer && i.customer.asso_name) || "")).toLowerCase(),
         go: () => { closeModals(); switchTab("billing"); switchSubtab("invoices"); editInvoice(i.id); },
+      }));
+      // Assos (orgs)
+      (orgsCache || []).forEach((o) => pool.push({
+        kind: "Asso", label: o.name, sub: (o.president ? o.president.name + " · " : "") + (o.member_count || 0) + " membres",
+        hay: (o.name + " " + o.slug + " " + ((o.president && o.president.name) || "") + " " + ((o.president && o.president.email) || "")).toLowerCase(),
+        go: () => { closeModals(); switchTab("orgs"); },
+      }));
+      // Abonnements
+      (subsList || []).forEach((s) => pool.push({
+        kind: "Abo", label: ((s.customer && s.customer.asso_name) || "—") + " · " + fmtCHF(s.amount, s.currency),
+        sub: (INTERVALS[s.billing_interval] || s.billing_interval) + (s.active ? " · actif" : " · en pause"),
+        hay: (((s.customer && s.customer.asso_name) || "") + " " + (s.label || "") + " " + s.amount).toLowerCase(),
+        go: () => { closeModals(); switchTab("billing"); switchSubtab("subscriptions"); editSubscription(s.id); },
       }));
       return pool;
     }
