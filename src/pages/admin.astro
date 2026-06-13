@@ -912,6 +912,79 @@ const ADMIN_EMAIL = "contact@konclav.ch";
         return false;
       }
     }
+    // ===== Tri + recherche pour les tableaux (état persistant par tableau) =====
+    const tableState = {}; // { invoices: { sort:'col', dir:'asc', q:'' }, … }
+    function getTableState(key) {
+      if (!tableState[key]) tableState[key] = { sort: null, dir: "asc", q: "" };
+      return tableState[key];
+    }
+    function applyTableFilters(items, key, searchFields, sortAccessors) {
+      const st = getTableState(key);
+      let out = items;
+      if (st.q) {
+        const needle = st.q.toLowerCase();
+        out = out.filter((it) => searchFields.some((f) => String(typeof f === "function" ? f(it) : it[f] ?? "").toLowerCase().includes(needle)));
+      }
+      if (st.sort && sortAccessors[st.sort]) {
+        const acc = sortAccessors[st.sort];
+        out = [...out].sort((a, b) => {
+          const va = acc(a), vb = acc(b);
+          if (va == null && vb == null) return 0;
+          if (va == null) return 1;
+          if (vb == null) return -1;
+          const cmp = typeof va === "number" && typeof vb === "number" ? va - vb : String(va).localeCompare(String(vb), "fr-CH");
+          return st.dir === "asc" ? cmp : -cmp;
+        });
+      }
+      return out;
+    }
+    // En-tête de colonne triable
+    function thSort(key, sortKey, label, align) {
+      const st = getTableState(key);
+      const isActive = st.sort === sortKey;
+      const arrow = isActive ? (st.dir === "asc" ? "▲" : "▼") : "↕";
+      const cls = "ck-th-sort " + (isActive ? "is-active" : "") + (align === "right" ? " text-right" : align === "center" ? " text-center" : " text-left");
+      return '<th scope="col" class="px-4 py-3 ' + cls + '" data-th-sort="' + key + ":" + sortKey + '">' + esc(label) + '<span class="ck-th-sort-arrow">' + arrow + "</span></th>";
+    }
+    // Barre de recherche au-dessus d'un tableau
+    function tableSearchBar(key, placeholder) {
+      const st = getTableState(key);
+      return '<div class="relative mb-3 max-w-sm"><svg class="absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>' +
+        '<input type="search" data-table-search="' + key + '" class="ck-search-input" placeholder="' + esc(placeholder || "Rechercher…") + '" value="' + esc(st.q) + '" /></div>';
+    }
+    // Délégation : clic header → toggle tri ; input search → debounced re-render
+    const tableReloaders = {}; // { key: () => void }
+    function registerTable(key, reloader) { tableReloaders[key] = reloader; }
+    root.addEventListener("click", (e) => {
+      const th = e.target.closest("[data-th-sort]");
+      if (!th) return;
+      const [key, col] = th.dataset.thSort.split(":");
+      const st = getTableState(key);
+      if (st.sort === col) st.dir = st.dir === "asc" ? "desc" : "asc";
+      else { st.sort = col; st.dir = "asc"; }
+      if (tableReloaders[key]) tableReloaders[key]();
+    });
+    let searchDebounce = null;
+    root.addEventListener("input", (e) => {
+      const inp = e.target.closest("[data-table-search]");
+      if (!inp) return;
+      const key = inp.dataset.tableSearch;
+      const st = getTableState(key);
+      clearTimeout(searchDebounce);
+      searchDebounce = setTimeout(() => {
+        st.q = inp.value;
+        if (tableReloaders[key]) {
+          tableReloaders[key]();
+          // Préserve focus (le re-render écrase le DOM)
+          const reInp = root.querySelector('[data-table-search="' + key + '"]');
+          if (reInp) {
+            reInp.focus();
+            reInp.setSelectionRange(reInp.value.length, reInp.value.length);
+          }
+        }
+      }, 200);
+    });
+
     // Délégation globale pour les boutons de copie + actions d'empty states
     root.addEventListener("click", (e) => {
       const cp = e.target.closest("[data-copy]");
@@ -2200,7 +2273,9 @@ const ADMIN_EMAIL = "contact@konclav.ch";
         ogContent.innerHTML = '<p class="mt-12 text-center text-sm text-rose-400">Erreur : ' + esc(e.message || String(e)) + "</p>";
       }
     }
+    let orgsCache = [];
     function renderOrgs(orgs) {
+      orgsCache = orgs;
       if (!orgs.length) {
         ogContent.innerHTML = ckEmpty("🏛️", "Aucune association provisionnée",
           "Ouvre un lead dans « Inscriptions », clique « 🚀 Provisionner » — l'asso, le compte président et la fiche client se créent en une fois.",
@@ -2230,12 +2305,25 @@ const ADMIN_EMAIL = "contact@konclav.ch";
         summaryCard("Actives 7j", fresh, "#7170ff") +
         summaryCard("Liées à facturation", linked + "/" + orgs.length, linked === orgs.length ? "#4ade80" : "#fbbf24") +
         "</div>" +
-        '<div class="mt-6 overflow-x-auto rounded-2xl border border-white/10 bg-white/[0.02]">' +
+        '<div class="mt-6">' + tableSearchBar("orgs", "Rechercher par asso, président, email…") + "</div>" +
+        (function () {
+          const shownOrgs = applyTableFilters(orgs, "orgs",
+            ["name", "slug", (o) => (o.president && o.president.name) || "", (o) => (o.president && o.president.email) || ""],
+            {
+              name: (o) => o.name,
+              members: (o) => o.member_count || 0,
+              last: (o) => o.last_login || "",
+              billing: (o) => (o.customer_id ? (o.subscription ? Number(o.subscription.amount) || 0 : -1) : -2),
+            });
+          if (!shownOrgs.length) {
+            return ckEmpty("🔍", "Aucune asso ne correspond à ta recherche", "Modifie le filtre ou efface-le.", "");
+          }
+          return '<div class="mt-2 overflow-x-auto rounded-2xl border border-white/10 bg-white/[0.02]">' +
         '<table class="w-full text-sm">' +
         '<thead class="bg-white/[0.03] text-xs uppercase tracking-wide text-ink-500">' +
-        '<tr><th scope="col" class="px-4 py-3 text-left">Association</th><th scope="col" class="px-4 py-3 text-left">Président</th><th scope="col" class="px-4 py-3 text-right">Membres</th><th scope="col" class="px-4 py-3 text-left">Dernière connexion</th><th scope="col" class="px-4 py-3 text-left">Facturation</th><th scope="col" class="px-4 py-3"><span class="sr-only">Actions</span></th></tr></thead>' +
+        '<tr>' + thSort("orgs", "name", "Association") + '<th scope="col" class="px-4 py-3 text-left">Président</th>' + thSort("orgs", "members", "Membres", "right") + thSort("orgs", "last", "Dernière connexion") + thSort("orgs", "billing", "Facturation") + '<th scope="col" class="px-4 py-3"><span class="sr-only">Actions</span></th></tr></thead>' +
         '<tbody class="divide-y divide-white/[0.06]">' +
-        orgs.map((o) =>
+        shownOrgs.map((o) =>
           '<tr data-org="' + esc(o.id) + '" data-org-active="' + (o.is_active ? "1" : "") + '" data-org-name="' + esc(o.name) + '" data-org-customer="' + esc(o.customer_id || "") + '" data-org-president-name="' + esc(o.president?.name || "") + '" data-org-president-email="' + esc(o.president?.email || "") + '">' +
           '<td class="px-4 py-3"><div class="flex items-center gap-3">' + avatarBadge(o.name) +
           '<div class="min-w-0"><p class="flex items-center gap-2 truncate font-semibold text-ink-50">' + esc(o.name) +
@@ -2280,7 +2368,9 @@ const ADMIN_EMAIL = "contact@konclav.ch";
           (o.is_active ? "text-rose-400 hover:text-rose-300" : "text-emerald-400 hover:text-emerald-300") + '">' +
           (o.is_active ? "Suspendre" : "Réactiver") + "</button></td></tr>"
         ).join("") + "</tbody></table></div>";
+        })();
     }
+    registerTable("orgs", () => { if (orgsCache.length) renderOrgs(orgsCache); });
     async function toggleOrgDetail(tr) {
       const next = tr.nextElementSibling;
       if (next && next.dataset.orgDetail) { next.remove(); return; }
@@ -2563,21 +2653,33 @@ const ADMIN_EMAIL = "contact@konclav.ch";
           '<button type="button" data-empty-new="customer" class="rounded-xl bg-accent-500 px-4 py-2 text-sm font-semibold text-white hover:bg-accent-400">+ Nouveau client</button>');
         return;
       }
-      bcContent.innerHTML = '<div class="mt-6 overflow-hidden rounded-2xl border border-white/10 bg-white/[0.02]">' +
+      const shown = applyTableFilters(customers, "customers",
+        ["asso_name", "contact_name", "contact_email", "city"],
+        {
+          asso_name: (c) => c.asso_name,
+          contact: (c) => c.contact_name,
+          city: (c) => c.city || "",
+        });
+      bcContent.innerHTML = '<div class="mt-4">' + tableSearchBar("customers", "Rechercher par asso, contact, email…") + "</div>" +
+        (!shown.length
+          ? ckEmpty("🔍", "Aucun client ne correspond à ta recherche", "Modifie le filtre ou efface-le.", "")
+          : '<div class="mt-2 overflow-hidden rounded-2xl border border-white/10 bg-white/[0.02]">' +
         '<table class="w-full text-sm">' +
         '<thead class="bg-white/[0.03] text-xs uppercase tracking-wide text-ink-500">' +
-        '<tr><th scope="col" class="px-4 py-3 text-left">Association</th><th scope="col" class="px-4 py-3 text-left">Contact</th><th scope="col" class="px-4 py-3 text-left">Localité</th><th scope="col" class="px-4 py-3"><span class="sr-only">Actions</span></th></tr></thead>' +
+        '<tr>' + thSort("customers", "asso_name", "Association") + thSort("customers", "contact", "Contact") + thSort("customers", "city", "Localité") + '<th scope="col" class="px-4 py-3"><span class="sr-only">Actions</span></th></tr></thead>' +
         '<tbody class="divide-y divide-white/[0.06]">' +
-        customers.map((c) =>
+        shown.map((c) =>
           '<tr data-customer="' + esc(c.id) + '">' +
-          '<td class="px-4 py-3"><p class="font-semibold text-ink-50">' + esc(c.asso_name) + '</p><p class="text-xs text-ink-500">' + esc(c.vat_number || '—') + '</p></td>' +
+          '<td class="px-4 py-3"><div class="flex items-center gap-3">' + avatarBadge(c.asso_name, "h-8 w-8 text-[10px]") +
+          '<div class="min-w-0"><p class="truncate font-semibold text-ink-50">' + esc(c.asso_name) + '</p><p class="text-xs text-ink-500">' + esc(c.vat_number || '—') + '</p></div></div></td>' +
           '<td class="px-4 py-3"><p class="text-ink-200">' + esc(c.contact_name) + '</p><p class="text-xs text-ink-500"><a href="mailto:' + esc(c.contact_email) + '" class="hover:text-accent-300">' + esc(c.contact_email) + '</a></p></td>' +
           '<td class="px-4 py-3 text-ink-300">' + esc([c.postal_code, c.city, c.country].filter(Boolean).join(' ')) + '</td>' +
           '<td class="px-4 py-3 text-right"><button type="button" data-cust-edit class="text-xs text-accent-300 hover:text-accent-400">Modifier</button> · <button type="button" data-cust-del class="text-xs text-rose-400 hover:text-rose-300">Supprimer</button></td>' +
           '</tr>'
         ).join("") +
-        '</tbody></table></div>';
+        '</tbody></table></div>');
     }
+    registerTable("customers", () => { if (customers.length) renderCustomers(); });
     bcContent.addEventListener("click", (e) => {
       const tr = e.target.closest("[data-customer]"); if (!tr) return;
       const id = tr.dataset.customer;
@@ -2668,12 +2770,24 @@ const ADMIN_EMAIL = "contact@konclav.ch";
           '<button type="button" data-empty-new="subscription" class="rounded-xl bg-accent-500 px-4 py-2 text-sm font-semibold text-white hover:bg-accent-400">+ Nouvel abonnement</button>');
         return;
       }
-      bsContent.innerHTML = '<div class="mt-6 overflow-x-auto rounded-2xl border border-white/10 bg-white/[0.02]">' +
+      const shownSubs = applyTableFilters(subsList, "subscriptions",
+        [(s) => (s.customer && s.customer.asso_name) || "", "label"],
+        {
+          asso: (s) => (s.customer && s.customer.asso_name) || "",
+          amount: (s) => Number(s.amount) || 0,
+          interval: (s) => s.billing_interval,
+          next: (s) => s.next_invoice_date || "",
+          status: (s) => (s.active ? "0_actif" : "1_pause"),
+        });
+      bsContent.innerHTML = '<div class="mt-4">' + tableSearchBar("subscriptions", "Rechercher par asso, libellé…") + "</div>" +
+        (!shownSubs.length
+          ? ckEmpty("🔍", "Aucun abonnement ne correspond à ta recherche", "Modifie le filtre ou efface-le.", "")
+          : '<div class="mt-2 overflow-x-auto rounded-2xl border border-white/10 bg-white/[0.02]">' +
         '<table class="w-full text-sm">' +
         '<thead class="bg-white/[0.03] text-xs uppercase tracking-wide text-ink-500">' +
-        '<tr><th scope="col" class="px-4 py-3 text-left">Client</th><th scope="col" class="px-4 py-3 text-left">Libellé</th><th scope="col" class="px-4 py-3 text-right">Montant</th><th scope="col" class="px-4 py-3 text-left">Intervalle</th><th scope="col" class="px-4 py-3 text-left">Prochaine facture</th><th scope="col" class="px-4 py-3 text-left">Statut</th><th scope="col" class="px-4 py-3"><span class="sr-only">Actions</span></th></tr></thead>' +
+        '<tr>' + thSort("subscriptions", "asso", "Client") + '<th scope="col" class="px-4 py-3 text-left">Libellé</th>' + thSort("subscriptions", "amount", "Montant", "right") + thSort("subscriptions", "interval", "Intervalle") + thSort("subscriptions", "next", "Prochaine facture") + thSort("subscriptions", "status", "Statut") + '<th scope="col" class="px-4 py-3"><span class="sr-only">Actions</span></th></tr></thead>' +
         '<tbody class="divide-y divide-white/[0.06]">' +
-        subsList.map((s) =>
+        shownSubs.map((s) =>
           '<tr data-sub="' + esc(s.id) + '">' +
           '<td class="px-4 py-3 font-semibold text-ink-50">' + esc((s.customer && s.customer.asso_name) || "—") + "</td>" +
           '<td class="px-4 py-3 text-ink-300">' + esc(s.label) + "</td>" +
@@ -2688,8 +2802,9 @@ const ADMIN_EMAIL = "contact@konclav.ch";
           ' · <button type="button" data-sub-toggle class="text-xs text-ink-300 hover:text-ink-50">' + (s.active ? "Pause" : "Reprendre") + "</button>" +
           ' · <button type="button" data-sub-del class="text-xs text-rose-400 hover:text-rose-300">×</button>' +
           "</td></tr>"
-        ).join("") + "</tbody></table></div>";
+        ).join("") + "</tbody></table></div>");
     }
+    registerTable("subscriptions", () => { if (subsList.length) renderSubscriptions(); });
     bsContent.addEventListener("click", async (e) => {
       const tr = e.target.closest("[data-sub]"); if (!tr) return;
       const id = tr.dataset.sub;
@@ -2872,12 +2987,27 @@ const ADMIN_EMAIL = "contact@konclav.ch";
             '<p class="mt-4 border-t border-white/[0.06] pt-3 text-xs"><span class="text-ink-500">Total dormant</span> <span class="float-right font-semibold tabular-nums text-rose-400">' + fmtCHF(totalAging, "CHF") + "</span></p>"
           : '<div class="flex h-44 items-center justify-center text-sm text-emerald-400">Tous les paiements sont à jour ✓</div>') +
         "</div></div>" +
-        '<div class="mt-6 overflow-hidden rounded-2xl border border-white/10 bg-white/[0.02]">' +
+        '<div class="mt-6">' + tableSearchBar("invoices", "Rechercher par numéro, client…") + "</div>" +
+        (function () {
+          const shown = applyTableFilters(invoicesList, "invoices",
+            ["number", (i) => (i.customer && i.customer.asso_name) || ""],
+            {
+              number: (i) => i.number,
+              client: (i) => (i.customer && i.customer.asso_name) || "",
+              issued: (i) => i.issue_date || "",
+              due: (i) => i.due_date || "",
+              total: (i) => Number(i.total) || 0,
+              status: (i) => i.status,
+            });
+          if (!shown.length) {
+            return ckEmpty("🔍", "Aucune facture ne correspond à ta recherche", "Modifie le filtre ou efface-le pour voir toutes les factures.", "");
+          }
+          return '<div class="mt-2 overflow-hidden rounded-2xl border border-white/10 bg-white/[0.02]">' +
         '<table class="w-full text-sm">' +
         '<thead class="bg-white/[0.03] text-xs uppercase tracking-wide text-ink-500">' +
-        '<tr><th scope="col" class="px-4 py-3 text-left">Numéro</th><th scope="col" class="px-4 py-3 text-left">Client</th><th scope="col" class="px-4 py-3 text-left">Émise</th><th scope="col" class="px-4 py-3 text-left">Échéance</th><th scope="col" class="px-4 py-3 text-right">Total</th><th scope="col" class="px-4 py-3 text-left">Statut</th><th scope="col" class="px-4 py-3"><span class="sr-only">Actions</span></th></tr>' +
+        '<tr>' + thSort("invoices", "number", "Numéro") + thSort("invoices", "client", "Client") + thSort("invoices", "issued", "Émise") + thSort("invoices", "due", "Échéance") + thSort("invoices", "total", "Total", "right") + thSort("invoices", "status", "Statut") + '<th scope="col" class="px-4 py-3"><span class="sr-only">Actions</span></th></tr>' +
         '</thead><tbody class="divide-y divide-white/[0.06]">' +
-        invoicesList.map((inv) => {
+        shown.map((inv) => {
           const st = invoiceStatus(inv.status);
           return '<tr data-invoice="' + esc(inv.id) + '">' +
             '<td class="px-4 py-3 font-mono text-xs text-ink-200">' + esc(inv.number) +
@@ -2903,7 +3033,9 @@ const ADMIN_EMAIL = "contact@konclav.ch";
             '</td></tr>';
         }).join("") +
         '</tbody></table></div>';
+        })();
     }
+    registerTable("invoices", () => { if (invoicesList.length) renderInvoices(); });
 
     biContent.addEventListener("click", async (e) => {
       const tr = e.target.closest("[data-invoice]"); if (!tr) return;
