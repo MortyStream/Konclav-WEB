@@ -254,6 +254,33 @@ Aucun pour le moment — le serveur magic 21st-dev a été retiré, il n'apporta
 
 Tout se passe sur `claude/modest-newton-5FRWm`. Push à chaque batch terminé. La branche est trackée côté origin.
 
+## Sprint 8 — Espace client (`/espace`) 13/06/2026
+
+Page client multi-tenant : un membre du **comité** d'une asso (président, vice-président, trésorier, secrétaire, comité) se connecte avec son compte de l'app et accède à :
+- statut + montant + prochain renouvellement de son abonnement Konclav
+- historique des factures avec téléchargement PDF (QR-bill suisse réutilisé)
+- édition des coordonnées de facturation
+
+**Pourquoi sur le site et pas dans l'app** : modèle Notion/Slack/Linear. Apple/Google ne prélèvent rien si le paiement est sur le web. B2B + virement bancaire = catégorie hors IAP. L'app ne propose rien à l'achat.
+
+**Sécurité multi-tenant (migration `client_portal_multitenant_access`)** :
+- `public.current_user_org_id()` (wrapper `private.current_org_id()` qui existe côté app)
+- `public.is_org_billing_manager()` (filtre les 5 rôles statutaires)
+- 4 policies SELECT additionnelles `*_select_org_member` sur customers / invoices / invoice_lines / subscriptions — en **parallèle** des policies admin (RLS = OR entre policies du même cmd → l'admin garde tout son accès)
+- RPC `public.update_my_billing_contact(p_data jsonb)` (security definer + check rôle + whitelist colonnes : impossible de changer asso_name, org_id, lead_id)
+- RPC `public.my_billing_dashboard()` (1 appel = fiche client + sub active + historique factures), sécurisée par les mêmes checks
+
+**Edge Function** : `cockpit-invoice-pdf` v4 — retrait de la gate « email admin strict ». Maintenant le JWT user passe à PostgREST → la RLS décide. Un président → ses factures uniquement. Un membre lambda → 404. L'admin → tout (comme avant).
+
+**Page Astro** `/espace.astro` (auth Supabase REST + JS inline, même pattern que `/admin` mais plus court). Sections : login → dashboard avec onglets « Mes factures » + « Mes coordonnées ». PDF téléchargé via `cockpit-invoice-pdf`.
+
+**Noindex** : `server.js` ajoute `X-Robots-Tag: noindex, nofollow` sur `/espace`, et `astro.config.mjs` l'exclut du `sitemap-index.xml`. Lien discret dans le footer (avec `rel="nofollow"` et icône cadenas).
+
+**Limites assumées** :
+- L'edition n'utilise pas la RLS mais une RPC ciblée (plus simple à auditer que des policies UPDATE avec contraintes colonne par colonne)
+- Pas de gestion abo côté client (souscription/résiliation depuis l'espace) — c'est volontaire, ça reste géré par Kévin via le cockpit
+- Pas de paiement en ligne (Stripe/Twint) — QR-bill suffit, 0% commission
+
 ## Pistes ouvertes
 
 Idées non-bloquantes, par ordre de valeur perçue :

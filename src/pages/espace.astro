@@ -1,0 +1,472 @@
+---
+import Layout from "../layouts/Layout.astro";
+import Logo from "../components/Logo.astro";
+// Espace client konclav.ch/espace — accessible aux membres du comité d'une asso.
+// Auth Supabase (même compte que l'app), RLS multi-tenant : l'utilisateur ne
+// voit que les factures/abos/coordonnées de SON asso. Page noindex.
+// Sections : statut abo + liste factures (PDF QR-bill) + coordonnées éditables.
+const SUPABASE_URL = "https://ehbdngidjrkhfrprfgqg.supabase.co";
+const PUBLISHABLE_KEY = "sb_publishable_VALB2_pMZ2GjMNP3mmyChg_y-vuitny";
+---
+
+<Layout title="Espace client — Konclav" description="Gérez votre abonnement et téléchargez vos factures." noindex={true}>
+  <main
+    id="main"
+    class="mx-auto min-h-dvh w-full max-w-4xl px-6 pb-24 pt-10"
+    data-portal
+    data-url={SUPABASE_URL}
+    data-key={PUBLISHABLE_KEY}
+  >
+    <!-- Header -->
+    <header class="flex items-center justify-between border-b border-white/[0.06] pb-6">
+      <a href="/" class="flex items-center gap-2 text-base font-semibold tracking-tight text-ink-50">
+        <Logo class="h-7 w-7" />
+        Konclav <span class="rounded-md border border-accent-500/40 bg-accent-500/10 px-2 py-0.5 text-[11px] font-medium text-accent-300">Espace client</span>
+      </a>
+      <button
+        type="button"
+        data-cp-logout
+        hidden
+        class="rounded-lg border border-white/10 bg-white/[0.02] px-4 py-2 text-xs font-medium text-ink-400 transition-colors hover:border-white/20 hover:text-ink-50"
+      >
+        Se déconnecter
+      </button>
+    </header>
+
+    <!-- ===== LOGIN ===== -->
+    <section data-cp-login class="mx-auto mt-20 max-w-sm">
+      <h1 class="text-center text-2xl font-semibold tracking-tight text-ink-50">Connectez-vous</h1>
+      <p class="mt-2 text-center text-sm text-ink-400">
+        Utilisez les identifiants de votre compte Konclav (le même que dans l'app).
+      </p>
+      <form data-cp-login-form class="mt-8 space-y-4">
+        <div>
+          <label for="cp-email" class="mb-2 block text-sm font-medium text-ink-50">Email</label>
+          <input id="cp-email" type="email" autocomplete="username" required
+            class="w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-ink-50 placeholder:text-ink-500 focus:border-accent-500/50 focus:outline-none focus:ring-2 focus:ring-accent-500/20" />
+        </div>
+        <div>
+          <label for="cp-password" class="mb-2 block text-sm font-medium text-ink-50">Mot de passe</label>
+          <input id="cp-password" type="password" autocomplete="current-password" required
+            class="w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-ink-50 focus:border-accent-500/50 focus:outline-none focus:ring-2 focus:ring-accent-500/20" />
+        </div>
+        <button type="submit" data-cp-login-btn
+          class="cta-shimmer w-full rounded-xl bg-accent-500 px-5 py-3 text-sm font-semibold text-white shadow-[var(--shadow-cta)] transition-colors hover:bg-accent-400 disabled:cursor-not-allowed disabled:opacity-60">
+          Se connecter
+        </button>
+        <p data-cp-login-error role="alert" hidden class="text-center text-sm text-rose-400"></p>
+        <p class="mt-4 text-center text-xs text-ink-500">
+          Pas encore de compte ? Cet espace est réservé aux <strong class="text-ink-300">membres du comité</strong> (président, vice-président, trésorier, secrétaire, comité).
+          Si votre asso n'a pas encore Konclav, <a href="/inscription" class="text-accent-300 hover:text-accent-400">demandez un accès</a>.
+        </p>
+      </form>
+    </section>
+
+    <!-- ===== PAS DE DROITS ===== -->
+    <section data-cp-forbidden hidden class="mx-auto mt-20 max-w-md text-center">
+      <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl border border-rose-400/30 bg-rose-400/10 text-2xl">⚠️</div>
+      <h1 class="mt-6 text-2xl font-semibold tracking-tight text-ink-50">Accès non autorisé</h1>
+      <p class="mt-3 text-sm leading-relaxed text-ink-400">
+        Cet espace est réservé aux membres du <strong class="text-ink-200">comité</strong> de chaque association (président, vice-président, trésorier, secrétaire, comité).
+        Si vous pensez qu'il s'agit d'une erreur, contactez votre président·e ou
+        <a href="mailto:contact@konclav.ch" class="text-accent-300 hover:text-accent-400">écrivez-nous</a>.
+      </p>
+      <button type="button" data-cp-relogout
+        class="mt-8 rounded-lg border border-white/10 bg-white/[0.02] px-4 py-2 text-xs font-medium text-ink-300 transition-colors hover:border-white/20 hover:text-ink-50">
+        Se reconnecter avec un autre compte
+      </button>
+    </section>
+
+    <!-- ===== DASHBOARD ===== -->
+    <section data-cp-app hidden class="mt-8 space-y-6">
+      <!-- Bandeau asso -->
+      <div data-cp-headline class="rounded-2xl border border-white/10 bg-gradient-to-br from-accent-500/[0.10] via-white/[0.02] to-white/[0.02] p-6 shadow-[0_0_36px_rgba(94,106,210,0.10)]"></div>
+
+      <!-- Onglets -->
+      <nav class="flex flex-wrap gap-1 border-b border-white/[0.06]" role="tablist" aria-label="Espace client">
+        <button type="button" data-cp-tab="invoices" role="tab" aria-selected="true"
+          class="cp-tab relative -mb-px border-b-2 border-accent-500 px-4 py-3 text-sm font-medium text-ink-50">
+          Mes factures
+        </button>
+        <button type="button" data-cp-tab="contact" role="tab" aria-selected="false"
+          class="cp-tab relative -mb-px border-b-2 border-transparent px-4 py-3 text-sm font-medium text-ink-400 hover:text-ink-50">
+          Mes coordonnées
+        </button>
+      </nav>
+
+      <!-- Panel : factures -->
+      <div data-cp-panel="invoices" role="tabpanel" data-cp-invoices>
+        <p class="text-center text-sm text-ink-500">Chargement…</p>
+      </div>
+
+      <!-- Panel : coordonnées -->
+      <div data-cp-panel="contact" role="tabpanel" hidden>
+        <form data-cp-contact-form class="space-y-4 rounded-2xl border border-white/10 bg-white/[0.02] p-6">
+          <p class="text-sm text-ink-400">
+            Ces informations apparaissent sur vos factures. Le nom de l'association est figé — pour le changer,
+            <a href="mailto:contact@konclav.ch" class="text-accent-300 hover:text-accent-400">contactez-nous</a>.
+          </p>
+          <div>
+            <label class="mb-1 block text-xs font-medium text-ink-400">Association (figé)</label>
+            <input data-cp-field="asso_name" disabled
+              class="w-full cursor-not-allowed rounded-lg border border-white/[0.06] bg-white/[0.01] px-3 py-2 text-sm text-ink-400" />
+          </div>
+          <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div>
+              <label class="mb-1 block text-xs font-medium text-ink-400">Nom du contact *</label>
+              <input data-cp-field="contact_name" required class="cp-input" />
+            </div>
+            <div>
+              <label class="mb-1 block text-xs font-medium text-ink-400">Email du contact *</label>
+              <input data-cp-field="contact_email" type="email" required class="cp-input" />
+            </div>
+          </div>
+          <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div>
+              <label class="mb-1 block text-xs font-medium text-ink-400">Téléphone</label>
+              <input data-cp-field="phone" type="tel" class="cp-input" />
+            </div>
+            <div>
+              <label class="mb-1 block text-xs font-medium text-ink-400">N° TVA (si assujetti)</label>
+              <input data-cp-field="vat_number" class="cp-input" placeholder="CHE-123.456.789 TVA" />
+            </div>
+          </div>
+          <div>
+            <label class="mb-1 block text-xs font-medium text-ink-400">Adresse</label>
+            <input data-cp-field="address_line" class="cp-input" placeholder="Rue + n°" />
+          </div>
+          <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
+            <div>
+              <label class="mb-1 block text-xs font-medium text-ink-400">NPA</label>
+              <input data-cp-field="postal_code" class="cp-input" />
+            </div>
+            <div class="sm:col-span-2">
+              <label class="mb-1 block text-xs font-medium text-ink-400">Localité</label>
+              <input data-cp-field="city" class="cp-input" />
+            </div>
+          </div>
+          <div>
+            <label class="mb-1 block text-xs font-medium text-ink-400">Pays</label>
+            <input data-cp-field="country" maxlength="2" class="cp-input uppercase" />
+          </div>
+          <p data-cp-contact-error role="alert" hidden class="text-sm text-rose-400"></p>
+          <div class="flex items-center justify-between border-t border-white/[0.06] pt-4">
+            <p data-cp-contact-msg class="text-xs text-emerald-400" hidden>Enregistré ✓</p>
+            <button type="submit" data-cp-contact-submit
+              class="ml-auto rounded-lg bg-accent-500 px-5 py-2 text-sm font-semibold text-white shadow-[var(--shadow-cta)] transition-colors hover:bg-accent-400 disabled:cursor-not-allowed disabled:opacity-60">
+              Enregistrer
+            </button>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <!-- Toasts -->
+    <div data-cp-toasts class="cp-toasts" aria-live="polite"></div>
+  </main>
+</Layout>
+
+<style is:global>
+  .cp-input { width: 100%; border-radius: .65rem; border: 1px solid rgba(255,255,255,.10); background: rgba(255,255,255,.03); padding: .55rem .8rem; font-size: .875rem; color: var(--color-ink-50); }
+  .cp-input:focus { outline: none; border-color: rgba(94,106,210,.50); box-shadow: 0 0 0 3px rgba(94,106,210,.20); }
+  .cp-tab[aria-selected="true"] { border-color: var(--color-accent-500); color: var(--color-ink-50); }
+  [data-portal] select, [data-portal] input, [data-portal] textarea { color-scheme: dark; }
+  [data-portal] input:-webkit-autofill, [data-portal] input:-webkit-autofill:hover, [data-portal] input:-webkit-autofill:focus {
+    -webkit-text-fill-color: var(--color-ink-50) !important;
+    -webkit-box-shadow: 0 0 0 30px var(--color-ink-900) inset !important;
+    caret-color: var(--color-ink-50);
+    transition: background-color 9999s ease-out;
+  }
+  .cp-toasts { position: fixed; bottom: 1.25rem; left: 50%; transform: translateX(-50%); z-index: 80; display: flex; flex-direction: column; align-items: center; gap: .5rem; width: min(92vw, 28rem); pointer-events: none; }
+  .cp-toast { pointer-events: auto; max-width: 100%; border-radius: .75rem; border: 1px solid rgba(255,255,255,.10); background: var(--color-ink-900); padding: .6rem 1rem; font-size: .8rem; color: var(--color-ink-50); box-shadow: 0 8px 24px rgba(0,0,0,.5); transition: opacity .3s; animation: cp-toast-in .25s cubic-bezier(0.16, 1, 0.3, 1); }
+  .cp-toast-ok { border-color: rgba(74,222,128,.35); }
+  .cp-toast-err { border-color: rgba(248,113,113,.45); }
+  @keyframes cp-toast-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+  @media (prefers-reduced-motion: reduce) { .cp-toast { animation: none; } }
+</style>
+
+<script is:inline>
+  (function () {
+    const root = document.querySelector("[data-portal]");
+    if (!root) return;
+    const U = root.dataset.url;
+    const K = root.dataset.key;
+
+    const loginView = root.querySelector("[data-cp-login]");
+    const forbidView = root.querySelector("[data-cp-forbidden]");
+    const appView = root.querySelector("[data-cp-app]");
+    const loginForm = root.querySelector("[data-cp-login-form]");
+    const loginBtn = root.querySelector("[data-cp-login-btn]");
+    const loginError = root.querySelector("[data-cp-login-error]");
+    const logoutBtn = root.querySelector("[data-cp-logout]");
+    const reloginBtn = root.querySelector("[data-cp-relogout]");
+    const headline = root.querySelector("[data-cp-headline]");
+    const invoicesPanel = root.querySelector("[data-cp-invoices]");
+    const contactForm = root.querySelector("[data-cp-contact-form]");
+    const contactError = root.querySelector("[data-cp-contact-error]");
+    const contactMsg = root.querySelector("[data-cp-contact-msg]");
+    const tabs = root.querySelectorAll("[data-cp-tab]");
+    const panels = {
+      invoices: root.querySelector('[data-cp-panel="invoices"]'),
+      contact: root.querySelector('[data-cp-panel="contact"]'),
+    };
+    const toastsEl = root.querySelector("[data-cp-toasts]");
+
+    const esc = (s) => String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+    const fmtCHF = (n, c) => (c || "CHF") + " " + (Number(n) || 0).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, "'");
+    const fmtDate = (s) => s ? new Date(s).toLocaleDateString("fr-CH", { day: "2-digit", month: "short", year: "numeric" }) : "—";
+    const INTERVALS = { monthly: "mois", yearly: "an" };
+
+    function toast(msg, type) {
+      const el = document.createElement("div");
+      el.className = "cp-toast " + (type === "error" ? "cp-toast-err" : "cp-toast-ok");
+      el.textContent = msg;
+      toastsEl.appendChild(el);
+      setTimeout(() => { el.style.opacity = "0"; setTimeout(() => el.remove(), 320); }, type === "error" ? 5200 : 2600);
+    }
+
+    // ===== Auth =====
+    const store = {
+      get at() { return sessionStorage.getItem("cp_at"); },
+      get rt() { return sessionStorage.getItem("cp_rt"); },
+      set(at, rt) { sessionStorage.setItem("cp_at", at); sessionStorage.setItem("cp_rt", rt); },
+      clear() { sessionStorage.removeItem("cp_at"); sessionStorage.removeItem("cp_rt"); },
+    };
+
+    async function authRequest(grant, body) {
+      const res = await fetch(U + "/auth/v1/token?grant_type=" + grant, {
+        method: "POST", headers: { apikey: K, "Content-Type": "application/json" }, body: JSON.stringify(body),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error_description || data.msg || "Échec de connexion");
+      return data;
+    }
+    async function refreshSession() {
+      if (!store.rt) return false;
+      try { const d = await authRequest("refresh_token", { refresh_token: store.rt }); store.set(d.access_token, d.refresh_token); return true; }
+      catch { store.clear(); return false; }
+    }
+    async function api(path, opts = {}, retried = false) {
+      const res = await fetch(U + "/rest/v1/" + path, {
+        ...opts,
+        headers: { apikey: K, Authorization: "Bearer " + store.at, "Content-Type": "application/json", ...(opts.headers || {}) },
+      });
+      if (res.status === 401 && !retried && (await refreshSession())) return api(path, opts, true);
+      if (res.status === 401) { showLogin(); throw new Error("Session expirée"); }
+      if (!res.ok) { const t = await res.text().catch(() => ""); throw new Error("HTTP " + res.status + " — " + t.slice(0, 200)); }
+      return res;
+    }
+    async function fn(name, opts = {}) {
+      return fetch(U + "/functions/v1/" + name + (opts.qs ? "?" + opts.qs : ""), {
+        method: opts.method || "GET",
+        headers: { apikey: K, Authorization: "Bearer " + store.at, ...(opts.json ? { "Content-Type": "application/json" } : {}), ...(opts.headers || {}) },
+        body: opts.json ? JSON.stringify(opts.json) : opts.body,
+      });
+    }
+
+    // ===== Vues =====
+    function showLogin() { store.clear(); appView.hidden = true; forbidView.hidden = true; logoutBtn.hidden = true; loginView.hidden = false; }
+    function showForbidden() { loginView.hidden = true; appView.hidden = true; logoutBtn.hidden = false; forbidView.hidden = false; }
+    function showApp() { loginView.hidden = true; forbidView.hidden = true; appView.hidden = false; logoutBtn.hidden = false; loadDashboard(); }
+
+    logoutBtn.addEventListener("click", showLogin);
+    reloginBtn.addEventListener("click", showLogin);
+
+    // ===== Onglets =====
+    function switchTab(name) {
+      tabs.forEach((t) => {
+        const on = t.dataset.cpTab === name;
+        t.setAttribute("aria-selected", on ? "true" : "false");
+        t.className = "cp-tab relative -mb-px border-b-2 px-4 py-3 text-sm font-medium transition-colors " + (on ? "border-accent-500 text-ink-50" : "border-transparent text-ink-400 hover:text-ink-50");
+      });
+      Object.entries(panels).forEach(([k, el]) => { if (el) el.hidden = k !== name; });
+    }
+    tabs.forEach((t) => t.addEventListener("click", () => switchTab(t.dataset.cpTab)));
+
+    // ===== Dashboard =====
+    let dashboardData = null;
+
+    async function loadDashboard() {
+      headline.innerHTML = '<p class="text-sm text-ink-500">Chargement…</p>';
+      invoicesPanel.innerHTML = '<p class="text-center text-sm text-ink-500">Chargement…</p>';
+      try {
+        const res = await api("rpc/my_billing_dashboard", { method: "POST", body: "{}" });
+        dashboardData = await res.json();
+      } catch (e) {
+        // 403 → l'utilisateur n'est pas dans le comité
+        if (String(e.message).indexOf("403") !== -1 || String(e.message).indexOf("forbidden") !== -1) {
+          showForbidden();
+          return;
+        }
+        headline.innerHTML = '<p class="text-sm text-rose-400">Erreur de chargement : ' + esc(e.message) + "</p>";
+        return;
+      }
+      if (!dashboardData || !dashboardData.customer) {
+        headline.innerHTML = '<div class="text-center text-sm text-ink-300">' +
+          '<p class="font-semibold text-ink-50">Votre association n\'a pas encore de fiche de facturation.</p>' +
+          '<p class="mt-2 text-ink-400">Cela arrivera lors de la mise en route. Si vous pensez qu\'il y a une erreur, contactez-nous à <a href="mailto:contact@konclav.ch" class="text-accent-300">contact@konclav.ch</a>.</p>' +
+          '</div>';
+        invoicesPanel.innerHTML = "";
+        return;
+      }
+      renderHeadline(dashboardData);
+      renderInvoices(dashboardData.invoices || []);
+      fillContactForm(dashboardData.customer);
+    }
+
+    function renderHeadline(d) {
+      const c = d.customer;
+      const sub = d.subscription;
+      let subBlock = "";
+      if (sub) {
+        const interval = INTERVALS[sub.billing_interval] || sub.billing_interval;
+        const isActive = sub.active;
+        subBlock = '<div class="mt-4 flex flex-wrap items-baseline gap-x-6 gap-y-2 text-sm">' +
+          '<div><p class="text-[10px] font-medium uppercase tracking-[0.14em] text-accent-300">Abonnement</p>' +
+          '<p class="mt-1 text-lg font-semibold text-ink-50 tabular-nums">' + fmtCHF(sub.amount, sub.currency) + " <span class=\"text-xs font-normal text-ink-400\">/ " + interval + "</span></p></div>" +
+          '<div><p class="text-[10px] font-medium uppercase tracking-[0.14em] text-ink-500">Statut</p>' +
+          '<p class="mt-1 ' + (isActive ? "text-emerald-400" : "text-amber-400") + '">' + (isActive ? "✓ Actif" : "⏸ En pause") + "</p></div>" +
+          (sub.next_invoice_date ? '<div><p class="text-[10px] font-medium uppercase tracking-[0.14em] text-ink-500">Prochaine facture</p>' +
+            '<p class="mt-1 text-ink-200">' + fmtDate(sub.next_invoice_date) + "</p></div>" : "") +
+          "</div>";
+      } else {
+        subBlock = '<p class="mt-4 text-xs text-ink-400">Pas d\'abonnement actif. Si vous souhaitez en mettre un en place, écrivez-nous à <a href="mailto:contact@konclav.ch" class="text-accent-300">contact@konclav.ch</a>.</p>';
+      }
+      headline.innerHTML =
+        '<div class="flex flex-wrap items-start justify-between gap-4">' +
+        '<div><p class="text-[10px] font-medium uppercase tracking-[0.14em] text-accent-300">Espace de</p>' +
+        '<h1 class="mt-1 text-2xl font-semibold tracking-tight text-ink-50">' + esc(c.asso_name) + "</h1>" +
+        '<p class="mt-1 text-xs text-ink-400">' + esc(c.contact_name || "") + ' · <a href="mailto:' + esc(c.contact_email || "") + '" class="hover:text-accent-300">' + esc(c.contact_email || "") + "</a></p></div>" +
+        "</div>" + subBlock;
+    }
+
+    function renderInvoices(invs) {
+      if (!invs.length) {
+        invoicesPanel.innerHTML = '<div class="rounded-2xl border border-white/[0.06] bg-white/[0.01] p-8 text-center"><p class="text-sm text-ink-400">Aucune facture émise à ce jour.</p></div>';
+        return;
+      }
+      const statusBadge = (s) => {
+        const map = {
+          paid: ["Payée", "text-emerald-400 bg-emerald-400/10 border-emerald-400/30"],
+          sent: ["Envoyée", "text-accent-300 bg-accent-500/10 border-accent-500/30"],
+          overdue: ["En retard", "text-rose-400 bg-rose-400/10 border-rose-400/30"],
+          canceled: ["Annulée", "text-ink-500 bg-white/[0.04] border-white/10"],
+        };
+        const [lbl, cls] = map[s] || [s, "text-ink-400 bg-white/[0.04] border-white/10"];
+        return '<span class="rounded-md border px-2 py-0.5 text-[11px] font-medium ' + cls + '">' + lbl + "</span>";
+      };
+      const today = new Date().toISOString().slice(0, 10);
+      const isLate = (inv) => inv.status === "overdue" || (inv.status === "sent" && inv.due_date && inv.due_date < today);
+      const totalOpen = invs.filter((i) => (i.status === "sent" || i.status === "overdue") && i.doc_type !== "credit_note").reduce((s, i) => s + (Number(i.total) || 0), 0);
+      let summary = "";
+      if (totalOpen > 0) {
+        summary = '<div class="mb-4 rounded-2xl border border-amber-400/30 bg-amber-400/[0.06] p-4 text-sm">' +
+          '<p class="font-medium text-amber-400">' + fmtCHF(totalOpen, "CHF") + " en attente de paiement</p>" +
+          '<p class="mt-1 text-xs text-ink-400">Téléchargez la facture en PDF ci-dessous, scannez le QR-bill avec votre app bancaire.</p></div>';
+      }
+      invoicesPanel.innerHTML = summary +
+        '<div class="overflow-hidden rounded-2xl border border-white/10 bg-white/[0.02]">' +
+        '<ul class="divide-y divide-white/[0.06]">' +
+        invs.map((inv) => {
+          const isCredit = inv.doc_type === "credit_note";
+          const due = inv.due_date && !isCredit ? fmtDate(inv.due_date) : null;
+          return '<li data-inv="' + esc(inv.id) + '" class="flex flex-wrap items-center gap-x-4 gap-y-2 px-4 py-4">' +
+            '<div class="min-w-0 flex-1">' +
+            '<p class="flex items-center gap-2"><span class="font-mono text-sm text-ink-100">' + esc(inv.number) + "</span>" +
+            (isCredit ? '<span class="rounded bg-rose-400/10 px-1.5 py-0.5 text-[10px] font-semibold text-rose-400">AVOIR</span>' : "") +
+            statusBadge(inv.status) +
+            (isLate(inv) ? '<span class="text-[11px] font-medium text-rose-400">Échéance dépassée</span>' : "") +
+            "</p>" +
+            '<p class="mt-1 text-xs text-ink-500">Émise le ' + fmtDate(inv.issue_date) + (due ? " · échéance " + due : "") + (inv.paid_at ? " · payée le " + fmtDate(inv.paid_at) : "") + "</p>" +
+            "</div>" +
+            '<div class="text-right">' +
+            '<p class="text-lg font-semibold tabular-nums text-ink-50">' + fmtCHF(inv.total, inv.currency) + "</p>" +
+            (Number(inv.vat_rate) > 0 ? '<p class="text-[10px] text-ink-500">dont TVA ' + inv.vat_rate + "%</p>" : "") +
+            "</div>" +
+            '<button type="button" data-cp-pdf="' + esc(inv.id) + '" data-cp-num="' + esc(inv.number) + '" class="rounded-lg border border-accent-500/40 bg-accent-500/10 px-3 py-1.5 text-xs font-medium text-accent-300 transition-colors hover:bg-accent-500/20">📄 PDF</button>' +
+            "</li>";
+        }).join("") +
+        "</ul></div>";
+    }
+
+    invoicesPanel.addEventListener("click", async (e) => {
+      const btn = e.target.closest("[data-cp-pdf]");
+      if (!btn) return;
+      btn.disabled = true;
+      const oldHtml = btn.innerHTML;
+      btn.innerHTML = "…";
+      try {
+        const res = await fn("cockpit-invoice-pdf", { qs: "id=" + encodeURIComponent(btn.dataset.cpPdf) });
+        if (!res.ok) {
+          const t = await res.text().catch(() => "");
+          throw new Error(t.slice(0, 160) || ("HTTP " + res.status));
+        }
+        const blob = await res.blob();
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.target = "_blank";
+        a.rel = "noopener";
+        a.download = "facture-" + btn.dataset.cpNum + ".pdf";
+        document.body.appendChild(a); a.click(); a.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 60_000);
+      } catch (err) {
+        toast("Téléchargement impossible : " + err.message, "error");
+      } finally {
+        btn.disabled = false; btn.innerHTML = oldHtml;
+      }
+    });
+
+    function fillContactForm(c) {
+      ["asso_name", "contact_name", "contact_email", "phone", "vat_number", "address_line", "postal_code", "city", "country"].forEach((k) => {
+        const el = root.querySelector('[data-cp-field="' + k + '"]');
+        if (el) el.value = c[k] || "";
+      });
+    }
+
+    contactForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const btn = root.querySelector("[data-cp-contact-submit]");
+      contactError.hidden = true; contactMsg.hidden = true;
+      const payload = {};
+      ["contact_name", "contact_email", "phone", "vat_number", "address_line", "postal_code", "city", "country"].forEach((k) => {
+        const el = root.querySelector('[data-cp-field="' + k + '"]');
+        if (el) payload[k] = el.value;
+      });
+      btn.disabled = true;
+      try {
+        await api("rpc/update_my_billing_contact", { method: "POST", body: JSON.stringify({ p_data: payload }) });
+        contactMsg.hidden = false;
+        toast("Coordonnées mises à jour ✓");
+        // Recharge pour avoir l'état canonique côté base
+        loadDashboard();
+      } catch (err) {
+        contactError.textContent = err.message.indexOf("invalid_email") !== -1
+          ? "L'adresse email est invalide."
+          : (err.message || "Erreur lors de l'enregistrement.");
+        contactError.hidden = false;
+      } finally { btn.disabled = false; }
+    });
+
+    // ===== Form login =====
+    loginForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      loginBtn.disabled = true; loginError.hidden = true;
+      try {
+        const email = document.getElementById("cp-email").value.trim();
+        const password = document.getElementById("cp-password").value;
+        const data = await authRequest("password", { email, password });
+        store.set(data.access_token, data.refresh_token);
+        showApp();
+      } catch (err) { loginError.textContent = err.message || "Échec de connexion."; loginError.hidden = false; }
+      finally { loginBtn.disabled = false; }
+    });
+
+    // Boot
+    (async () => {
+      if (store.at) { showApp(); return; }
+      if (await refreshSession()) { showApp(); return; }
+      showLogin();
+    })();
+  })();
+</script>

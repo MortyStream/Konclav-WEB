@@ -12,7 +12,8 @@ export default defineConfig({
       filter: (page) =>
         !page.endsWith("/404/") &&
         !page.endsWith("/sous-traitance/") &&
-        !page.endsWith("/admin/"),
+        !page.endsWith("/admin/") &&
+        !page.endsWith("/espace/"),
     }),
   ],
   vite: {

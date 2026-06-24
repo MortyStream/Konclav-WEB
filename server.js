@@ -117,7 +117,8 @@ app.use((req, res, next) => {
   if (
     req.path.startsWith("/sous-traitance") ||
     req.path.startsWith("/404") ||
-    req.path.startsWith("/admin")
+    req.path.startsWith("/admin") ||
+    req.path.startsWith("/espace")
   ) {
     res.setHeader("X-Robots-Tag", "noindex, nofollow");
   }
