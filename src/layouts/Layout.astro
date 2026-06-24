@@ -90,6 +90,7 @@ const imageUrl = new URL(image, Astro.site ?? Astro.url.origin).toString();
         function send(eventName) {
           if (navigator.webdriver) return;
           if (location.pathname.indexOf("/admin") === 0) return;
+          if (location.pathname.indexOf("/espace") === 0) return;
           var sid = null;
           try {
             sid = sessionStorage.getItem("k_sid");

@@ -281,6 +281,13 @@ Page client multi-tenant : un membre du **comité** d'une asso (président, vice
 - Pas de gestion abo côté client (souscription/résiliation depuis l'espace) — c'est volontaire, ça reste géré par Kévin via le cockpit
 - Pas de paiement en ligne (Stripe/Twint) — QR-bill suffit, 0% commission
 
+**Triple check sécurité (migration `client_portal_hardening_drafts_caps`)** — tests d'isolation passés en simulant les JWT en SQL (`set local role authenticated` + `request.jwt.claims`) :
+- ✅ Président d'une org A ne voit AUCUNE facture de l'org B (`nb_vu = 0`)
+- ✅ Membre lambda (role hors comité) ne voit RIEN même dans sa propre org (`is_mgr = false`)
+- ✅ Les **brouillons** (`draft`) sont exclus des policies client (durcissement) : un président voit ses factures `sent` mais pas les `draft` de son asso (la page les masquait déjà, mais l'Edge Function PDF aurait pu en servir un si l'UUID était connu). L'admin garde ses policies séparées → voit tout.
+- ✅ Caps de longueur dans `update_my_billing_contact` (200/50/120/2 chars selon champ).
+- `/espace` exclu du tracking d'audience (client `Layout.astro` + serveur `website-track` v5) — page authentifiée, hors stats marketing.
+
 ## Pistes ouvertes
 
 Idées non-bloquantes, par ordre de valeur perçue :
