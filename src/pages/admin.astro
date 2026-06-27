@@ -553,6 +553,25 @@ const ADMIN_EMAIL = "contact@konclav.ch";
       </div>
     </div>
 
+    <!-- ===== MODAL : rapports de bug (app) ===== -->
+    <div data-modal="bugs" hidden class="ck-modal" role="dialog" aria-modal="true" aria-labelledby="ck-bug-title">
+      <div class="ck-modal-back"></div>
+      <div class="ck-modal-card ck-modal-wide">
+        <div class="flex items-center justify-between border-b border-white/[0.06] px-5 py-4">
+          <h3 id="ck-bug-title" class="text-base font-semibold text-ink-50">🐛 Rapports de bug</h3>
+          <button type="button" data-modal-close class="text-ink-400 hover:text-ink-50" aria-label="Fermer">✕</button>
+        </div>
+        <div data-bug-body class="max-h-[75vh] overflow-y-auto px-5 py-5"></div>
+      </div>
+    </div>
+
+    <!-- ===== LIGHTBOX : capture plein écran ===== -->
+    <div data-lightbox hidden class="ck-modal" role="dialog" aria-modal="true" aria-label="Capture d'écran">
+      <div class="ck-modal-back" data-lightbox-close></div>
+      <img data-lightbox-img alt="Capture d'écran du rapport de bug" class="relative max-h-[90vh] max-w-[92vw] rounded-xl border border-white/10 object-contain shadow-2xl" />
+      <button type="button" data-lightbox-close aria-label="Fermer" class="absolute right-5 top-5 z-10 rounded-lg border border-white/15 bg-ink-900/80 px-3 py-1.5 text-sm text-ink-200 hover:text-ink-50">✕</button>
+    </div>
+
     <!-- ===== PALETTE Cmd+K ===== -->
     <div data-modal="cmdk" hidden class="ck-modal" role="dialog" aria-modal="true" aria-label="Recherche globale">
       <div class="ck-modal-back"></div>
@@ -769,6 +788,7 @@ const ADMIN_EMAIL = "contact@konclav.ch";
   [data-cockpit] *::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,.15); background-clip: padding-box; border: 2px solid transparent; }
   .ck-input:focus { outline: none; border-color: rgba(94,106,210,.50); box-shadow: 0 0 0 3px rgba(94,106,210,.20); }
   .ck-modal { position: fixed; inset: 0; z-index: 60; display: flex; align-items: center; justify-content: center; padding: 1rem; }
+  .ck-modal[hidden] { display: none; }
   .ck-modal-back { position: absolute; inset: 0; background: rgba(0,0,0,.75); backdrop-filter: blur(4px); }
   .ck-modal-card { position: relative; width: 100%; max-width: 32rem; max-height: 90vh; overflow-y: auto; border-radius: 1rem; border: 1px solid rgba(255,255,255,.10); background: var(--color-ink-900); }
   .ck-modal-wide { max-width: 48rem; }
@@ -1534,6 +1554,7 @@ const ADMIN_EMAIL = "contact@konclav.ch";
     // ============ MODULE 1B : APERÇU (dashboard) ==============
     // =========================================================
     const ovContent = root.querySelector("[data-ov-content]");
+    let lastBugs = []; // derniers bug_reports chargés (pour le modal détail)
     function ovSkeleton() {
       const k = '<div class="ck-skel h-28 rounded-2xl"></div>';
       const c = '<div class="ck-skel h-44 rounded-2xl"></div>';
@@ -1815,14 +1836,23 @@ const ADMIN_EMAIL = "contact@konclav.ch";
       }
       sysCard += "</div>";
 
+      lastBugs = sys && Array.isArray(sys.bugs) ? sys.bugs : [];
+      const bugShotBadge = (b) => b.screenshot_count > 0
+        ? '<span class="ml-1.5 inline-flex items-center gap-0.5 rounded bg-accent-500/15 px-1.5 py-0.5 text-[10px] font-medium text-accent-300">📷 ' + b.screenshot_count + "</span>"
+        : "";
       let bugsCard = '<div class="rounded-2xl border border-white/10 bg-white/[0.02] p-5">' +
-        '<h3 class="mb-2 text-sm font-semibold text-ink-50">🐛 Bugs signalés (app)</h3>';
-      if (sys && Array.isArray(sys.bugs) && sys.bugs.length) {
-        bugsCard += sys.bugs.slice(0, 4).map((b) =>
-          '<div class="border-b border-white/[0.04] py-1.5 last:border-0">' +
-          '<p class="text-xs text-ink-200">' + esc(String(b.description).slice(0, 90)) + (String(b.description).length > 90 ? "…" : "") + "</p>" +
+        '<div class="mb-2 flex items-center justify-between">' +
+        '<h3 class="text-sm font-semibold text-ink-50">🐛 Bugs signalés (app)</h3>' +
+        (lastBugs.length ? '<button type="button" data-bugs-all class="text-[11px] font-medium text-accent-300 hover:text-accent-400">Voir les ' + lastBugs.length + "</button>" : "") +
+        "</div>";
+      if (lastBugs.length) {
+        bugsCard += lastBugs.slice(0, 4).map((b, i) =>
+          '<button type="button" data-bug-open="' + i + '" class="block w-full border-b border-white/[0.04] py-1.5 text-left last:border-0 hover:bg-white/[0.02]">' +
+          '<p class="flex items-start text-xs text-ink-200">' +
+          '<span class="min-w-0 flex-1">' + esc(String(b.description).slice(0, 90)) + (String(b.description).length > 90 ? "…" : "") + "</span>" +
+          bugShotBadge(b) + "</p>" +
           '<p class="mt-0.5 text-[11px] text-ink-500">' + esc(b.who) + " · " + esc(b.org) + " · " + fmtDate(b.created_at) + "</p>" +
-          "</div>").join("");
+          "</button>").join("");
       } else {
         bugsCard += '<p class="text-xs text-ink-500">Aucun bug signalé 🎉</p>';
       }
@@ -1954,8 +1984,84 @@ const ADMIN_EMAIL = "contact@konclav.ch";
     ovContent.addEventListener("click", (e) => {
       const lb = e.target.closest("[data-goto-lead]");
       if (lb) { focusLeadId = lb.dataset.gotoLead; switchTab("leads"); return; }
+      const goAll = e.target.closest("[data-bugs-all]");
+      if (goAll) { openBugsList(); return; }
+      const bo = e.target.closest("[data-bug-open]");
+      if (bo) { const idx = +bo.dataset.bugOpen; if (lastBugs[idx]) openBugDetail(lastBugs[idx]); return; }
       const b = e.target.closest("[data-goto]");
       if (b) switchTab(b.dataset.goto);
+    });
+
+    // ----- Rapports de bug : modal détail + captures à la demande -----
+    const bugBody = root.querySelector("[data-bug-body]");
+    const bugTitle = document.getElementById("ck-bug-title");
+    const lightbox = root.querySelector("[data-lightbox]");
+    const lightboxImg = root.querySelector("[data-lightbox-img]");
+
+    function bugDetailHtml(b) {
+      const roleLine = [b.who, b.role, b.org].filter(Boolean).join(" · ");
+      return '<div class="space-y-4">' +
+        '<div class="flex flex-wrap items-center justify-between gap-2 text-xs">' +
+        '<span class="text-ink-400">' + esc(roleLine) + "</span>" +
+        '<span class="text-ink-500">' + fmtDate(b.created_at) + "</span></div>" +
+        '<div class="whitespace-pre-wrap rounded-xl border border-white/[0.06] bg-white/[0.01] p-4 text-sm leading-relaxed text-ink-200">' + esc(b.description || "—") + "</div>" +
+        '<div data-bug-shots>' +
+        (b.screenshot_count > 0
+          ? '<p class="mb-2 text-xs font-medium text-ink-400">' + b.screenshot_count + " capture" + (b.screenshot_count > 1 ? "s" : "") + ' d\'écran</p><p class="text-xs text-ink-500">Chargement…</p>'
+          : '<p class="text-xs text-ink-500">Aucune capture d\'écran jointe.</p>') +
+        "</div></div>";
+    }
+
+    async function loadBugShots(b, container) {
+      if (!b.screenshot_count) return;
+      try {
+        const ts = new Date(b.created_at).getTime();
+        const res = await fn("cockpit-monitoring", { qs: "shots=" + encodeURIComponent(b.user_id) + "&ts=" + ts });
+        const data = await res.json().catch(() => ({}));
+        const shots = Array.isArray(data.screenshots) ? data.screenshots : [];
+        if (!shots.length) { container.innerHTML = '<p class="text-xs text-ink-500">Captures introuvables dans le stockage.</p>'; return; }
+        container.innerHTML = '<p class="mb-2 text-xs font-medium text-ink-400">' + shots.length + " capture" + (shots.length > 1 ? "s" : "") + ' d\'écran <span class="font-normal text-ink-500">· cliquez pour agrandir</span></p>' +
+          '<div class="grid grid-cols-2 gap-3 sm:grid-cols-3">' +
+          shots.map((s) =>
+            '<button type="button" data-shot="' + esc(s.url) + '" class="group relative overflow-hidden rounded-lg border border-white/10 bg-white/[0.02]">' +
+            '<img src="' + esc(s.url) + '" alt="Capture d\'écran" loading="lazy" class="aspect-[9/16] w-full object-cover transition-transform group-hover:scale-105" />' +
+            "</button>").join("") +
+          "</div>";
+      } catch {
+        container.innerHTML = '<p class="text-xs text-rose-400">Erreur de chargement des captures.</p>';
+      }
+    }
+
+    function openBugDetail(b) {
+      bugTitle.textContent = "🐛 Rapport de bug";
+      bugBody.innerHTML = bugDetailHtml(b);
+      openModal("bugs");
+      loadBugShots(b, bugBody.querySelector("[data-bug-shots]"));
+    }
+
+    function openBugsList() {
+      bugTitle.textContent = "🐛 Rapports de bug · " + lastBugs.length;
+      bugBody.innerHTML = '<ul class="space-y-2">' + lastBugs.map((b, i) =>
+        '<li><button type="button" data-bug-row="' + i + '" class="block w-full rounded-xl border border-white/[0.06] bg-white/[0.01] p-3 text-left transition-colors hover:border-white/15">' +
+        '<p class="flex items-start text-sm text-ink-100"><span class="min-w-0 flex-1">' + esc(String(b.description).slice(0, 140)) + (String(b.description).length > 140 ? "…" : "") + "</span>" +
+        (b.screenshot_count > 0 ? '<span class="ml-2 shrink-0 rounded bg-accent-500/15 px-1.5 py-0.5 text-[10px] font-medium text-accent-300">📷 ' + b.screenshot_count + "</span>" : "") + "</p>" +
+        '<p class="mt-1 text-[11px] text-ink-500">' + esc(b.who) + " · " + esc(b.org) + " · " + fmtDate(b.created_at) + "</p>" +
+        "</button></li>").join("") + "</ul>";
+      openModal("bugs");
+    }
+
+    // Délégation : clic sur une ligne de la liste → détail ; clic sur une vignette → lightbox
+    bugBody.addEventListener("click", (e) => {
+      const row = e.target.closest("[data-bug-row]");
+      if (row) { const idx = +row.dataset.bugRow; if (lastBugs[idx]) openBugDetail(lastBugs[idx]); return; }
+      const shot = e.target.closest("[data-shot]");
+      if (shot) { lightboxImg.src = shot.dataset.shot; lightbox.hidden = false; }
+    });
+    lightbox.addEventListener("click", (e) => {
+      if (e.target.closest("[data-lightbox-close]")) { lightbox.hidden = true; lightboxImg.src = ""; }
+    });
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && !lightbox.hidden) { lightbox.hidden = true; lightboxImg.src = ""; }
     });
 
     // =========================================================

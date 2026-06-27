@@ -48,7 +48,7 @@ const csp = [
   `script-src 'self' ${scriptHashes.join(" ")}`.trim().replace(/\s+/g, " "),
   "style-src 'self' 'unsafe-inline'",
   "font-src 'self' data:",
-  "img-src 'self' data:",
+  "img-src 'self' data: https://ehbdngidjrkhfrprfgqg.supabase.co",
   "connect-src 'self' https://ehbdngidjrkhfrprfgqg.supabase.co",
   "form-action 'self'",
   "frame-ancestors 'none'",
