@@ -233,6 +233,7 @@ const ADMIN_EMAIL = "contact@konclav.ch";
               <button type="button" data-period="30d" class="ck-pill">30 j</button>
               <button type="button" data-period="90d" class="ck-pill">90 j</button>
             </div>
+            <button type="button" data-au-bots class="ck-pill ck-pill-on" title="Masque les crawlers de compliance Apple/Google (visiteurs US anglophones qui ne consultent que les pages légales)">🤖 Bots masqués</button>
             <button type="button" data-au-csv class="rounded-full border border-white/10 bg-white/[0.02] px-3 py-1.5 text-xs font-medium text-ink-300 transition-colors hover:border-white/20 hover:text-ink-50" title="Exporter la période en CSV (top pages, sources, pays, etc.)">⬇ CSV</button>
           </div>
         </div>
@@ -570,6 +571,24 @@ const ADMIN_EMAIL = "contact@konclav.ch";
       <div class="ck-modal-back" data-lightbox-close></div>
       <img data-lightbox-img alt="Capture d'écran du rapport de bug" class="relative max-h-[90vh] max-w-[92vw] rounded-xl border border-white/10 object-contain shadow-2xl" />
       <button type="button" data-lightbox-close aria-label="Fermer" class="absolute right-5 top-5 z-10 rounded-lg border border-white/15 bg-ink-900/80 px-3 py-1.5 text-sm text-ink-200 hover:text-ink-50">✕</button>
+    </div>
+
+    <!-- ===== MODAL : bloc-notes perso ===== -->
+    <div data-modal="notes" hidden class="ck-modal" role="dialog" aria-modal="true" aria-labelledby="ck-nt-title">
+      <div class="ck-modal-back"></div>
+      <div class="ck-modal-card ck-modal-wide">
+        <div class="flex items-center justify-between border-b border-white/[0.06] px-5 py-4">
+          <h3 id="ck-nt-title" class="text-base font-semibold text-ink-50">📝 Bloc-notes</h3>
+          <div class="flex items-center gap-3">
+            <span data-nt-status class="text-xs text-ink-500"></span>
+            <button type="button" data-modal-close class="text-ink-400 hover:text-ink-50" aria-label="Fermer">✕</button>
+          </div>
+        </div>
+        <div class="px-5 py-5">
+          <textarea data-nt-text rows="16" placeholder="Todo, idées, contacts, brouillons… Sauvegarde automatique. Privé, visible de toi seul." class="ck-input font-mono text-sm leading-relaxed" style="resize: vertical;"></textarea>
+          <p class="mt-2 text-[11px] text-ink-500">Sauvegarde automatique · stocké côté serveur (visible uniquement avec ton compte admin).</p>
+        </div>
+      </div>
     </div>
 
     <!-- ===== PALETTE Cmd+K ===== -->
@@ -1555,6 +1574,7 @@ const ADMIN_EMAIL = "contact@konclav.ch";
     // =========================================================
     const ovContent = root.querySelector("[data-ov-content]");
     let lastBugs = []; // derniers bug_reports chargés (pour le modal détail)
+    let kevinNotesCache = ""; // bloc-notes perso (cockpit_settings.kevin_notes)
     function ovSkeleton() {
       const k = '<div class="ck-skel h-28 rounded-2xl"></div>';
       const c = '<div class="ck-skel h-44 rounded-2xl"></div>';
@@ -1571,7 +1591,7 @@ const ADMIN_EMAIL = "contact@konclav.ch";
         .then((d) => { if (d && d.sent > 0) toast(d.sent + " email(s) d'onboarding envoyé(s) ✉️"); })
         .catch(() => {});
       try {
-        const [leadsRes, invRes, subsRes, anaRes, evRes, monRes, sysRes, onbRes] = await Promise.all([
+        const [leadsRes, invRes, subsRes, anaRes, evRes, monRes, sysRes, onbRes, notesRes] = await Promise.all([
           api("leads?select=id,asso_name,status,created_at,next_action_at,first_name,last_name,source,provisioned_org_id&order=created_at.desc", { signal }),
           api("invoices?select=id,number,total,currency,status,due_date,paid_at,doc_type,subscription_id&order=due_date.asc", { signal }),
           api("subscriptions?select=id,amount,currency,billing_interval,active,next_invoice_date", { signal }).catch(() => null),
@@ -1580,6 +1600,7 @@ const ADMIN_EMAIL = "contact@konclav.ch";
           api("rpc/cockpit_monitoring", { method: "POST", body: "{}", signal }).catch(() => null),
           fn("cockpit-monitoring").catch(() => null),
           api("scheduled_emails?select=template_key,recipient_email,org_name,status,scheduled_for,sent_at&order=scheduled_for.desc&limit=20", { signal }).catch(() => null),
+          api("cockpit_settings?key=eq.kevin_notes&select=value", { signal }).catch(() => null),
         ]);
         const allLeads = await leadsRes.json();
         const invs = await invRes.json();
@@ -1589,6 +1610,7 @@ const ADMIN_EMAIL = "contact@konclav.ch";
         const mon = monRes ? await monRes.json().catch(() => null) : null;
         const sys = sysRes && sysRes.ok ? await sysRes.json().catch(() => null) : null;
         const onb = onbRes ? await onbRes.json().catch(() => []) : [];
+        try { const nr = await notesRes.json(); kevinNotesCache = (nr[0] && nr[0].value && nr[0].value.text) || ""; } catch { kevinNotesCache = ""; }
         renderOverview(allLeads, invs, subs, ana, events, mon, sys, onb);
       } catch (e) {
         if (isAbort(e)) return;
@@ -1885,8 +1907,17 @@ const ADMIN_EMAIL = "contact@konclav.ch";
         '<div class="mb-2 flex items-center justify-between"><h3 class="text-sm font-semibold text-ink-50">✏️ Contenu du site</h3>' +
         '<button type="button" data-sc-open class="text-xs text-accent-300 hover:text-accent-400">Éditer</button></div>' +
         '<p class="text-xs text-ink-500">Hero, sous-titre, CTA final — modifiables sans toucher au code, appliqués en direct sur konclav.ch.</p></div>';
+      const notesPreview = kevinNotesCache.trim();
+      const ntCard = '<div class="mt-4 rounded-2xl border border-white/10 bg-white/[0.02] p-5">' +
+        '<div class="mb-2 flex items-center justify-between"><h3 class="text-sm font-semibold text-ink-50">📝 Bloc-notes</h3>' +
+        '<button type="button" data-nt-open class="text-xs text-accent-300 hover:text-accent-400">' + (notesPreview ? "Éditer" : "Écrire") + "</button></div>" +
+        (notesPreview
+          ? '<div class="whitespace-pre-wrap text-xs leading-relaxed text-ink-300">' + esc(notesPreview.split("\n").slice(0, 6).join("\n")) + (notesPreview.split("\n").length > 6 ? '\n<span class="text-ink-500">…</span>' : "") + "</div>"
+          : '<p class="text-xs text-ink-500">Bloc-notes perso (todo, idées, contacts). Privé, visible de toi seul. Cliquez pour écrire.</p>') +
+        "</div>";
       return '<div class="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-2">' + convCard + onbCard + "</div>" +
-             '<div class="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-3">' + sysCard + bugsCard + scCard + "</div>";
+             '<div class="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-3">' + sysCard + bugsCard + scCard + "</div>" +
+             ntCard;
     }
 
     // ----- Édition du contenu du site -----
@@ -1988,8 +2019,38 @@ const ADMIN_EMAIL = "contact@konclav.ch";
       if (goAll) { openBugsList(); return; }
       const bo = e.target.closest("[data-bug-open]");
       if (bo) { const idx = +bo.dataset.bugOpen; if (lastBugs[idx]) openBugDetail(lastBugs[idx]); return; }
+      if (e.target.closest("[data-nt-open]")) { openNotes(); return; }
       const b = e.target.closest("[data-goto]");
       if (b) switchTab(b.dataset.goto);
+    });
+
+    // ----- Bloc-notes perso (autosave dans cockpit_settings.kevin_notes) -----
+    const ntText = root.querySelector("[data-nt-text]");
+    const ntStatus = root.querySelector("[data-nt-status]");
+    let ntTimer = null;
+    function openNotes() {
+      ntText.value = kevinNotesCache;
+      ntStatus.textContent = "";
+      openModal("notes");
+      ntText.focus();
+    }
+    function saveNotes() {
+      const text = ntText.value;
+      ntStatus.textContent = "Enregistrement…";
+      api("cockpit_settings", {
+        method: "POST",
+        headers: { Prefer: "resolution=merge-duplicates,return=minimal" },
+        body: JSON.stringify({ key: "kevin_notes", value: { text } }),
+      }).then(() => {
+        kevinNotesCache = text;
+        ntStatus.textContent = "Enregistré ✓";
+        setTimeout(() => { if (ntStatus.textContent === "Enregistré ✓") ntStatus.textContent = ""; }, 2000);
+      }).catch(() => { ntStatus.textContent = "Échec de sauvegarde"; });
+    }
+    ntText.addEventListener("input", () => {
+      ntStatus.textContent = "Modifié…";
+      clearTimeout(ntTimer);
+      ntTimer = setTimeout(saveNotes, 900);
     });
 
     // ----- Rapports de bug : modal détail + captures à la demande -----
@@ -2070,11 +2131,18 @@ const ADMIN_EMAIL = "contact@konclav.ch";
     const auContent = root.querySelector("[data-au-content]");
     const auPeriods = root.querySelector("[data-au-periods]");
     let auPeriod = "7d";
+    let auExcludeBots = true; // masque les crawlers de compliance (US + en*) par défaut
 
     auPeriods.addEventListener("click", (e) => {
       const b = e.target.closest("[data-period]"); if (!b) return;
       auPeriod = b.dataset.period;
       auPeriods.querySelectorAll("[data-period]").forEach((x) => x.className = "ck-pill" + (x.dataset.period === auPeriod ? " ck-pill-on" : ""));
+      loadAudience();
+    });
+    root.querySelector("[data-au-bots]").addEventListener("click", (e) => {
+      auExcludeBots = !auExcludeBots;
+      e.currentTarget.className = "ck-pill" + (auExcludeBots ? " ck-pill-on" : "");
+      e.currentTarget.textContent = auExcludeBots ? "🤖 Bots masqués" : "🤖 Bots inclus";
       loadAudience();
     });
 
@@ -2098,7 +2166,7 @@ const ADMIN_EMAIL = "contact@konclav.ch";
       auContent.innerHTML = auSkeleton();
       startLivePolling();
       try {
-        const res = await api("rpc/cockpit_analytics", { method: "POST", body: JSON.stringify({ p_period: auPeriod }), signal });
+        const res = await api("rpc/cockpit_analytics", { method: "POST", body: JSON.stringify({ p_period: auPeriod, p_exclude_bots: auExcludeBots }), signal });
         auData = await res.json();
         renderAudience(auData);
       } catch (e) {
