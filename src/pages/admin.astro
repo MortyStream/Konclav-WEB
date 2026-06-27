@@ -3523,6 +3523,17 @@ const ADMIN_EMAIL = "contact@konclav.ch";
       if (sel.value === "paid") patch.paid_at = new Date().toISOString();
       try { await api("invoices?id=eq." + encodeURIComponent(id), { method: "PATCH", headers: { Prefer: "return=minimal" }, body: JSON.stringify(patch) });
         if (inv) Object.assign(inv, patch); renderInvoices(); toast("Statut mis à jour ✓");
+        // Émission : proposer de notifier le client par email (E5)
+        if (prev === "draft" && sel.value === "sent" && inv && inv.doc_type !== "credit_note") {
+          if (await ckConfirm({ title: "Notifier le client ?", message: "Envoyer un email à « " + ((inv.customer && inv.customer.asso_name) || "ce client") + " » pour l'informer que la facture " + inv.number + " est disponible dans son espace ?", okText: "Notifier", icon: "📧" })) {
+            try {
+              const res = await fn("cockpit-invoice-notify", { method: "POST", json: { invoice_id: id } });
+              const d = await res.json().catch(() => ({}));
+              if (!res.ok) throw new Error(d.error || "HTTP " + res.status);
+              toast("Client notifié ✓");
+            } catch (e2) { toast("Notification non envoyée : " + e2.message, "error"); }
+          }
+        }
       } catch (err) { sel.value = prev || "draft"; toast("Échec du changement de statut : " + err.message, "error"); }
     });
 
