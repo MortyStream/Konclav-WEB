@@ -2873,27 +2873,59 @@ const ADMIN_EMAIL = "contact@konclav.ch";
         })();
     }
     registerTable("orgs", () => { if (orgsCache.length) renderOrgs(orgsCache); });
+    const ROLE_LABELS = { president: "Président·e", vice_president: "Vice-président·e", tresorier: "Trésorier·ère", secretaire: "Secrétaire", comite: "Comité" };
     async function toggleOrgDetail(tr) {
       const next = tr.nextElementSibling;
       if (next && next.dataset.orgDetail) { next.remove(); return; }
       const custId = tr.dataset.orgCustomer;
+      const org = orgsCache.find((o) => o.id === tr.dataset.org) || {};
       const detail = document.createElement("tr");
       detail.dataset.orgDetail = "1";
-      detail.innerHTML = '<td colspan="6" class="bg-white/[0.01] px-4 py-3 text-xs text-ink-500">Chargement…</td>';
+      detail.innerHTML = '<td colspan="6" class="bg-white/[0.01] px-4 py-4"><p class="text-xs text-ink-500">Chargement…</p></td>';
       tr.after(detail);
       const cell = detail.firstElementChild;
-      if (!custId) { cell.textContent = "Aucune fiche client liée — créez-la dans Facturation → Clients."; return; }
-      try {
-        const res = await api("invoices?customer_id=eq." + encodeURIComponent(custId) + "&select=total,status&limit=200");
-        const invs = await res.json();
-        const paid = invs.filter((i) => i.status === "paid").reduce((s, i) => s + (+i.total || 0), 0);
-        const open = invs.filter((i) => i.status === "sent" || i.status === "overdue").reduce((s, i) => s + (+i.total || 0), 0);
-        cell.innerHTML =
-          '<span class="text-ink-300">' + invs.length + " facture(s)</span> · " +
-          '<span class="text-emerald-400">' + fmtCHF(paid, "CHF") + " encaissé</span> · " +
-          '<span class="text-amber-400">' + fmtCHF(open, "CHF") + " en cours</span> · " +
-          '<button type="button" data-goto-billing class="text-accent-300 hover:text-accent-400">Ouvrir la facturation</button>';
-      } catch { cell.textContent = "Erreur de chargement."; }
+
+      // Bloc membres du comité (accès portail client) — données déjà chargées par cockpit-orgs
+      const committee = Array.isArray(org.committee) ? org.committee : [];
+      const freshness = (ll) => {
+        if (!ll) return '<span class="text-ink-600">jamais connecté</span>';
+        const days = (Date.now() - new Date(ll)) / 86400000;
+        const c = days <= 7 ? "#4ade80" : days <= 30 ? "#fbbf24" : "#f87171";
+        return '<span style="color:' + c + '">' + fmtDate(ll) + "</span>";
+      };
+      const membersBlock =
+        '<div class="rounded-xl border border-white/[0.06] bg-white/[0.01] p-3">' +
+        '<p class="mb-2 text-[11px] font-semibold uppercase tracking-wide text-ink-500">Accès à l\'espace client · ' + committee.length + " membre(s)</p>" +
+        (committee.length
+          ? '<ul class="space-y-1.5">' + committee.map((mb) =>
+              '<li class="flex flex-wrap items-center justify-between gap-2 text-xs">' +
+              '<span class="text-ink-200">' + esc(mb.name || mb.email || "—") + ' <span class="text-ink-500">· ' + esc(ROLE_LABELS[mb.role] || mb.role) + "</span></span>" +
+              '<span class="text-[11px] text-ink-500">dernière connexion : ' + freshness(mb.last_login) + "</span></li>").join("") + "</ul>"
+          : '<p class="text-xs text-ink-500">Aucun membre du comité — personne ne peut accéder à l\'espace client pour cette asso.</p>') +
+        '<p class="mt-2 text-[10px] text-ink-600">Tout membre du comité (président, VP, trésorier, secrétaire, comité) a automatiquement accès. Pour donner accès à quelqu\'un, attribuez-lui un rôle de comité dans l\'app.</p>' +
+        "</div>";
+
+      // Bloc facturation
+      let billingBlock = '<div class="rounded-xl border border-white/[0.06] bg-white/[0.01] p-3"><p class="text-xs text-ink-500">Aucune fiche client liée — créez-la dans la colonne Facturation.</p></div>';
+      if (custId) {
+        try {
+          const res = await api("invoices?customer_id=eq." + encodeURIComponent(custId) + "&select=total,status,paid_at,doc_type&limit=200");
+          const invs = await res.json();
+          const sign = (i) => i.doc_type === "credit_note" ? -1 : 1;
+          const paid = invs.filter((i) => i.status === "paid").reduce((s, i) => s + sign(i) * (+i.total || 0), 0);
+          const open = invs.filter((i) => i.status === "sent" || i.status === "overdue").reduce((s, i) => s + (+i.total || 0), 0);
+          billingBlock = '<div class="rounded-xl border border-white/[0.06] bg-white/[0.01] p-3">' +
+            '<p class="mb-2 text-[11px] font-semibold uppercase tracking-wide text-ink-500">Facturation</p>' +
+            '<div class="flex flex-wrap gap-x-5 gap-y-1 text-xs">' +
+            '<span class="text-ink-300">' + invs.length + " facture(s)</span>" +
+            '<span class="text-emerald-400">' + fmtCHF(paid, "CHF") + " encaissé</span>" +
+            '<span class="text-amber-400">' + fmtCHF(open, "CHF") + " en cours</span>" +
+            '<button type="button" data-goto-billing class="text-accent-300 hover:text-accent-400">Ouvrir la facturation →</button>' +
+            "</div></div>";
+        } catch { billingBlock = '<div class="rounded-xl border border-white/[0.06] bg-white/[0.01] p-3"><p class="text-xs text-rose-400">Erreur de chargement des factures.</p></div>'; }
+      }
+
+      cell.innerHTML = '<div class="grid grid-cols-1 gap-3 lg:grid-cols-2">' + membersBlock + billingBlock + "</div>";
     }
     ogContent.addEventListener("click", async (e) => {
       if (e.target.closest("[data-goto-billing]")) { switchTab("billing"); return; }
