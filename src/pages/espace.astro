@@ -364,7 +364,14 @@ const PUBLISHABLE_KEY = "sb_publishable_VALB2_pMZ2GjMNP3mmyChg_y-vuitny";
           '<p class="font-medium text-amber-400">' + fmtCHF(totalOpen, "CHF") + " en attente de paiement</p>" +
           '<p class="mt-1 text-xs text-ink-400">Téléchargez la facture en PDF ci-dessous, scannez le QR-bill avec votre app bancaire.</p></div>';
       }
-      invoicesPanel.innerHTML = summary +
+      // Barre d'export ZIP par année (années présentes dans les factures)
+      const years = [...new Set(invs.map((i) => (i.issue_date || "").slice(0, 4)).filter(Boolean))].sort().reverse();
+      const zipBar = years.length
+        ? '<div class="mb-4 flex flex-wrap items-center gap-2 text-xs"><span class="text-ink-500">Télécharger toutes les factures :</span>' +
+          years.map((y) => '<button type="button" data-cp-zip="' + esc(y) + '" class="rounded-lg border border-white/10 bg-white/[0.02] px-3 py-1.5 font-medium text-ink-200 transition-colors hover:border-accent-500/40 hover:text-accent-300">📦 ' + esc(y) + " (ZIP)</button>").join("") +
+          "</div>"
+        : "";
+      invoicesPanel.innerHTML = summary + zipBar +
         '<div class="overflow-hidden rounded-2xl border border-white/10 bg-white/[0.02]">' +
         '<ul class="divide-y divide-white/[0.06]">' +
         invs.map((inv) => {
@@ -389,7 +396,70 @@ const PUBLISHABLE_KEY = "sb_publishable_VALB2_pMZ2GjMNP3mmyChg_y-vuitny";
         "</ul></div>";
     }
 
+    // --- ZIP minimal (méthode "store", sans dépendance) : les PDF sont déjà compressés ---
+    const CRC_TABLE = (function () {
+      const t = new Uint32Array(256);
+      for (let n = 0; n < 256; n++) { let c = n; for (let k = 0; k < 8; k++) c = (c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1); t[n] = c >>> 0; }
+      return t;
+    })();
+    function crc32(bytes) {
+      let c = 0xFFFFFFFF;
+      for (let i = 0; i < bytes.length; i++) c = CRC_TABLE[(c ^ bytes[i]) & 0xFF] ^ (c >>> 8);
+      return (c ^ 0xFFFFFFFF) >>> 0;
+    }
+    function buildZip(files) { // files: [{name, bytes}]
+      const enc = new TextEncoder();
+      const chunks = [], central = [];
+      let offset = 0;
+      const u16 = (n) => [n & 0xFF, (n >>> 8) & 0xFF];
+      const u32 = (n) => [n & 0xFF, (n >>> 8) & 0xFF, (n >>> 16) & 0xFF, (n >>> 24) & 0xFF];
+      for (const f of files) {
+        const nameBytes = enc.encode(f.name);
+        const crc = crc32(f.bytes), sz = f.bytes.length;
+        const local = [].concat(u32(0x04034b50), u16(20), u16(0), u16(0), u16(0), u16(0), u32(crc), u32(sz), u32(sz), u16(nameBytes.length), u16(0));
+        chunks.push(new Uint8Array(local), nameBytes, f.bytes);
+        const localLen = 30 + nameBytes.length + sz;
+        central.push([].concat(u32(0x02014b50), u16(20), u16(20), u16(0), u16(0), u16(0), u16(0), u32(crc), u32(sz), u32(sz), u16(nameBytes.length), u16(0), u16(0), u16(0), u16(0), u32(0), u32(offset)));
+        central.push(nameBytes);
+        offset += localLen;
+      }
+      const centralParts = [], centralStart = offset;
+      let centralLen = 0;
+      for (const c of central) { const arr = c instanceof Uint8Array ? c : new Uint8Array(c); centralParts.push(arr); centralLen += arr.length; }
+      const eocd = new Uint8Array([].concat(u32(0x06054b50), u16(0), u16(0), u16(files.length), u16(files.length), u32(centralLen), u32(centralStart), u16(0)));
+      return new Blob([...chunks, ...centralParts, eocd], { type: "application/zip" });
+    }
+
     invoicesPanel.addEventListener("click", async (e) => {
+      const zipBtn = e.target.closest("[data-cp-zip]");
+      if (zipBtn) {
+        const year = zipBtn.dataset.cpZip;
+        const list = (dashboardData.invoices || []).filter((i) => (i.issue_date || "").slice(0, 4) === year);
+        if (!list.length) { toast("Aucune facture pour " + year + ".", "error"); return; }
+        zipBtn.disabled = true; const old = zipBtn.innerHTML; zipBtn.innerHTML = "Préparation… 0/" + list.length;
+        try {
+          const files = [];
+          for (let i = 0; i < list.length; i++) {
+            zipBtn.innerHTML = "Préparation… " + i + "/" + list.length;
+            const res = await fn("cockpit-invoice-pdf", { qs: "id=" + encodeURIComponent(list[i].id) });
+            if (!res.ok) continue;
+            const buf = new Uint8Array(await res.arrayBuffer());
+            const prefix = list[i].doc_type === "credit_note" ? "avoir-" : "facture-";
+            files.push({ name: prefix + list[i].number + ".pdf", bytes: buf });
+          }
+          if (!files.length) throw new Error("aucun PDF récupéré");
+          const blob = buildZip(files);
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url; a.download = "factures-konclav-" + year + ".zip";
+          document.body.appendChild(a); a.click(); a.remove();
+          setTimeout(() => URL.revokeObjectURL(url), 60_000);
+          toast(files.length + " facture(s) téléchargée(s) ✓");
+        } catch (err) {
+          toast("Export ZIP impossible : " + err.message, "error");
+        } finally { zipBtn.disabled = false; zipBtn.innerHTML = old; }
+        return;
+      }
       const btn = e.target.closest("[data-cp-pdf]");
       if (!btn) return;
       btn.disabled = true;
