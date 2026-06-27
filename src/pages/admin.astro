@@ -3208,15 +3208,30 @@ const ADMIN_EMAIL = "contact@konclav.ch";
           '<div class="min-w-0"><p class="truncate font-semibold text-ink-50">' + esc(c.asso_name) + '</p><p class="text-xs text-ink-500">' + esc(c.vat_number || '—') + '</p></div></div></td>' +
           '<td class="px-4 py-3"><p class="text-ink-200">' + esc(c.contact_name) + '</p><p class="text-xs text-ink-500"><a href="mailto:' + esc(c.contact_email) + '" class="hover:text-accent-300">' + esc(c.contact_email) + '</a></p></td>' +
           '<td class="px-4 py-3 text-ink-300">' + esc([c.postal_code, c.city, c.country].filter(Boolean).join(' ')) + '</td>' +
-          '<td class="px-4 py-3 text-right"><button type="button" data-cust-edit class="text-xs text-accent-300 hover:text-accent-400">Modifier</button> · <button type="button" data-cust-del class="text-xs text-rose-400 hover:text-rose-300">Supprimer</button></td>' +
+          '<td class="px-4 py-3 text-right whitespace-nowrap"><button type="button" data-cust-statement class="text-xs text-ink-300 hover:text-ink-50" title="Relevé annuel PDF (compta)">📄 Relevé</button> · <button type="button" data-cust-edit class="text-xs text-accent-300 hover:text-accent-400">Modifier</button> · <button type="button" data-cust-del class="text-xs text-rose-400 hover:text-rose-300">Supprimer</button></td>' +
           '</tr>'
         ).join("") +
         '</tbody></table></div>');
     }
     registerTable("customers", () => { if (customers.length) renderCustomers(); });
-    bcContent.addEventListener("click", (e) => {
+    bcContent.addEventListener("click", async (e) => {
       const tr = e.target.closest("[data-customer]"); if (!tr) return;
       const id = tr.dataset.customer;
+      if (e.target.closest("[data-cust-statement]")) {
+        const year = String(new Date().getFullYear());
+        const yr = prompt("Relevé annuel — quelle année ?", year);
+        if (!yr) return;
+        try {
+          const res = await fn("cockpit-customer-statement", { qs: "customer_id=" + encodeURIComponent(id) + "&year=" + encodeURIComponent(yr.trim()) });
+          if (!res.ok) { const t = await res.text(); throw new Error(t.slice(0, 120)); }
+          const blob = await res.blob();
+          const u = URL.createObjectURL(blob);
+          const a = document.createElement("a"); a.href = u; a.target = "_blank"; a.rel = "noopener"; a.download = "releve-" + yr.trim() + ".pdf";
+          document.body.appendChild(a); a.click(); a.remove();
+          setTimeout(() => URL.revokeObjectURL(u), 60000);
+        } catch (err) { toast("Relevé impossible : " + err.message, "error"); }
+        return;
+      }
       if (e.target.closest("[data-cust-edit]")) editCustomer(id);
       else if (e.target.closest("[data-cust-del]")) deleteCustomer(id);
     });
