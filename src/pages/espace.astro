@@ -158,6 +158,36 @@ const PUBLISHABLE_KEY = "sb_publishable_VALB2_pMZ2GjMNP3mmyChg_y-vuitny";
             </button>
           </div>
         </form>
+
+        <!-- Demande de modification (ce qui n'est pas auto-éditable : nom asso, président…) -->
+        <form data-cp-cr-form class="mt-6 space-y-4 rounded-2xl border border-white/10 bg-white/[0.02] p-6">
+          <div>
+            <h3 class="text-sm font-semibold text-ink-50">Demander une modification</h3>
+            <p class="mt-1 text-sm text-ink-400">Pour ce qui n'est pas modifiable ici (nom officiel de l'association, changement de président…), décrivez votre demande. Kévin la traite et revient vers vous.</p>
+          </div>
+          <div>
+            <label class="mb-1 block text-xs font-medium text-ink-400">Sujet</label>
+            <select data-cp-cr-subject class="cp-input">
+              <option>Nom de l'association</option>
+              <option>Changement de président·e</option>
+              <option>Coordonnées de facturation</option>
+              <option>Abonnement / tarif</option>
+              <option>Autre</option>
+            </select>
+          </div>
+          <div>
+            <label class="mb-1 block text-xs font-medium text-ink-400">Votre demande *</label>
+            <textarea data-cp-cr-message rows="4" required maxlength="4000" class="cp-input" placeholder="Décrivez ce que vous souhaitez modifier…"></textarea>
+          </div>
+          <p data-cp-cr-error role="alert" hidden class="text-sm text-rose-400"></p>
+          <div class="flex items-center justify-between">
+            <p data-cp-cr-msg class="text-xs text-emerald-400" hidden>Demande envoyée ✓ — Kévin revient vers vous.</p>
+            <button type="submit" data-cp-cr-submit
+              class="ml-auto rounded-lg border border-accent-500/40 bg-accent-500/10 px-5 py-2 text-sm font-semibold text-accent-300 transition-colors hover:bg-accent-500/20 disabled:cursor-not-allowed disabled:opacity-60">
+              Envoyer la demande
+            </button>
+          </div>
+        </form>
       </div>
     </section>
 
@@ -515,6 +545,29 @@ const PUBLISHABLE_KEY = "sb_publishable_VALB2_pMZ2GjMNP3mmyChg_y-vuitny";
           ? "L'adresse email est invalide."
           : (err.message || "Erreur lors de l'enregistrement.");
         contactError.hidden = false;
+      } finally { btn.disabled = false; }
+    });
+
+    // Demande de modification
+    const crForm = root.querySelector("[data-cp-cr-form]");
+    crForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const btn = root.querySelector("[data-cp-cr-submit]");
+      const errEl = root.querySelector("[data-cp-cr-error]");
+      const okEl = root.querySelector("[data-cp-cr-msg]");
+      errEl.hidden = true; okEl.hidden = true;
+      const subject = root.querySelector("[data-cp-cr-subject]").value;
+      const message = root.querySelector("[data-cp-cr-message]").value.trim();
+      if (!message) { errEl.textContent = "Décrivez votre demande."; errEl.hidden = false; return; }
+      btn.disabled = true;
+      try {
+        await api("rpc/submit_change_request", { method: "POST", body: JSON.stringify({ p_subject: subject, p_message: message }) });
+        okEl.hidden = false;
+        root.querySelector("[data-cp-cr-message]").value = "";
+        toast("Demande envoyée ✓");
+      } catch (err) {
+        errEl.textContent = err.message || "Erreur lors de l'envoi.";
+        errEl.hidden = false;
       } finally { btn.disabled = false; }
     });
 
