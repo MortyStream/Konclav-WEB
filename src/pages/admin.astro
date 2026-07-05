@@ -2832,6 +2832,8 @@ const ADMIN_EMAIL = "contact@konclav.ch";
           (o.is_active
             ? ''
             : ' <span class="rounded-md bg-rose-400/10 px-1.5 py-0.5 text-[10px] font-medium text-rose-400">Suspendue</span>') +
+          (o.billing_status === "overdue" ? ' <span class="rounded-md bg-amber-400/10 px-1.5 py-0.5 text-[10px] font-medium text-amber-400">Paiement en retard</span>' : "") +
+          (o.billing_status === "suspended" ? ' <span class="rounded-md bg-rose-400/10 px-1.5 py-0.5 text-[10px] font-medium text-rose-400">Bloquée (impayé)</span>' : "") +
           '</p><p class="font-mono text-[11px] text-ink-500">' + esc(o.slug) + "</p></div></div></td>" +
           '<td class="px-4 py-3">' + (o.president
             ? '<p class="text-ink-200">' + esc(o.president.name) + '</p><p class="text-xs text-ink-500">' + esc(o.president.email) + "</p>"
@@ -2925,12 +2927,57 @@ const ADMIN_EMAIL = "contact@konclav.ch";
         } catch { billingBlock = '<div class="rounded-xl border border-white/[0.06] bg-white/[0.01] p-3"><p class="text-xs text-rose-400">Erreur de chargement des factures.</p></div>'; }
       }
 
-      cell.innerHTML = '<div class="grid grid-cols-1 gap-3 lg:grid-cols-2">' + membersBlock + billingBlock + "</div>";
+      // Bloc statut de paiement — canal dédié écrit dans organizations.billingStatus,
+      // lu par l'app au login (overdue = bandeau comité, suspended = écran bloquant). Manuel only.
+      const bs = org.billing_status || "ok";
+      const BS_META = {
+        ok: { label: "À jour", color: "#4ade80", desc: "Accès normal à l'app, aucun rappel." },
+        overdue: { label: "En retard", color: "#fbbf24", desc: "L'app affiche un bandeau de relance aux membres du comité. L'accès reste ouvert." },
+        suspended: { label: "Suspendue", color: "#f87171", desc: "L'app bloque l'accès pour toute l'asso (données intactes). Le comité garde le lien vers l'espace de paiement." },
+      };
+      const bsBtn = (val) => {
+        const on = bs === val; const m = BS_META[val];
+        return '<button type="button" data-org-billing-status="' + val + '" data-bs-org="' + esc(org.id) + '" data-bs-name="' + esc(org.name || "") + '"' + (on ? " disabled" : "") +
+          ' class="rounded-md border px-2.5 py-1 text-[11px] font-medium ' + (on ? "cursor-default" : "hover:border-white/25") + '" style="' +
+          (on ? "border-color:" + m.color + "55;background:" + m.color + "18;color:" + m.color : "border-color:rgba(255,255,255,.12);color:#a1a1aa") + '">' +
+          (on ? "● " : "") + esc(m.label) + "</button>";
+      };
+      const billingStatusBlock =
+        '<div class="rounded-xl border border-white/[0.06] bg-white/[0.01] p-3">' +
+        '<p class="mb-2 text-[11px] font-semibold uppercase tracking-wide text-ink-500">Statut de paiement · lu par l\'app</p>' +
+        '<div class="flex flex-wrap gap-1.5">' + bsBtn("ok") + bsBtn("overdue") + bsBtn("suspended") + "</div>" +
+        '<p class="mt-2 text-[10px] text-ink-600">' + esc(BS_META[bs].desc) + " · passage manuel uniquement.</p>" +
+        "</div>";
+
+      cell.innerHTML = '<div class="grid grid-cols-1 gap-3 lg:grid-cols-2">' + membersBlock + billingBlock + "</div>" +
+        '<div class="mt-3">' + billingStatusBlock + "</div>";
     }
     ogContent.addEventListener("click", async (e) => {
       if (e.target.closest("[data-goto-billing]")) { switchTab("billing"); return; }
       const det = e.target.closest("[data-org-detail]");
       if (det) { toggleOrgDetail(det.closest("[data-org]")); return; }
+      // Statut de paiement (organizations.billingStatus) → PATCH cockpit-orgs
+      const bsBtn2 = e.target.closest("[data-org-billing-status]");
+      if (bsBtn2) {
+        const orgId = bsBtn2.dataset.bsOrg;
+        const name = bsBtn2.dataset.bsName || "cette asso";
+        const val = bsBtn2.dataset.orgBillingStatus;
+        const confirms = {
+          ok: { title: "Repasser « " + name + " » à jour ?", message: "L'app retire immédiatement tout bandeau ou blocage lié au paiement. C'est le désarmement après régularisation.", okText: "Marquer à jour", icon: "✅" },
+          overdue: { title: "Marquer « " + name + " » en retard ?", message: "L'app affichera un bandeau de relance aux membres du comité. L'accès à l'app reste ouvert.", okText: "Marquer en retard", icon: "⚠️" },
+          suspended: { title: "Suspendre la facturation de « " + name + " » ?", message: "L'app BLOQUE l'accès pour TOUTE l'asso (les données restent intactes). Le comité garde un lien vers l'espace de paiement. À utiliser en dernier recours.", okText: "Suspendre l'accès", danger: true, icon: "🚫" },
+        };
+        if (!(await ckConfirm(confirms[val] || confirms.ok))) return;
+        bsBtn2.disabled = true;
+        try {
+          const res = await fn("cockpit-orgs", { method: "PATCH", json: { org_id: orgId, billing_status: val } });
+          const data = await res.json().catch(() => ({}));
+          if (!res.ok) throw new Error(data.error || "HTTP " + res.status);
+          toast(val === "ok" ? "Statut de paiement : à jour ✓" : val === "overdue" ? "Statut : en retard — bandeau app activé" : "Facturation suspendue — accès app bloqué");
+          loadOrgs();
+        } catch (err) { toast("Échec : " + err.message, "error"); bsBtn2.disabled = false; }
+        return;
+      }
       // Fiche client déjà liée → ouvrir la liste Clients
       const open = e.target.closest("[data-org-billing]");
       if (open) { switchTab("billing"); switchSubtab("customers"); return; }
