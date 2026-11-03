@@ -1,5 +1,7 @@
-# build output
+# build output (dist-next = build en cours, dist-prev = build précédent, cf. scripts/swap-dist.mjs)
 dist/
+dist-next/
+dist-prev/
 # generated types
 .astro/
 
