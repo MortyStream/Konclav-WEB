@@ -4,7 +4,7 @@ Site marketing d'une app intranet privée pour associations suisses. Site statiq
 
 ## Stack
 
-- **Astro 6.3.7** static output (`npm run build` → `dist/`)
+- **Astro 6.4.6** static output (`npm run build` → build atomique vers `dist/`, cf. Déploiement)
 - **Tailwind CSS v4** (via `@tailwindcss/vite`, pas de `tailwind.config.js` — tokens dans `src/styles/global.css` via `@theme`)
 - **@astrojs/sitemap** pour `sitemap-index.xml` au build
 - **Inter** auto-hébergée via `@fontsource/inter` (subsets latin uniquement, weights 400/500/600/700 + 300/400 italic pour `.italic-display`)
@@ -43,7 +43,7 @@ Composants CSS (dans `@layer components` → surchargeables par les utilitaires 
 - `.device` (cadre iPhone) : largeur via `--dw` (accepte `min()` / `cqw` → compositions fluides sans JS), hauteur via `aspect-ratio`. Toujours passer par `PhoneShot`.
 
 Mouvement :
-- `[data-reveal]` : fondu + montée de 28px, courbe `--ease-fluid` = `cubic-bezier(0.22, 1, 0.36, 1)`, déclenché par l'IntersectionObserver de `Layout`. Décalages via `style="transition-delay: …"`.
+- `[data-reveal]` : fondu + montée de 28px, courbe `--ease-fluid` = `cubic-bezier(0.22, 1, 0.36, 1)`, déclenché par l'IntersectionObserver de `Layout`. Décalages via `style="transition-delay: …"`. **Le contenu n'est masqué que sous `html.js`** (classe posée par la 1ʳᵉ ligne du script de tête) et un filet CSS l'affiche de force à 2,5 s si le script du bas n'a pas posé `html.reveal-ready` → un script bloqué (CSP, extension) laisse une page lisible, jamais blanche. Ne pas réintroduire de `[data-reveal] { opacity: 0 }` non conditionné.
 - Animations liées au scroll (CSS `animation-timeline: view()`, amélioration progressive Chrome/Edge/Safari 26+, état final statique ailleurs) : `.sd-zoom` (iPhone du hero), `.sd-rise` (iPhone des tuiles), `.sd-spread-l/r` (téléphones latéraux de la bande AG). **Jamais sur un élément qui porte déjà `data-reveal`** (les deux posent `transform`) → un wrapper chacun.
 - Tout est coupé en `prefers-reduced-motion: reduce`.
 - Retirés à la refonte, à ne pas réintroduire : halos colorés, aurora côté site, grain, bordures dégradées animées, split-text mot à mot, parallax, float, reflet de vitre, `.bento`, `.display-*`, `.italic-display`. (Déjà retirés en juin : cursor-spotlight, boutons magnétiques, tilt 3D, draw-on-scroll.)
@@ -88,11 +88,11 @@ src/
     sous-traitance.astro  # DPA art. 9 nLPD / art. 28 RGPD — noindex + exclu sitemap
     mentions-legales.astro
   styles/
-    global.css            # tokens @theme + utilities (reveal/spotlight/bento/cta-shimmer/.join-error…)
+    global.css            # tokens @theme + composants (@layer components) + reveal/sd-* + styles sombres cockpit/espace
 public/
   favicon-32.png / favicon-192.png / apple-touch-icon.png
   logo-mark.png           # 256×256
-  og.jpg                  # 1200×630, ~27 Ko
+  og.jpg                  # 1200×630, ~64 Ko (npm run og)
   robots.txt
   app/*.webp              # 7 screenshots de l'app (utilisés par PhoneShot)
 ```
@@ -120,7 +120,7 @@ Les pages légales sont remplies avec les vraies infos (Kévin Perret, Sion, `co
 
 ```bash
 npm run dev        # localhost:4321
-npm run build      # → dist/ avec sitemap-index.xml généré
+npm run build      # scripts/build.mjs : verrou + astro build → dist-next/ + bascule atomique vers dist/
 npm run preview
 npm start          # node server.js → sert dist/ sur PORT (3000 par défaut), utilisé par Infomaniak
 ```
@@ -138,17 +138,44 @@ Paramètres avancés Node.js dans le manager Infomaniak :
 | Port d'écoute | 3000 |
 | Commande de construction | `npm install && npm run build` |
 
-Le serveur (`server.js`) :
-- Écoute sur `process.env.PORT || 3000`
+### Build atomique (`npm run build` = `node scripts/build.mjs`)
+
+`astro build` vide son dossier de sortie au démarrage : construire directement dans `dist/` servait des 404 pendant ~5 s (et pour de bon si le build plantait) — **incident du 03/11/2026** : `/admin` en « 404 — Page introuvable » juste après un build lancé en SSH. Désormais :
+1. **Verrou** `.build.lock/` (pid) : un seul build à la fois (SSH + manager ne se marchent plus dessus). Verrou orphelin (pid mort, > 10 min) supprimé automatiquement ; sinon message « un autre build est déjà en cours ».
+2. `astro build --outDir dist-next` — le site en ligne n'est pas touché.
+3. **Validation** (`scripts/swap-dist.mjs`) : `index.html`, `404.html`, `admin/`, `espace/`, `tarifs/`, `inscription/`, `sitemap-index.xml`, `_astro/` non vide — sinon rien n'est basculé.
+4. **Bascule** `dist/` → `dist-prev/`, `dist-next/` → `dist/` (deux `rename`, quelques µs). Retour arrière automatique si un renommage échoue ; une bascule interrompue est réparée au lancement suivant (`node scripts/swap-dist.mjs` seul suffit).
+5. `dist-prev/` = build précédent. **Revenir en arrière** : `mv dist dist-x && mv dist-prev dist` (aucun redémarrage requis).
+
+Ctrl+C pendant un build : rien n'est basculé, verrou libéré. Trois copies du site coexistent pendant un build (~8 Mo).
+
+### Le serveur (`server.js`)
+
+- Écoute sur `process.env.PORT || 3000` ; log de démarrage : `Konclav up on :3000 — server.js <SERVER_REV> — dist=… — index.html du <date>, N hash(es) CSP`
+- En-tête **`X-Konclav-Server: <SERVER_REV>`** (date de révision du fichier) → `curl -sI https://konclav.ch/ | grep -i x-konclav` dit quel `server.js` tourne réellement. **Bumper `SERVER_REV` à chaque modification de `server.js`.**
 - Sert `dist/` avec `express.static`, extension `.html` implicite (donc `/tarifs/` → `dist/tarifs/index.html`)
-- **En-têtes de sécurité** : CSP, HSTS, X-Frame-Options DENY, X-Content-Type-Options, Referrer-Policy, Permissions-Policy verrouillée, COOP/CORP, Origin-Agent-Cluster
-- `X-Robots-Tag: noindex` automatique sur `/sous-traitance` et `/404`
-- Compression `gzip` activée
-- Cache long (1 an, immutable) sur les assets versionnés, `max-age=0, must-revalidate` (ETag strong) sur les HTML
-- Fallback 404 → `dist/404.html`
+- **CSP par page** : `script-src` = hashes SHA-256 des `<script>` inline **du fichier servi**, calculés à la volée et mis en cache par (inode, mtime, taille). Un build sans redémarrage reçoit donc aussitôt les bons hashes (avant : hashes figés au démarrage → formulaire et cockpit bloqués après un build). Pas de `'unsafe-inline'`.
+- **En-têtes de sécurité** : CSP, HSTS, X-Frame-Options DENY, X-Content-Type-Options, Referrer-Policy, Permissions-Policy verrouillée, COOP/CORP, Origin-Agent-Cluster (y compris sur la 301 `/demo`)
+- `X-Robots-Tag: noindex, nofollow` sur `/sous-traitance`, `/404`, `/admin`, `/espace`
+- Compression `gzip`/`br`
+- Cache long (1 an, immutable) sur les assets versionnés, `max-age=0, must-revalidate` (ETag faible de `express.static`) sur les HTML
+- 404 : `dist/404.html` gardée **en mémoire** (stylée même pendant une bascule), `no-store`, vrai statut 404 aussi sur `/404` et `/404.html`
+- `dist/index.html` absent → **503 « Mise à jour en cours »** autonome (`Retry-After`, `no-store`, se recharge seule) au lieu de 404 trompeurs ; erreur de lecture → même page (jamais de trace avec le chemin serveur)
 - Graceful shutdown sur SIGTERM/SIGINT
 
-Upload du code sur Infomaniak via FTP/SSH ou Git (cf. onglet FTP/SSH du manager). Après upload, Infomaniak lance `npm install && npm run build` puis `npm start`.
+### Procédure de déploiement (SSH)
+
+```bash
+cd ~/sites/konclav.ch
+git checkout package-lock.json          # si npm l'a modifié (sinon le pull refuse)
+git pull origin claude/modest-newton-5FRWm
+git log --oneline -1                    # doit montrer le dernier commit poussé
+npm install && npm run build            # attendre « swap-dist : nouveau build en ligne »
+```
+
+- **Redémarrer l'app dans le manager Infomaniak uniquement si `server.js` a changé** (un build seul ne recharge pas le code Node). Vérifier ensuite `curl -sI https://konclav.ch/ | grep -i x-konclav` = `SERVER_REV` attendu.
+- Un changement de pages/composants/CSS ne demande **aucun** redémarrage : la bascule + la CSP par page suffisent.
+- Tester en navigation privée (un onglet resté ouvert garde l'ancienne version). `/admin/` avec la barre finale.
 
 ## Backend partagé avec l'app (Supabase Zurich)
 
@@ -164,7 +191,7 @@ Le formulaire d'inscription n'utilise PLUS Google Forms. Architecture :
   - `website-track` : filtre bots (regex UA), rate-limit 120/min/IP, ignore `/admin*`, anonymise : `visitor_hash = SHA-256(sel-quotidien + IP + UA)` tronqué 32 chars, sel dérivé du service_role key + date UTC (rotation minuit, zéro secret à gérer). Ni IP ni UA stockés. Pays dérivé de la timezone navigateur (`TZ_COUNTRY` map), pas de géo IP.
   - Table `public.page_events` : RLS select admin-only, écriture service_role uniquement. Rétention 13 mois (purge opportuniste dans la RPC). `event` null = pageview, sinon événement custom.
   - RPC `cockpit_analytics('24h'|'7d'|'30d'|'90d')` : security definer + gate email, renvoie JSON complet (stats, série temporelle Europe/Zurich avec trous à zéro, top pages/sources/pays/browsers/devices/events). Conséquence assumée : un visiteur qui revient le lendemain compte comme nouveau (anonymisation 24 h, comme Plausible).
-- **Edge Functions cockpit** : `cockpit-invoice-pdf` **v2** (verify_jwt + double check email ; pdf-lib + qrcode via esm.sh ; A4 + QR Swiss Payments Code v2.2, adresses type K, réf NON, **croix suisse dessinée au centre du QR** (ECC M) ; NPA/localité émetteur surchargables via secrets `QR_ISSUER_ZIP`/`QR_ISSUER_CITY`, défaut 1950 Sion ; charge les données via PostgREST avec le JWT user pour respecter la RLS). `cockpit-umami-stats` existe encore mais est ORPHELINE (plus appelée — à supprimer du dashboard à l'occasion, pas de tool MCP delete).
+- **Edge Functions cockpit** : `cockpit-invoice-pdf` **v2** — puis v4 RLS, v5 débiteur = asso, **v6 adresses type S** (cf. 03/11/2026) — (verify_jwt + double check email ; pdf-lib + qrcode via esm.sh ; A4 + QR Swiss Payments Code v2.2, adresses type K à l'époque, réf NON, **croix suisse dessinée au centre du QR** (ECC M) ; NPA/localité émetteur surchargables via secrets `QR_ISSUER_ZIP`/`QR_ISSUER_CITY`, défaut 1950 Sion ; charge les données via PostgREST avec le JWT user pour respecter la RLS). `cockpit-umami-stats` existe encore mais est ORPHELINE (plus appelée — à supprimer du dashboard à l'occasion, pas de tool MCP delete).
 - **Sprint 1 cockpit (11/06/2026)** — migration `sprint1_save_invoice_mfa_guards` :
   - `is_konclav_admin()` v2 (security definer) : exige une session **aal2** dès qu'un facteur TOTP vérifié existe — sinon aal1 suffit, zéro lockout. Gate de `cockpit_analytics` passé dessus aussi. UI 2FA dans `admin.astro` : bouton « 2FA » dans le header → modal enrôlement (QR via GoTrue `/auth/v1/factors`) ou désactivation ; écran de challenge au login. Téléphone perdu = supprimer le facteur dans le dashboard Supabase (Authentication → Users).
   - RPC `save_invoice(p_invoice jsonb, p_lines jsonb)` security invoker (RLS s'applique), grant `authenticated` only — remplace le PATCH→DELETE→POST fragile du modal facture.
@@ -326,13 +353,11 @@ Idées non-bloquantes, par ordre de valeur perçue :
 - **Logo en SVG** (actuellement PNG 45 Ko, chargé 3× par page)
 - **Page `/blog` ou `/changelog`** (content collections Astro = idéal)
 - **Internationalisation** fr-CH → de-CH / it-CH
-- **Versionner** `scripts/og-gen.mjs` + npm task
-- **Upgrade deps** (Astro 6.4, Express 5)
 
 ## Sanity checks avant de pousser
 
 ```bash
-npm run build       # doit passer sans warning
+npm run build       # doit passer sans warning et finir par « swap-dist : … en ligne »
 grep -r 'TODO\|FIXME\|XXX' src/   # rien de critique laissé
 ```
 
