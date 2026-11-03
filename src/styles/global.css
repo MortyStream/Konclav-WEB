@@ -139,7 +139,14 @@ html.js:not(.reveal-ready) [data-reveal] {
   html.js [data-reveal] {
     opacity: 1 !important;
     transform: none !important;
+    transition: none !important;
     animation: none !important;
+  }
+  .text-gradient-brand,
+  .text-gradient-brand-night {
+    background: none !important;
+    color: var(--color-brand-600) !important;
+    -webkit-text-fill-color: currentColor !important;
   }
 }
 

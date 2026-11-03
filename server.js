@@ -12,7 +12,7 @@ const notFoundPath = path.join(distPath, "404.html");
 const port = process.env.PORT || 3000;
 // Révision de ce fichier, renvoyée en en-tête X-Konclav-Server et affichée au démarrage :
 // `curl -sI https://konclav.ch/ | grep -i x-konclav` dit quel server.js tourne réellement.
-const SERVER_REV = "2026-11-03.2";
+const SERVER_REV = "2026-11-03.3";
 
 // ------------------------------------------------------------------
 // CSP : script-src n'autorise que les hashes SHA-256 des <script> inline
@@ -153,13 +153,11 @@ const distIno = () => {
   try { return statSync(distPath).ino; } catch { return null; }
 };
 
-function sendNotFound(req, res) {
-  if (!existsSync(indexPath)) return sendMaintenance(res);
-  // dist/ a été basculé pendant cette requête : la page existe peut-être, réessayer.
-  if (res.locals.distIno !== undefined && distIno() !== res.locals.distIno) return sendMaintenance(res, 1);
+function respond404(req, res) {
   for (const h of ["ETag", "Content-Range", "Accept-Ranges", "Last-Modified"]) res.removeHeader(h);
   // Un 404 n'est jamais mis en cache : un 404 passager ne doit pas « coller ».
   res.setHeader("Cache-Control", "no-store");
+  res.setHeader("X-Robots-Tag", "noindex, nofollow");
   const page = loadNotFound();
   if (!page) return res.status(404).type("html").send(FALLBACK_404);
   res.setHeader("Content-Security-Policy", page.csp);
@@ -213,6 +211,20 @@ app.use((req, res, next) => {
   sendMaintenance(res);
 });
 
+// Aucun fichier trouvé. Si dist/ a été basculé pendant la requête, la page existe
+// peut-être dans le nouveau build : un seul nouvel essai avant de conclure.
+function sendNotFound(req, res) {
+  if (!existsSync(indexPath)) return sendMaintenance(res);
+  const ino = distIno();
+  if (res.locals.distIno !== undefined && ino !== res.locals.distIno) {
+    if (res.locals.retried) return sendMaintenance(res, 1);
+    res.locals.retried = true;
+    res.locals.distIno = ino;
+    return serveStatic(req, res, () => sendNotFound(req, res));
+  }
+  respond404(req, res);
+}
+
 // /404 et /404.html, y compris encodés (/%34%30%34) ou non normalisés (//404, /x/../404) :
 // vrai statut 404 (sinon express.static servirait 404.html en 200).
 app.use((req, res, next) => {
@@ -222,31 +234,30 @@ app.use((req, res, next) => {
   } catch {
     return next();
   }
-  if (/^\/+404(?:\.html)?\/?$/i.test(p)) return sendNotFound(req, res);
+  if (/^\/+404(?:\.html)?\/?$/i.test(p)) return respond404(req, res);
   next();
 });
 
-app.use(
-  express.static(distPath, {
-    extensions: ["html"],
-    etag: true,
-    lastModified: false,
-    setHeaders(res, filePath, stat) {
-      if (filePath.includes(`${path.sep}_astro${path.sep}`)) {
-        // noms hachés par Vite : le contenu ne change jamais à URL constante
-        res.setHeader("Cache-Control", "public, max-age=31536000, immutable");
-      } else if (/\.(?:svg|png|jpe?g|webp|ico|woff2?)$/i.test(filePath)) {
-        // public/ (logo, og.jpg, captures) : même URL d'un build à l'autre
-        res.setHeader("Cache-Control", "public, max-age=86400");
-      } else if (/\.html$/i.test(filePath)) {
-        res.setHeader("Cache-Control", "public, max-age=0, must-revalidate");
-        res.setHeader("Content-Security-Policy", cspForHtml(filePath, stat));
-      } else {
-        res.setHeader("Cache-Control", "public, max-age=300");
-      }
-    },
-  })
-);
+const serveStatic = express.static(distPath, {
+  extensions: ["html"],
+  etag: true,
+  lastModified: false,
+  setHeaders(res, filePath, stat) {
+    if (filePath.includes(`${path.sep}_astro${path.sep}`)) {
+      // noms hachés par Vite : le contenu ne change jamais à URL constante
+      res.setHeader("Cache-Control", "public, max-age=31536000, immutable");
+    } else if (/\.(?:svg|png|jpe?g|webp|ico|woff2?)$/i.test(filePath)) {
+      // public/ (logo, og.jpg, captures) : même URL d'un build à l'autre
+      res.setHeader("Cache-Control", "public, max-age=86400");
+    } else if (/\.html$/i.test(filePath)) {
+      res.setHeader("Cache-Control", "public, max-age=0, must-revalidate");
+      res.setHeader("Content-Security-Policy", cspForHtml(filePath, stat));
+    } else {
+      res.setHeader("Cache-Control", "public, max-age=300");
+    }
+  },
+});
+app.use(serveStatic);
 
 app.use(sendNotFound);
 

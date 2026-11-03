@@ -102,7 +102,7 @@ export function swap() {
 
 // Lancé directement : répare une bascule interrompue, puis bascule dist-next/ s'il est complet.
 const isMain = (() => {
-  try { return realpathSync(process.argv[1]) === fileURLToPath(import.meta.url); } catch { return false; }
+  try { return realpathSync(process.argv[1]) === realpathSync(fileURLToPath(import.meta.url)); } catch { return false; }
 })();
 if (isMain) {
   if (!existsSync(paths.next)) {
