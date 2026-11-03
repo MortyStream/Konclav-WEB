@@ -141,13 +141,13 @@ Paramètres avancés Node.js dans le manager Infomaniak :
 ### Build atomique (`npm run build` = `node scripts/build.mjs`)
 
 `astro build` vide son dossier de sortie au démarrage : construire directement dans `dist/` servait des 404 pendant ~5 s (et pour de bon si le build plantait) — **incident du 03/11/2026** : `/admin` en « 404 — Page introuvable » juste après un build lancé en SSH. Désormais :
-1. **Verrou** `.build.lock/` (pid) : un seul build à la fois (SSH + manager ne se marchent plus dessus). Verrou orphelin (pid mort, > 10 min) supprimé automatiquement ; sinon message « un autre build est déjà en cours ».
+1. **Verrou** `.build.lock/` (pid) : un seul build à la fois (SSH + manager ne se marchent plus dessus) — le second **attend** la fin du premier (5 min max). Verrou orphelin (pid mort ou réutilisé par un autre programme, cf. `/proc/<pid>/cmdline`) repris automatiquement, sous un second verrou `.build.lock-takeover/` pour que deux builds simultanés ne le prennent pas tous les deux.
 2. `astro build --outDir dist-next` — le site en ligne n'est pas touché.
 3. **Validation** (`scripts/swap-dist.mjs`) : `index.html`, `404.html`, `admin/`, `espace/`, `tarifs/`, `inscription/`, `sitemap-index.xml`, `_astro/` non vide — sinon rien n'est basculé.
 4. **Bascule** `dist/` → `dist-prev/`, `dist-next/` → `dist/` (deux `rename`, quelques µs). Retour arrière automatique si un renommage échoue ; une bascule interrompue est réparée au lancement suivant (`node scripts/swap-dist.mjs` seul suffit).
 5. `dist-prev/` = build précédent. **Revenir en arrière** : `mv dist dist-x && mv dist-prev dist` (aucun redémarrage requis).
 
-Ctrl+C pendant un build : rien n'est basculé, verrou libéré. Trois copies du site coexistent pendant un build (~8 Mo).
+Ctrl+C ou `kill` pendant un build : le build Astro est arrêté, rien n'est basculé, verrou libéré. Trois copies du site coexistent pendant un build (~8 Mo).
 
 ### Le serveur (`server.js`)
 
@@ -158,8 +158,8 @@ Ctrl+C pendant un build : rien n'est basculé, verrou libéré. Trois copies du 
 - **En-têtes de sécurité** : CSP, HSTS, X-Frame-Options DENY, X-Content-Type-Options, Referrer-Policy, Permissions-Policy verrouillée, COOP/CORP, Origin-Agent-Cluster (y compris sur la 301 `/demo`)
 - `X-Robots-Tag: noindex, nofollow` sur `/sous-traitance`, `/404`, `/admin`, `/espace`
 - Compression `gzip`/`br`
-- Cache long (1 an, immutable) sur les assets versionnés, `max-age=0, must-revalidate` (ETag faible de `express.static`) sur les HTML
-- 404 : `dist/404.html` gardée **en mémoire** (stylée même pendant une bascule), `no-store`, vrai statut 404 aussi sur `/404` et `/404.html`
+- Cache : 1 an `immutable` **uniquement** sur `/_astro/` (noms hachés) ; 1 jour sur les fichiers de `public/` (logo, `og.jpg`, captures — même URL d'un build à l'autre) ; `max-age=0, must-revalidate` (ETag faible de `express.static`) sur les HTML
+- 404 : `dist/404.html` gardée **en mémoire** (stylée même pendant une bascule), `no-store`, vrai statut 404 aussi sur `/404`, `/404.html` et leurs variantes encodées (`/%34%30%34`, `//404`…). Si `dist/` a été basculé pendant la requête, 503 « réessayer dans 1 s » au lieu d'un faux 404
 - `dist/index.html` absent → **503 « Mise à jour en cours »** autonome (`Retry-After`, `no-store`, se recharge seule) au lieu de 404 trompeurs ; erreur de lecture → même page (jamais de trace avec le chemin serveur)
 - Graceful shutdown sur SIGTERM/SIGINT
 

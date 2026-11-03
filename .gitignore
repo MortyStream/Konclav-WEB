@@ -5,6 +5,7 @@ dist-prev/
 dist-prev-trash-*/
 dist-broken-*/
 .build.lock/
+.build.lock-takeover/
 # generated types
 .astro/
 

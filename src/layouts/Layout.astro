@@ -90,6 +90,9 @@ const imageUrl = new URL(image, Astro.site ?? Astro.url.origin).toString();
          Mesure d'audience interne — Supabase Zurich, sans cookie, hash quotidien irréversible -->
     <script is:inline>
       document.documentElement.classList.add("js");
+      document.addEventListener("animationend", function (e) {
+        if (e.animationName === "reveal-failsafe") e.target.classList.add("is-visible");
+      });
       (function () {
         var EP = "https://ehbdngidjrkhfrprfgqg.supabase.co/functions/v1/website-track";
         function send(eventName) {

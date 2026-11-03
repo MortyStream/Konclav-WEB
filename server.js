@@ -12,7 +12,7 @@ const notFoundPath = path.join(distPath, "404.html");
 const port = process.env.PORT || 3000;
 // Révision de ce fichier, renvoyée en en-tête X-Konclav-Server et affichée au démarrage :
 // `curl -sI https://konclav.ch/ | grep -i x-konclav` dit quel server.js tourne réellement.
-const SERVER_REV = "2026-11-03";
+const SERVER_REV = "2026-11-03.2";
 
 // ------------------------------------------------------------------
 // CSP : script-src n'autorise que les hashes SHA-256 des <script> inline
@@ -117,7 +117,7 @@ const permissionsPolicy = [
 
 // Page autonome (aucune ressource de dist/) servie si le site n'est pas construit
 // ou si un fichier disparaît pendant une bascule de build.
-const MAINTENANCE_HTML = `<!doctype html><html lang="fr-CH"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="refresh" content="10"><meta name="robots" content="noindex"><title>Mise à jour en cours — Konclav</title><style>body{margin:0;min-height:100vh;display:grid;place-items:center;padding:24px;background:#fff;color:#1d1d1f;font:17px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;text-align:center}h1{margin:0 0 8px;font-size:28px;letter-spacing:-.02em}p{margin:0;color:#6e6e73}</style><main><h1>Mise à jour en cours</h1><p>Le site est en train d'être mis à jour.<br>Cette page se recharge toute seule dans quelques secondes.</p></main></html>`;
+const maintenanceHtml = (seconds) => `<!doctype html><html lang="fr-CH"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="refresh" content="${seconds}"><meta name="robots" content="noindex"><title>Mise à jour en cours — Konclav</title><style>body{margin:0;min-height:100vh;display:grid;place-items:center;padding:24px;background:#fff;color:#1d1d1f;font:17px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;text-align:center}h1{margin:0 0 8px;font-size:28px;letter-spacing:-.02em}p{margin:0;color:#6e6e73}</style><main><h1>Mise à jour en cours</h1><p>Le site est en train d'être mis à jour.<br>Cette page se recharge toute seule dans quelques secondes.</p></main></html>`;
 
 function sendMaintenance(res, retryAfter = 10) {
   for (const h of ["ETag", "Content-Range", "Accept-Ranges", "Last-Modified"]) res.removeHeader(h);
@@ -129,7 +129,7 @@ function sendMaintenance(res, retryAfter = 10) {
       "Content-Security-Policy": BASE_CSP,
     })
     .type("html")
-    .send(MAINTENANCE_HTML);
+    .send(maintenanceHtml(retryAfter));
 }
 
 // 404.html gardée en mémoire (rechargée quand le fichier change) : la page reste
@@ -149,8 +149,14 @@ function loadNotFound() {
   return notFoundPage;
 }
 
+const distIno = () => {
+  try { return statSync(distPath).ino; } catch { return null; }
+};
+
 function sendNotFound(req, res) {
   if (!existsSync(indexPath)) return sendMaintenance(res);
+  // dist/ a été basculé pendant cette requête : la page existe peut-être, réessayer.
+  if (res.locals.distIno !== undefined && distIno() !== res.locals.distIno) return sendMaintenance(res, 1);
   for (const h of ["ETag", "Content-Range", "Accept-Ranges", "Last-Modified"]) res.removeHeader(h);
   // Un 404 n'est jamais mis en cache : un 404 passager ne doit pas « coller ».
   res.setHeader("Cache-Control", "no-store");
@@ -182,6 +188,7 @@ app.use((req, res, next) => {
   );
   res.setHeader("Content-Security-Policy", BASE_CSP);
   res.setHeader("X-Konclav-Server", SERVER_REV);
+  res.locals.distIno = distIno();
   if (
     req.path.startsWith("/sous-traitance") ||
     req.path.startsWith("/404") ||
@@ -206,8 +213,18 @@ app.use((req, res, next) => {
   sendMaintenance(res);
 });
 
-// /404 et /404.html : vrai statut 404 (sinon express.static les servirait en 200).
-app.get(/^\/404(?:\.html)?\/?$/, sendNotFound);
+// /404 et /404.html, y compris encodés (/%34%30%34) ou non normalisés (//404, /x/../404) :
+// vrai statut 404 (sinon express.static servirait 404.html en 200).
+app.use((req, res, next) => {
+  let p;
+  try {
+    p = path.posix.normalize(decodeURIComponent(req.path));
+  } catch {
+    return next();
+  }
+  if (/^\/+404(?:\.html)?\/?$/i.test(p)) return sendNotFound(req, res);
+  next();
+});
 
 app.use(
   express.static(distPath, {
@@ -215,8 +232,12 @@ app.use(
     etag: true,
     lastModified: false,
     setHeaders(res, filePath, stat) {
-      if (/\.(?:js|css|svg|png|jpg|jpeg|webp|woff2?)$/i.test(filePath)) {
+      if (filePath.includes(`${path.sep}_astro${path.sep}`)) {
+        // noms hachés par Vite : le contenu ne change jamais à URL constante
         res.setHeader("Cache-Control", "public, max-age=31536000, immutable");
+      } else if (/\.(?:svg|png|jpe?g|webp|ico|woff2?)$/i.test(filePath)) {
+        // public/ (logo, og.jpg, captures) : même URL d'un build à l'autre
+        res.setHeader("Cache-Control", "public, max-age=86400");
       } else if (/\.html$/i.test(filePath)) {
         res.setHeader("Cache-Control", "public, max-age=0, must-revalidate");
         res.setHeader("Content-Security-Policy", cspForHtml(filePath, stat));

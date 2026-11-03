@@ -8,9 +8,9 @@
 //   - si elle a été interrompue (process tué entre les deux renommages), le lancement
 //     suivant répare d'abord : `node scripts/swap-dist.mjs` suffit.
 // dist-prev/ garde le build précédent : `mv dist dist-x && mv dist-prev dist` pour revenir en arrière.
-import { existsSync, readdirSync, renameSync, rmSync } from "node:fs";
+import { existsSync, readdirSync, realpathSync, renameSync, rmSync } from "node:fs";
 import { join, dirname } from "node:path";
-import { fileURLToPath, pathToFileURL } from "node:url";
+import { fileURLToPath } from "node:url";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 export const paths = {
@@ -56,7 +56,12 @@ function removeLeftovers() {
 
 export function swap() {
   const { next, live, prev } = paths;
-  heal();
+  try {
+    heal();
+  } catch (err) {
+    console.error(`swap-dist : réparation de dist/ impossible (${err.code || err.message}) — rien n'est basculé.`);
+    return false;
+  }
 
   const missing = missingFiles(next);
   if (missing.length) {
@@ -65,10 +70,14 @@ export function swap() {
   }
 
   // dist-prev/ n'est supprimé qu'une fois la bascule réussie.
-  const trash = existsSync(prev) ? `${prev}-trash-${Date.now()}` : null;
-  if (trash) renameSync(prev, trash);
   const hadLive = existsSync(live);
+  let trash = null;
   try {
+    if (existsSync(prev)) {
+      const t = `${prev}-trash-${Date.now()}`;
+      renameSync(prev, t);
+      trash = t;
+    }
     if (hadLive) renameSync(live, prev);
     renameSync(next, live);
   } catch (err) {
@@ -92,9 +101,12 @@ export function swap() {
 }
 
 // Lancé directement : répare une bascule interrompue, puis bascule dist-next/ s'il est complet.
-if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+const isMain = (() => {
+  try { return realpathSync(process.argv[1]) === fileURLToPath(import.meta.url); } catch { return false; }
+})();
+if (isMain) {
   if (!existsSync(paths.next)) {
-    heal();
+    try { heal(); } catch (err) { console.error(`swap-dist : réparation impossible (${err.code || err.message}).`); process.exit(1); }
     console.log(existsSync(join(paths.live, "index.html"))
       ? "swap-dist : rien à basculer (pas de dist-next/), dist/ est en place."
       : "swap-dist : ni dist-next/ ni build précédent — lancez « npm run build ».");

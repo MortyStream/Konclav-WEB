@@ -124,7 +124,8 @@ html.js:not(.reveal-ready) [data-reveal] {
 }
 @media (prefers-reduced-motion: reduce) {
   html.js [data-reveal],
-  html.js [data-reveal].is-visible {
+  html.js [data-reveal].is-visible,
+  html.js:not(.reveal-ready) [data-reveal] {
     opacity: 1;
     transform: none;
     transition: none;
@@ -132,6 +133,13 @@ html.js:not(.reveal-ready) [data-reveal] {
   }
   html {
     scroll-behavior: auto;
+  }
+}
+@media print {
+  html.js [data-reveal] {
+    opacity: 1 !important;
+    transform: none !important;
+    animation: none !important;
   }
 }
 
