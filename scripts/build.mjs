@@ -38,7 +38,12 @@ function tryAcquire() {
     if (e.code === "EEXIST") return false;
     throw e;
   }
-  writeFileSync(OWNER, `${TOKEN}\npid ${process.pid} sur ${hostname()}\n${new Date().toISOString()}\n`);
+  try {
+    writeFileSync(OWNER, `${TOKEN}\npid ${process.pid} sur ${hostname()}\n${new Date().toISOString()}\n`);
+  } catch (e) {
+    rmSync(LOCK, { recursive: true, force: true });
+    throw e;
+  }
   return true;
 }
 
@@ -71,6 +76,7 @@ let heartbeat = null;
 let child = null;
 let interrupted = false;
 let finished = false;
+let lost = false;
 
 function releaseLock() {
   clearInterval(heartbeat);
@@ -123,14 +129,20 @@ async function main() {
   }
   holding = true;
   heartbeat = setInterval(() => {
-    try { if (ownsLock()) utimesSync(LOCK, new Date(), new Date()); } catch {}
+    if (!ownsLock()) {
+      // Verrou repris par un autre build (celui-ci a été suspendu plus de 2 min) : on arrête tout.
+      lost = true;
+      if (child && child.exitCode === null && child.signalCode === null) child.kill("SIGTERM");
+      return;
+    }
+    try { utimesSync(LOCK, new Date(), new Date()); } catch {}
   }, HEARTBEAT_MS);
 
   try {
     try {
       heal();
     } catch (err) {
-      console.error(`build : réparation de dist/ impossible (${err.code || err.message}) — relancez « node scripts/swap-dist.mjs ».`);
+      console.error(`build : réparation de dist/ impossible (${err.code || err.message}) — le site peut afficher « mise à jour en cours » ; relancez « node scripts/swap-dist.mjs ».`);
       return 1;
     }
     const astroBin = join(paths.root, "node_modules", "astro", "bin", "astro.mjs");
@@ -147,6 +159,11 @@ async function main() {
       child.on("error", () => resolve({ code: 1, signal: null }));
       child.on("exit", (code, signal) => resolve({ code, signal }));
     });
+    if (lost || !ownsLock()) {
+      lost = true;
+      console.error("build : verrou perdu (build suspendu plus de 2 min ?) — rien n'est basculé, relancez « npm run build ».");
+      return 1;
+    }
     if (interrupted || signal) {
       console.error("build : interrompu — rien n'est basculé, le site en ligne reste intact.");
       return 130;

@@ -12,7 +12,7 @@ const notFoundPath = path.join(distPath, "404.html");
 const port = process.env.PORT || 3000;
 // Révision de ce fichier, renvoyée en en-tête X-Konclav-Server et affichée au démarrage :
 // `curl -sI https://konclav.ch/ | grep -i x-konclav` dit quel server.js tourne réellement.
-const SERVER_REV = "2026-11-03.3";
+const SERVER_REV = "2026-11-03.4";
 
 // ------------------------------------------------------------------
 // CSP : script-src n'autorise que les hashes SHA-256 des <script> inline
@@ -213,14 +213,14 @@ app.use((req, res, next) => {
 
 // Aucun fichier trouvé. Si dist/ a été basculé pendant la requête, la page existe
 // peut-être dans le nouveau build : un seul nouvel essai avant de conclure.
-function sendNotFound(req, res) {
+function sendNotFound(req, res, next) {
   if (!existsSync(indexPath)) return sendMaintenance(res);
   const ino = distIno();
   if (res.locals.distIno !== undefined && ino !== res.locals.distIno) {
     if (res.locals.retried) return sendMaintenance(res, 1);
     res.locals.retried = true;
     res.locals.distIno = ino;
-    return serveStatic(req, res, () => sendNotFound(req, res));
+    return serveStatic(req, res, (err) => (err ? next(err) : sendNotFound(req, res, next)));
   }
   respond404(req, res);
 }
@@ -269,7 +269,11 @@ app.use((err, req, res, next) => {
   sendMaintenance(res, 5);
 });
 
-const server = app.listen(port, () => {
+const server = app.listen(port, (err) => {
+  if (err) {
+    console.error(`Konclav : impossible d'écouter sur :${port} (${err.code || err.message})`);
+    process.exit(1);
+  }
   let built;
   try {
     built = `index.html du ${statSync(indexPath).mtime.toISOString()}, ${inlineScriptHashes(readFileSync(indexPath, "utf8")).length} hash(es) CSP`;
