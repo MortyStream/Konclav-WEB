@@ -1,126 +1,58 @@
 ---
 import PhoneFan from "./PhoneFan.astro";
-import PhoneShot from "./PhoneShot.astro";
 import CTAButton from "./CTAButton.astro";
 ---
 
-<section
-  class="relative isolate overflow-hidden px-6 pt-28 pb-24 sm:pt-44 sm:pb-32 lg:min-h-[92vh] lg:flex lg:items-center"
->
-  <!-- Subtle technical grid background -->
-  <div
-    aria-hidden="true"
-    class="pointer-events-none absolute inset-0 -z-10 grid-bg opacity-60"
-  ></div>
+<section class="relative overflow-hidden px-5 pt-[120px] pb-20 sm:px-6 sm:pt-[156px] sm:pb-28">
+  <div class="mx-auto max-w-[1040px] text-center">
+    <p data-reveal class="chip">
+      <svg viewBox="0 0 32 32" class="h-3.5 w-3.5 rounded-[3px]" aria-hidden="true">
+        <rect width="32" height="32" fill="#DA291C" />
+        <rect x="13" y="6" width="6" height="20" fill="#fff" />
+        <rect x="6" y="13" width="20" height="6" fill="#fff" />
+      </svg>
+      Fait en Suisse
+      <span aria-hidden="true" class="text-ash">·</span>
+      <span class="text-slate">pour les associations</span>
+    </p>
 
-  <div class="mx-auto w-full max-w-7xl">
-    <div class="grid grid-cols-12 items-center gap-x-8 gap-y-12 md:gap-y-16">
-      <!-- LEFT — editorial text -->
-      <div class="col-span-12 lg:col-span-7">
-        <div
-          data-reveal
-          class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-[11px] font-medium text-ink-400 backdrop-blur"
-        >
-          <span class="inline-flex h-4 w-5 items-center justify-center overflow-hidden rounded-sm">
-            <svg viewBox="0 0 32 32" class="h-3 w-3" aria-hidden="true">
-              <rect width="32" height="32" fill="#DA291C" />
-              <rect x="13" y="6" width="6" height="20" fill="#fff" />
-              <rect x="6" y="13" width="20" height="6" fill="#fff" />
-            </svg>
-          </span>
-          <span class="text-ink-50">Fait en Suisse</span>
-          <span aria-hidden="true" class="text-ink-500">·</span>
-          <span>pour les associations</span>
-        </div>
+    <h1
+      data-reveal
+      data-content-key="hero.title"
+      style="transition-delay: 60ms"
+      class="t-hero mx-auto mt-6 max-w-[1000px] text-balance text-graphite"
+    >
+      Gérez votre association dans <span class="text-gradient-brand">une seule app.</span>
+    </h1>
 
-        <h1
-          data-reveal
-          data-split-text
-          data-content-key="hero.title"
-          class="display-hero mt-7 text-balance text-ink-50"
-        >
-          Gérez votre association dans une seule app !
-        </h1>
+    <p
+      data-reveal
+      data-content-key="hero.subtitle"
+      style="transition-delay: 120ms"
+      class="t-lead mx-auto mt-6 max-w-[640px] text-pretty text-slate"
+    >
+      Konclav, c'est <em class="not-italic font-medium text-graphite">l'intranet privé pensé pour les associations suisses</em>.
+      Tâches, agenda, documents, cotisations, AG, votations — toute la vie
+      associative dans une seule app mobile.
+    </p>
 
-        <p
-          data-reveal
-          data-content-key="hero.subtitle"
-          class="mt-7 max-w-xl text-pretty text-base leading-relaxed text-ink-400 sm:text-lg"
-        >
-          Konclav, c'est <em class="not-italic font-semibold text-ink-50">l'intranet
-          privé pensé pour les associations suisses</em>. Tâches, agenda,
-          documents, cotisations, AG, votations — toute la vie associative
-          dans une seule app mobile.
-        </p>
-
-        <div
-          data-reveal
-          class="mt-10 flex flex-col items-start gap-3 sm:flex-row sm:items-center"
-        >
-          <CTAButton href="/inscription" joinOpen size="lg">
-            <span data-content-key="hero.cta_primary">S'inscrire</span>
-          </CTAButton>
-          <CTAButton href="#features" variant="secondary" size="lg" arrow={false}>
-            Voir les fonctionnalités
-            <svg viewBox="0 0 16 16" fill="none" class="ml-1 h-3.5 w-3.5 text-ink-400" aria-hidden="true">
-              <path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </CTAButton>
-        </div>
-
-        <!-- Honest stat strip : 2 real claims, no inflated numbers -->
-        <dl
-          data-reveal
-          class="mt-14 grid max-w-md grid-cols-2 gap-x-6 gap-y-3 border-t border-white/[0.07] pt-7"
-        >
-          <div>
-            <dt class="text-[10px] font-medium uppercase tracking-[0.18em] text-ink-500">Essai</dt>
-            <dd class="mt-1 text-xl font-semibold tracking-tight text-ink-50 sm:text-2xl">
-              14 jours <span class="text-sm font-medium text-ink-400">sans carte</span>
-            </dd>
-          </div>
-          <div>
-            <dt class="text-[10px] font-medium uppercase tracking-[0.18em] text-ink-500">Démarrage</dt>
-            <dd class="mt-1 text-xl font-semibold tracking-tight text-ink-50 sm:text-2xl">
-              7 jours <span class="text-sm font-medium text-ink-400">go-live</span>
-            </dd>
-          </div>
-        </dl>
-      </div>
-
-      <!-- RIGHT — aperçu de l'app -->
-      <div class="relative col-span-12 lg:col-span-5">
-        <!-- mobile / tablette : carrousel d'écrans, glissable -->
-        <div class="lg:hidden">
-          <div class="relative">
-            <div
-              aria-hidden="true"
-              class="pointer-events-none absolute left-1/2 top-1/2 -z-10 h-72 w-80 -translate-x-1/2 -translate-y-1/2 rounded-full opacity-50 blur-3xl"
-              style="background: radial-gradient(closest-side, rgba(94,106,210,0.45), transparent 70%);"
-            >
-            </div>
-            <div class="-mx-6 flex snap-x snap-mandatory gap-5 overflow-x-auto px-6 pb-1 no-scrollbar [&>*]:snap-always">
-              <PhoneShot src="/app/accueil.webp" alt="Konclav — écran d'accueil : accès rapides aux tâches, agenda, annuaire et documents" priority />
-              <PhoneShot src="/app/agenda-semaine.webp" alt="Konclav — agenda, vue semaine des entraînements" />
-              <PhoneShot src="/app/documents.webp" alt="Konclav — documents et dossiers" />
-              <PhoneShot src="/app/annuaire.webp" alt="Konclav — annuaire des membres" />
-            </div>
-          </div>
-          <p
-            class="mt-4 flex items-center justify-center gap-1.5 text-xs font-medium text-ink-500"
-            aria-hidden="true"
-          >
-            Glissez pour voir les écrans
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4">
-              <path d="M5 12h14M13 6l6 6-6 6" />
-            </svg>
-          </p>
-        </div>
-        <!-- desktop : éventail -->
-        <div class="hidden lg:block">
-          <PhoneFan />
-        </div>
-      </div>
+    <div
+      data-reveal
+      style="transition-delay: 180ms"
+      class="mt-9 flex flex-col items-center justify-center gap-x-8 gap-y-5 sm:flex-row"
+    >
+      <CTAButton href="/inscription" joinOpen size="lg">
+        <span data-content-key="hero.cta_primary">S'inscrire</span>
+      </CTAButton>
+      <CTAButton href="#features" variant="link">Voir les fonctionnalités</CTAButton>
     </div>
+
+    <p data-reveal style="transition-delay: 220ms" class="mt-6 text-sm text-slate">
+      Essai 14 jours sans carte · Démarrage en 7 jours
+    </p>
+  </div>
+
+  <div data-reveal style="transition-delay: 260ms" class="mt-16 sm:mt-20">
+    <PhoneFan />
   </div>
 </section>

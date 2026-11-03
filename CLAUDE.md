@@ -12,32 +12,46 @@ Site marketing d'une app intranet privée pour associations suisses. Site statiq
 - View Transitions natives MPA via `@view-transition { navigation: auto; }` (pas de `ClientRouter` SPA)
 - **express** uniquement pour servir `dist/` en prod via `server.js` (cf. déploiement Infomaniak)
 
-## Design system
+## Design system — « Apple-like » clair (refonte du 03/11/2026)
 
-Tokens dans `src/styles/global.css`:
+Deux thèmes, pilotés par `<html data-theme>` (posé dans `Layout.astro`) :
+- **Clair (défaut)** — tout le site marketing : sobre, blanc, une seule couleur d'accent tirée du logo.
+- **Sombre** — uniquement `/admin` (cockpit) et `/espace` (espace client), via `<Layout dark>`. Rendu inchangé : tokens `ink-*` / `accent-*`, `.aurora-global`, grain, `.cta-shimmer`, `.live-dot`, autofill sombre. **Ne pas supprimer ces styles** : le cockpit et l'espace en dépendent.
+
+Tokens clairs (`src/styles/global.css`, bloc `@theme`) :
 
 ```
---color-ink-950: #08090a   /* background */
---color-ink-900: #0f1011
---color-ink-800: #111214
---color-ink-50:  #f4f4f5   /* texte primaire */
---color-ink-200: #e4e4e7
---color-ink-300: #d4d4d8
---color-ink-400: #a1a1aa   /* texte muted */
---color-ink-500: #8b8b94   /* WCAG AA sur ink-950 : 5.1:1 */
---color-accent-500: #5e6ad2  /* accent Linear (réservé fonds/bordures) */
---color-accent-400: #7170ff  /* accent pour texte (5.18:1 sur ink-950) */
---color-accent-300: #9b9bff
+--color-paper:     #ffffff   fond
+--color-mist:      #f5f5f7   sections alternées, tuiles
+--color-cloud:     #e8e8ed   survol
+--color-hairline:  #d2d2d7   filets
+--color-graphite:  #1d1d1f   texte principal + boutons
+--color-slate:     #6e6e73   texte secondaire (5.1:1 sur blanc, 4.6:1 sur mist)
+--color-ash:       #86868b   décor seulement (icônes, placeholders) — jamais du texte courant
+--color-night:     #0a0a0b   bande sombre (AG)
+--color-brand-500: #e8572a   accent : icônes, aplats
+--color-brand-600: #c2410c   accent texte & liens (5.2:1 sur blanc)
+--color-brand-300: #ff9a62   accent sur fond sombre
+--font-display: -apple-system, BlinkMacSystemFont, "Inter", …   (SF Pro sur Apple, Inter auto-hébergée ailleurs)
 ```
 
-Conventions visuelles :
-- **Fond** : `bg-ink-950` (jamais `#000000` pur — smear OLED)
-- **Cards** : `border border-white/10 bg-white/[0.02] rounded-2xl`
-- **Halos** : `radial-gradient(closest-side, #5e6ad2, transparent 70%)` à `opacity 0.2–0.3`, blur `3xl`, placé en `-z-10`
-- **Easing** : `cubic-bezier(0.16, 1, 0.3, 1)` partout (animations + transitions)
-- **Type** : `text-balance` sur les H1, `tracking-tight`, `font-feature-settings: 'cv11' 1, 'ss03' 1, 'calt' 1` pour le look Linear
-- **Reveals scroll** : marquer un élément avec `data-reveal`, l'IntersectionObserver dans `Layout.astro` ajoute `is-visible`
-- **Effets retirés (audit 10/06/2026)** : cursor-spotlight, boutons magnétiques, tilt 3D, draw-on-scroll — ne pas réintroduire
+Composants CSS (dans `@layer components` → surchargeables par les utilitaires Tailwind) :
+- Typo : `.t-hero`, `.t-section`, `.t-tile`, `.t-lead`, `.t-eyebrow` (petit titre orange en casse normale — plus de MAJUSCULES espacées).
+- `.text-gradient-brand` (rouge → orange → or du logo, contraste ≥ 3:1 → **grands titres uniquement**) et `.text-gradient-brand-night` sur fond sombre.
+- Boutons pilule `.btn` + `.btn-primary` (graphite) / `.btn-secondary` / `.btn-light` / `.btn-sm` ; lien « En savoir plus › » `.link-chevron`. Composant `CTAButton` (variants `primary` / `secondary` / `light` / `link`).
+- `.chip`, `.tile` (rayon 28px, fond mist, `container-type: inline-size`), `.nav-glass` (barre translucide flou + saturation, plus opaque une fois défilée), `.range` (curseur façon iOS, `--fill` posé par le JS du simulateur).
+- `.device` (cadre iPhone) : largeur via `--dw` (accepte `min()` / `cqw` → compositions fluides sans JS), hauteur via `aspect-ratio`. Toujours passer par `PhoneShot`.
+
+Mouvement :
+- `[data-reveal]` : fondu + montée de 28px, courbe `--ease-fluid` = `cubic-bezier(0.22, 1, 0.36, 1)`, déclenché par l'IntersectionObserver de `Layout`. Décalages via `style="transition-delay: …"`.
+- Animations liées au scroll (CSS `animation-timeline: view()`, amélioration progressive Chrome/Edge/Safari 26+, état final statique ailleurs) : `.sd-zoom` (iPhone du hero), `.sd-rise` (iPhone des tuiles), `.sd-spread-l/r` (téléphones latéraux de la bande AG). **Jamais sur un élément qui porte déjà `data-reveal`** (les deux posent `transform`) → un wrapper chacun.
+- Tout est coupé en `prefers-reduced-motion: reduce`.
+- Retirés à la refonte, à ne pas réintroduire : halos colorés, aurora côté site, grain, bordures dégradées animées, split-text mot à mot, parallax, float, reflet de vitre, `.bento`, `.display-*`, `.italic-display`. (Déjà retirés en juin : cursor-spotlight, boutons magnétiques, tilt 3D, draw-on-scroll.)
+
+Pièges :
+- Avec Tailwind v4, du CSS **hors `@layer`** bat les utilitaires quelle que soit la spécificité → styles de composants dans `@layer components`, anneau de focus clair dans `@layer base`.
+- Ne jamais centrer (`justify-center`) une rangée qui défile horizontalement : les premiers éléments deviennent inatteignables (galerie de `/inscription`).
+- Le texte du H1 / sous-titre / CTA du hero et du bloc final reste surchargeable depuis le cockpit (`data-content-key`) ; une surcharge remplace le texte brut (le mot en dégradé disparaît, voulu : anti-XSS).
 
 ## Arborescence
 
@@ -47,22 +61,22 @@ src/
     Layout.astro          # head + meta + scripts globaux + JoinModal monté ici
     LegalLayout.astro     # wrapper pages légales (prose-legal, tables, blockquote, code)
   components/
-    Navbar.astro          # liens + burger mobile (focus-trap, aria-current)
-    Hero.astro            # H1 + 2 stats (Audience / Données app) + PhoneFan ou carrousel mobile
-    Features.astro        # 4 cards bento (Tâches/Agenda/Documents/Membres)
-    Security.astro        # 2 bentos stats + 4 points (RLS/TLS/2FA/Backups)
-    TrustBand.astro       # 4 badges (Conçu en Suisse / Conforme LPD-RGPD / Sans engagement / AES-256)
-    PriceSimulator.astro  # 2 sliders + résultat live (aria-live)
-    Onboarding.astro      # 3 étapes (Demande / Provisionnement / Go live)
+    Navbar.astro          # barre translucide + menu mobile plein écran (focus-trap, aria-current)
+    Hero.astro            # titre centré (mot en dégradé) + CTA pilule + lien chevron + PhoneFan
+    Features.astro        # 5 tuiles (grille 3+3 / 2+2+2, iPhone qui sort du bas) + bande sombre AG
+    Security.astro        # 4 garanties techniques (RLS/TLS/2FA/Backups), filets fins
+    TrustBand.astro       # 4 garanties centrées (Conçu en Suisse / LPD-RGPD / Sans engagement / AES-256)
+    PriceSimulator.astro  # 2 curseurs façon iOS + résultat live (aria-live)
+    Onboarding.astro      # 3 étapes numérotées sur cartes blanches (fond mist)
     FAQ.astro             # <details> + JSON-LD FAQPage
-    CTAFinal.astro        # box spotlight
-    Footer.astro          # liens produit + légaux (incl. /sous-traitance)
+    CTAFinal.astro        # grande tuile centrée
+    Footer.astro          # 4 colonnes Apple (marque / Produit / Légal / Contact + espace client)
     Icon.astro            # 10 icons SVG inline
     Logo.astro            # <img> logo-mark.png (TODO: passer en SVG)
-    PhoneShot.astro       # frame iPhone unique (prop `priority` pour LCP)
-    PhoneFan.astro        # éventail desktop de 4 PhoneShot (Hero lg+)
+    PhoneShot.astro       # cadre iPhone CSS, largeur via --dw (prop `priority` pour LCP)
+    PhoneFan.astro        # composition hero : 3 iPhone droits, tailles en cqw
     JoinModal.astro       # modal wizard 4 étapes → POST JSON Edge Function Supabase website-lead-submit (honeypot + focus-trap)
-    CTAButton.astro       # bouton CTA réutilisable (primary/secondary, joinOpen)
+    CTAButton.astro       # bouton pilule / lien chevron (primary/secondary/light/link, joinOpen)
   pages/
     index.astro
     admin.astro           # Cockpit admin (noindex, hors sitemap, aucun lien) — auth Supabase + RLS email
@@ -229,18 +243,14 @@ Le formulaire d'inscription n'utilise PLUS Google Forms. Architecture :
   - **Emails de facture autosuffisants** : `cockpit-invoice-reminder` **v2** + `cockpit-invoice-notify` **v2** joignent le **PDF avec QR-bill** (généré via `cockpit-invoice-pdf` avec le JWT admin de l'appelant ; base64 par blocs de 32 Ko) et affichent bénéficiaire / IBAN / communication en clair → un destinataire « finance@ » sans compte Konclav peut payer sans passer par `/espace`. Si le PDF échoue, l'email part quand même sans pièce jointe (`pdf_attached=false`).
   - Mystéria : contact `Loïc` · `finance@mysteriaevent.ch`. IBAN Yuh (IID 08781 = Swissquote) confirmé actif par Kévin.
   - **Ouvert — décision Kévin** : la rue reste publiée sur 3 pages légales (mentions légales, confidentialité, sous-traitance). Une adresse y est attendue (identité e-commerce, LCD art. 3 al. 1 let. s ; responsable du traitement, nLPD art. 19) → alternative propre : une adresse de domiciliation.
+- **Refonte design « Apple-like » (03/11/2026)** — demande de Kévin : « plus moderne, sobre, apple like, fluide ». Thème clair (cf. section Design system), accent aligné sur le logo rouge-orangé (fin du violet Linear qui jurait avec le logo et l'app), accueil desktop 10 600 → 8 400 px (5 chapitres alternés → grille de tuiles), bande sombre AG, image OG régénérée. Cockpit / espace volontairement inchangés (`<Layout dark>`, 3 lignes modifiées en tout). Textes marketing conservés tels quels (claims audités), sauf « ! » → « . » dans le H1 (placeholder du cockpit aligné) et les puces redondantes des tuiles retirées. Script du formulaire d'inscription identique à 1 ligne près (classe du placeholder du sélecteur de canton). Vérifié : 23 tests navigateur (formulaire de bout en bout avec envoi simulé — zéro lead créé —, validation, menu mobile, simulateur, FAQ, admin/espace toujours sombres, zéro erreur JS), captures desktop/mobile avec et sans animations.
 - **À ressortir le jour où il y a une audience** (décidé 12/06 — pas prioritaire tant qu'il n'y a personne qui voit le site à part Kévin) :
   - **/blog** — content collection Astro, articles en Markdown (SEO + partages LinkedIn). Idée d'angles : « préparer une AG », « gérer les cotisations sans Excel », « nLPD pour les assos »
   - **/changelog** — content collection idem, une entrée par release/feature de l'app (rassure les prospects que le produit vit, rappel des nouveautés aux clients actuels)
 
 ## Régénérer l'OG image
 
-Le script utilisé pour générer `public/og.png` n'est PAS versionné (était en `/tmp/og-gen.mjs`). Si besoin de regen, recréer un script Playwright qui :
-1. Render un HTML 1200×630 avec halo, badge "Pour les assos suisses", logo Konclav, H1 + sous-titre, 3 pills meta
-2. Screenshot avec `deviceScaleFactor: 2`
-3. Output à `public/og.jpg` (JPEG quality 82, ~27 Ko)
-
-Recommandation : versionner le script dans `scripts/og-gen.mjs` + ajouter `"og": "node scripts/og-gen.mjs"` dans `package.json` si on régénère régulièrement.
+`npm run og` → `scripts/og-gen.mjs` (Playwright, déjà disponible dans l'environnement) écrit `public/og.jpg` en **1200×630** (= dimensions annoncées par les balises `og:image`), JPEG q82, ~64 Ko. Style clair : logo + H1 avec le dégradé de marque + capture `app/accueil.webp` dans un iPhone. Le texte du H1 est dupliqué dans le script : à resynchroniser si le hero change. Logo, capture et police Inter sont embarqués en `data:` URI (une page `setContent()` ne peut pas lire de fichier local `file://`).
 
 ## Skills disponibles (`.claude/skills/`)
 

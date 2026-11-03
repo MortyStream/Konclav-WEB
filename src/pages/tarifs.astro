@@ -4,6 +4,7 @@ import Navbar from "../components/Navbar.astro";
 import Footer from "../components/Footer.astro";
 import Icon from "../components/Icon.astro";
 import PriceSimulator from "../components/PriceSimulator.astro";
+import CTAButton from "../components/CTAButton.astro";
 
 const plans = [
   {
@@ -89,29 +90,14 @@ const faq = [
 >
   <Navbar />
   <main id="main">
-    <!-- Hero -->
-    <section class="relative isolate overflow-hidden px-6 pt-40 pb-12 sm:pt-48">
-
-      <div class="mx-auto max-w-3xl text-center">
-        <div
-          data-reveal
-          class="mb-8 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.03] px-3 py-1 text-xs text-ink-400"
-        >
-          <span class="h-1.5 w-1.5 rounded-full bg-accent-500"></span>
-          Tarifs
-        </div>
-        <h1
-          data-reveal
-          data-split-text
-          class="display-hero text-balance text-ink-50"
-        >
+    <section class="px-5 pt-[120px] pb-12 sm:px-6 sm:pt-[156px] sm:pb-16">
+      <div class="mx-auto max-w-[900px] text-center">
+        <p data-reveal class="t-eyebrow">Tarifs</p>
+        <h1 data-reveal style="transition-delay: 60ms" class="t-hero mt-3 text-balance text-graphite">
           Un prix simple, pensé pour les assos.
         </h1>
-        <p
-          data-reveal
-          class="mx-auto mt-6 max-w-xl text-pretty text-base leading-relaxed text-ink-400 sm:text-lg"
-        >
-          4 CHF par <em class="not-italic font-semibold text-ink-50">membre actif</em> par mois.
+        <p data-reveal style="transition-delay: 120ms" class="t-lead mx-auto mt-6 max-w-[620px] text-pretty text-slate">
+          4 CHF par <em class="not-italic font-medium text-graphite">membre actif</em> par mois.
           Un membre actif, c'est une personne qui s'est connectée au moins
           une fois dans le mois — les comptes dormants ne sont jamais
           facturés.
@@ -120,263 +106,134 @@ const faq = [
     </section>
 
     <!-- Pack fondateurs -->
-    <section class="relative px-6 pb-12">
-      <div
-        data-reveal
-        class="mx-auto flex max-w-5xl flex-col items-center gap-3 rounded-2xl border border-accent-500/30 bg-accent-500/[0.06] px-6 py-5 text-center sm:flex-row sm:text-left"
-      >
-        <span class="inline-flex shrink-0 items-center rounded-full border border-accent-500/40 bg-accent-500/15 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-accent-300">
-          Pack fondateurs
-        </span>
-        <p class="text-sm leading-relaxed text-ink-200">
-          Les <strong class="text-ink-50">5 premières associations</strong> bénéficient de
-          <strong class="text-ink-50">−50% pendant 6 mois</strong>, en échange d'un
+    <section class="px-5 pb-8 sm:px-6">
+      <div data-reveal class="mx-auto flex max-w-[900px] flex-col items-center gap-3 rounded-[20px] bg-mist px-6 py-5 text-center sm:flex-row sm:gap-4 sm:text-left">
+        <span class="inline-flex shrink-0 items-center rounded-full bg-graphite px-3 py-1 text-[12px] font-semibold text-white">Pack fondateurs</span>
+        <p class="text-[15px] leading-relaxed text-slate">
+          Les <strong class="font-semibold text-graphite">5 premières associations</strong> bénéficient de
+          <strong class="font-semibold text-graphite">−50% pendant 6 mois</strong>, en échange d'un
           retour d'expérience publiable.
-          <a href="/inscription" data-join-open class="link-underline font-medium text-accent-300">Je candidate</a>
+          <a href="/inscription" data-join-open class="whitespace-nowrap font-medium text-brand-600 hover:underline">Je candidate ›</a>
         </p>
       </div>
     </section>
 
     <!-- Plans -->
-    <section class="relative px-6 pb-32">
-      <div class="mx-auto max-w-5xl">
-        <div class="grid gap-5 md:grid-cols-2">
-          {
-            plans.map((plan, i) => (
-              <article
-                data-reveal
-                data-gradient-border
-                style={`transition-delay: ${i * 100}ms`}
-                class={`group relative overflow-hidden rounded-2xl border p-8 transition-colors ${
-                  plan.featured
-                    ? "border-accent-500/50 bg-gradient-to-br from-accent-500/[0.08] via-white/[0.03] to-ink-900"
-                    : "border-white/10 bg-white/[0.02] hover:border-white/15 hover:bg-white/[0.035]"
-                }`}
+    <section class="px-5 pb-24 sm:px-6 sm:pb-32">
+      <div class="mx-auto grid max-w-[900px] gap-5 md:grid-cols-2">
+        {
+          plans.map((plan, i) => (
+            <article
+              data-reveal
+              style={`transition-delay: ${i * 100}ms`}
+              class={`relative flex flex-col rounded-[28px] p-8 sm:p-10 ${plan.featured ? "bg-white ring-2 ring-graphite" : "bg-mist"}`}
+            >
+              {plan.featured && (
+                <span class="absolute right-7 top-7 rounded-full bg-mist px-3 py-1 text-[12px] font-semibold text-graphite">Recommandé</span>
+              )}
+              <h2 class="text-[24px] font-semibold tracking-[-0.016em] text-graphite">{plan.name}</h2>
+              <p class="mt-1 text-[15px] text-slate">{plan.tagline}</p>
+
+              <p class="mt-8 flex flex-wrap items-baseline gap-x-2">
+                <span class="text-[44px] font-semibold leading-none tracking-[-0.035em] tabular-nums text-graphite">{plan.price}</span>
+                {plan.priceUnit && <span class="text-[15px] text-slate">{plan.priceUnit}</span>}
+              </p>
+              <p class="mt-2 text-[13px] text-slate">{plan.floor}</p>
+
+              <a
+                href={plan.cta.href}
+                data-join-open={plan.cta.joinOpen ? "" : undefined}
+                class={`btn mt-8 w-full ${plan.featured ? "btn-primary" : "btn-light"}`}
               >
-                {plan.featured && (
-                  <div class="absolute right-6 top-6 inline-flex items-center rounded-full border border-accent-500/30 bg-accent-500/10 px-2.5 py-0.5 text-[11px] font-medium text-accent-400">
-                    Recommandé
-                  </div>
-                )}
-                <h3 class="text-xl font-semibold tracking-tight text-ink-50">
-                  {plan.name}
-                </h3>
-                <p class="mt-1.5 text-sm text-ink-400">{plan.tagline}</p>
+                {plan.cta.label}
+              </a>
 
-                <div class="mt-6 flex items-baseline gap-1.5">
-                  <span class="text-4xl font-semibold tracking-tight text-ink-50 tabular-nums">
-                    {plan.price}
-                  </span>
-                  {plan.priceUnit && (
-                    <span class="text-sm text-ink-400">{plan.priceUnit}</span>
-                  )}
-                </div>
-                <p class="mt-1.5 text-xs text-ink-500">{plan.floor}</p>
-
-                <a
-                  href={plan.cta.href}
-                  data-join-open={plan.cta.joinOpen ? "" : undefined}
-                  class={`group/cta mt-7 inline-flex w-full items-center justify-center gap-1.5 rounded-xl px-5 py-3 text-sm font-semibold transition-colors ${
-                    plan.featured
-                      ? "cta-shimmer bg-accent-500 text-white shadow-[var(--shadow-cta)] hover:bg-accent-400"
-                      : "border border-white/10 bg-white/[0.02] text-ink-50 hover:border-white/20 hover:bg-white/[0.04]"
-                  }`}
-                >
-                  {plan.cta.label}
-                  <svg
-                    viewBox="0 0 16 16"
-                    fill="none"
-                    class="h-4 w-4 transition-transform duration-300 ease-out group-hover/cta:translate-x-0.5"
-                    aria-hidden="true"
-                  >
-                    <path
-                      d="M3.5 8h9m0 0L8 3.5M12.5 8 8 12.5"
-                      stroke="currentColor"
-                      stroke-width="1.5"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                    />
-                  </svg>
-                </a>
-
-                <ul class="mt-8 space-y-3 border-t border-white/5 pt-7">
-                  {plan.features.map((feature) => (
-                    <li class="flex items-start gap-2.5 text-sm text-ink-400">
-                      <svg
-                        viewBox="0 0 16 16"
-                        fill="none"
-                        class="mt-0.5 h-4 w-4 flex-none text-accent-400"
-                        aria-hidden="true"
-                      >
-                        <path
-                          d="m3.5 8.5 3 3 6-7"
-                          stroke="currentColor"
-                          stroke-width="1.75"
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                        />
-                      </svg>
-                      {feature}
-                    </li>
-                  ))}
-                </ul>
-              </article>
-            ))
-          }
-        </div>
+              <ul class="mt-8 space-y-3 border-t border-hairline pt-8">
+                {plan.features.map((feature) => (
+                  <li class="flex items-start gap-3 text-[15px] text-graphite">
+                    <svg viewBox="0 0 16 16" fill="none" class="mt-0.5 h-4 w-4 flex-none text-brand-500" aria-hidden="true">
+                      <path d="m3.5 8.5 3 3 6-7" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                    {feature}
+                  </li>
+                ))}
+              </ul>
+            </article>
+          ))
+        }
       </div>
     </section>
 
     <PriceSimulator />
 
     <!-- Inclus partout -->
-    <section class="relative border-t border-white/5 px-6 py-32">
-      <div class="mx-auto max-w-6xl">
-        <div class="mx-auto max-w-2xl text-center">
-          <p data-reveal class="text-sm font-medium text-accent-400">
-            Inclus dans tous les plans
-          </p>
-          <h2
-            data-reveal
-            data-split-text
-            class="display-section mt-3 text-balance text-ink-50"
-          >
-            La même base, pour tout le monde.
-          </h2>
-        </div>
+    <section class="px-5 py-24 sm:px-6 sm:py-32">
+      <div class="mx-auto max-w-[820px] text-center">
+        <p data-reveal class="t-eyebrow">Inclus dans tous les plans</p>
+        <h2 data-reveal style="transition-delay: 60ms" class="t-section mt-3 text-balance text-graphite">
+          La même base, pour tout le monde.
+        </h2>
+      </div>
 
-        <div class="mt-16 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-          {
-            included.map((item, i) => (
-              <div
-                data-reveal
-                style={`transition-delay: ${i * 80}ms`}
-                class="group rounded-2xl border border-white/10 bg-white/[0.02] p-6 transition-colors hover:border-white/15"
-              >
-                <div class="icon-tile mb-4 inline-flex items-center justify-center rounded-lg border border-white/10 bg-ink-900 p-2 text-accent-400">
-                  <Icon name={item.icon} class="h-5 w-5" />
-                </div>
-                <h3 class="text-sm font-semibold tracking-tight text-ink-50">
-                  {item.title}
-                </h3>
-                <p class="mt-1.5 text-xs leading-relaxed text-ink-400">
-                  {item.description}
-                </p>
-              </div>
-            ))
-          }
-        </div>
+      <div class="mx-auto mt-14 grid max-w-[1080px] gap-x-8 gap-y-10 sm:mt-16 sm:grid-cols-2 lg:grid-cols-4">
+        {
+          included.map((item, i) => (
+            <div data-reveal style={`transition-delay: ${i * 80}ms`} class="border-t border-hairline pt-7">
+              <Icon name={item.icon} class="h-7 w-7 text-brand-500" strokeWidth={1.6} />
+              <h3 class="mt-5 text-[19px] font-semibold tracking-[-0.012em] text-graphite">{item.title}</h3>
+              <p class="mt-2 text-[15px] leading-relaxed text-slate">{item.description}</p>
+            </div>
+          ))
+        }
       </div>
     </section>
 
     <!-- FAQ tarifs -->
-    <section class="relative border-t border-white/5 px-6 py-32">
-      <div class="mx-auto max-w-3xl">
+    <section class="px-5 pb-24 sm:px-6 sm:pb-32">
+      <div class="mx-auto max-w-[820px]">
         <div class="text-center">
-          <p data-reveal class="text-sm font-medium text-accent-400">
-            Questions de tarifs
-          </p>
-          <h2
-            data-reveal
-            data-split-text
-            class="display-section mt-3 text-balance text-ink-50"
-          >
+          <p data-reveal class="t-eyebrow">Questions de tarifs</p>
+          <h2 data-reveal style="transition-delay: 60ms" class="t-section mt-3 text-balance text-graphite">
             Tout ce qu'on nous demande.
           </h2>
         </div>
 
-        <div class="mt-12 divide-y divide-white/5 border-y border-white/5">
+        <ul class="mt-12 border-b border-hairline sm:mt-14">
           {
             faq.map((item, i) => (
-              <details
-                data-reveal
-                style={`transition-delay: ${i * 60}ms`}
-                class="faq-item group py-5"
-              >
-                <summary class="flex cursor-pointer items-start justify-between gap-6">
-                  <span class="text-base font-medium text-ink-50">
-                    {item.q}
-                  </span>
-                  <span class="faq-toggle mt-0.5 inline-flex h-6 w-6 flex-none items-center justify-center rounded-full border border-white/10 text-ink-400">
-                    <svg
-                      viewBox="0 0 16 16"
-                      fill="none"
-                      class="h-3 w-3"
-                      aria-hidden="true"
-                    >
-                      <path
-                        d="M8 3.5v9M3.5 8h9"
-                        stroke="currentColor"
-                        stroke-width="1.5"
-                        stroke-linecap="round"
-                      />
-                    </svg>
-                  </span>
-                </summary>
-                <div class="faq-content-wrapper">
-                  <div>
-                    <p class="pt-3 text-sm leading-relaxed text-ink-400">
-                      {item.a}
-                    </p>
+              <li data-reveal style={`transition-delay: ${i * 50}ms`} class="border-t border-hairline">
+                <details class="faq-item group">
+                  <summary class="flex cursor-pointer items-center justify-between gap-6 py-6 text-[17px] font-semibold tracking-[-0.01em] text-graphite sm:text-[19px]">
+                    <span>{item.q}</span>
+                    <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-mist text-graphite transition-colors group-hover:bg-cloud">
+                      <svg class="faq-toggle h-3.5 w-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true">
+                        <path d="M8 3v10M3 8h10" />
+                      </svg>
+                    </span>
+                  </summary>
+                  <div class="faq-content-wrapper">
+                    <div>
+                      <p class="pb-6 pr-4 text-[15px] leading-relaxed text-slate sm:pr-14 sm:text-base">{item.a}</p>
+                    </div>
                   </div>
-                </div>
-              </details>
+                </details>
+              </li>
             ))
           }
-        </div>
+        </ul>
       </div>
     </section>
 
     <!-- CTA final -->
-    <section class="relative px-6 py-32 sm:py-40">
-      <div class="mx-auto max-w-4xl">
-        <div
-          data-reveal
-          class="relative isolate overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-ink-900 to-ink-950 px-8 py-16 text-center sm:px-12 sm:py-20"
-        >
-
-          <h2
-            data-split-text
-            class="display-section text-balance text-ink-50"
-          >
-            Pas sûr du plan qu'il vous faut ?
-          </h2>
-          <p
-            class="mx-auto mt-5 max-w-xl text-pretty text-base leading-relaxed text-ink-400 sm:text-lg"
-          >
-            Présentez-nous votre asso dans un court formulaire. On vous répond avec un tarif, des conseils, ou un accès — sans engagement.
-          </p>
-
-          <div
-            class="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row"
-          >
-            <a
-              href="/inscription"
-              data-join-open
-              class="cta-shimmer group/cta inline-flex items-center justify-center gap-1.5 rounded-xl bg-accent-500 px-7 py-4 text-sm font-semibold text-white shadow-[var(--shadow-cta)] transition-colors hover:bg-accent-400"
-            >
-              S'inscrire
-              <svg
-                viewBox="0 0 16 16"
-                fill="none"
-                class="h-4 w-4 transition-transform duration-300 ease-out group-hover/cta:translate-x-0.5"
-                aria-hidden="true"
-              >
-                <path
-                  d="M3.5 8h9m0 0L8 3.5M12.5 8 8 12.5"
-                  stroke="currentColor"
-                  stroke-width="1.75"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"></path>
-              </svg>
-            </a>
-            <a
-              href="mailto:contact@konclav.ch"
-              class="inline-flex items-center justify-center rounded-xl border border-white/10 bg-white/[0.02] px-7 py-4 text-sm font-semibold text-ink-50 transition-colors hover:border-white/20 hover:bg-white/[0.05]"
-            >
-              Poser une question
-            </a>
-          </div>
+    <section class="px-5 pb-24 sm:px-6 sm:pb-32">
+      <div data-reveal class="tile mx-auto max-w-[1080px] px-6 py-20 text-center sm:px-12 sm:py-24">
+        <h2 class="t-section mx-auto max-w-[720px] text-balance text-graphite">Pas sûr du plan qu'il vous faut ?</h2>
+        <p class="t-lead mx-auto mt-5 max-w-[560px] text-pretty text-slate">
+          Présentez-nous votre asso dans un court formulaire. On vous répond avec un tarif, des conseils, ou un accès — sans engagement.
+        </p>
+        <div class="mt-9 flex flex-col items-center justify-center gap-x-8 gap-y-5 sm:flex-row">
+          <CTAButton href="/inscription" joinOpen size="lg">S'inscrire</CTAButton>
+          <CTAButton href="mailto:contact@konclav.ch" variant="link">Poser une question</CTAButton>
         </div>
       </div>
     </section>

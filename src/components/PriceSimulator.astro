@@ -2,105 +2,58 @@
 
 ---
 
-<section class="relative border-t border-white/[0.06] px-6 py-28 sm:py-32">
-  <div class="mx-auto max-w-5xl">
-    <div class="mx-auto max-w-3xl text-center">
-      <p data-reveal class="text-xs font-medium uppercase tracking-[0.18em] text-accent-400">
-        Simulateur
-      </p>
-      <h2
-        data-reveal
-        data-split-text
-        class="display-section mt-4 text-balance text-ink-50"
-      >
-        Combien ça coûte pour <span class="italic-display">votre</span> asso ?
-      </h2>
-      <p
-        data-reveal
-        class="mx-auto mt-5 max-w-xl text-pretty text-base leading-relaxed text-ink-400 sm:text-lg"
-      >
-        Estimation honnête. On ne facture que les membres connectés au moins
-        une fois dans le mois.
-      </p>
+<section class="bg-mist px-5 py-24 sm:px-6 sm:py-32">
+  <div class="mx-auto max-w-[820px] text-center">
+    <p data-reveal class="t-eyebrow">Simulateur</p>
+    <h2 data-reveal style="transition-delay: 60ms" class="t-section mt-3 text-balance text-graphite">
+      Combien ça coûte pour <span class="text-gradient-brand">votre</span> asso ?
+    </h2>
+    <p data-reveal style="transition-delay: 120ms" class="t-lead mx-auto mt-5 max-w-[560px] text-pretty text-slate">
+      Estimation honnête. On ne facture que les membres connectés au moins
+      une fois dans le mois.
+    </p>
+  </div>
+
+  <div data-reveal class="mx-auto mt-14 grid max-w-[900px] gap-10 rounded-[28px] bg-white p-8 sm:mt-16 sm:p-12 lg:grid-cols-2 lg:items-center lg:gap-14">
+    <div class="space-y-10">
+      <div>
+        <label for="sim-members" class="flex items-baseline justify-between gap-4">
+          <span class="text-[15px] font-medium text-graphite">Membres dans votre asso</span>
+          <output id="sim-members-value" for="sim-members" class="text-[22px] font-semibold tabular-nums tracking-[-0.01em] text-graphite">60</output>
+        </label>
+        <input id="sim-members" type="range" min="10" max="500" step="5" value="60" class="range mt-3" aria-describedby="sim-members-hint" />
+        <div class="mt-1 flex justify-between text-xs tabular-nums text-slate">
+          <span>10</span><span>250</span><span>500+</span>
+        </div>
+        <p id="sim-members-hint" class="mt-2 text-[13px] text-slate">Total de membres inscrits dans votre asso, actifs ou non.</p>
+      </div>
+
+      <div>
+        <label for="sim-active" class="flex items-baseline justify-between gap-4">
+          <span class="text-[15px] font-medium text-graphite">Taux de membres actifs</span>
+          <span class="text-[22px] font-semibold tabular-nums tracking-[-0.01em] text-graphite"><output id="sim-active-value" for="sim-active">40</output>%</span>
+        </label>
+        <input id="sim-active" type="range" min="10" max="100" step="5" value="40" class="range mt-3" aria-describedby="sim-active-hint" />
+        <div class="mt-1 flex justify-between text-xs tabular-nums text-slate">
+          <span>10%</span><span>55%</span><span>100%</span>
+        </div>
+        <p id="sim-active-hint" class="mt-2 text-[13px] text-slate">
+          Moyenne observée : 40%. Les membres qui ne se connectent pas ne sont jamais facturés.
+        </p>
+      </div>
     </div>
 
-    <div
-      data-reveal
-      class="bento mt-14 grid grid-cols-1 gap-8 p-6 sm:p-10 lg:grid-cols-2 lg:items-center"
-    >
-      <!-- Controls -->
-      <div class="space-y-8">
-        <div>
-          <label for="sim-members" class="flex items-baseline justify-between text-sm">
-            <span class="font-medium text-ink-50">Membres dans votre asso</span>
-            <span class="text-lg font-semibold tabular-nums text-ink-50">
-              <output id="sim-members-value" for="sim-members">60</output>
-            </span>
-          </label>
-          <input
-            id="sim-members"
-            type="range"
-            min="10"
-            max="500"
-            step="5"
-            value="60"
-            class="mt-3 w-full accent-accent-500"
-            aria-describedby="sim-members-hint"
-          />
-          <div class="mt-2 flex justify-between text-[10px] text-ink-500 tabular-nums">
-            <span>10</span><span>250</span><span>500+</span>
-          </div>
-          <p id="sim-members-hint" class="mt-2 text-xs text-ink-500">
-            Total de membres inscrits dans votre asso, actifs ou non.
-          </p>
-        </div>
-
-        <div>
-          <label for="sim-active" class="flex items-baseline justify-between text-sm">
-            <span class="font-medium text-ink-50">Taux de membres actifs</span>
-            <span class="text-lg font-semibold tabular-nums text-ink-50">
-              <output id="sim-active-value" for="sim-active">40</output>%
-            </span>
-          </label>
-          <input
-            id="sim-active"
-            type="range"
-            min="10"
-            max="100"
-            step="5"
-            value="40"
-            class="mt-3 w-full accent-accent-500"
-            aria-describedby="sim-active-hint"
-          />
-          <div class="mt-2 flex justify-between text-[10px] text-ink-500 tabular-nums">
-            <span>10%</span><span>55%</span><span>100%</span>
-          </div>
-          <p id="sim-active-hint" class="mt-2 text-xs text-ink-500">
-            Moyenne observée : 40%. Les membres qui ne se connectent pas ne
-            sont jamais facturés.
-          </p>
-        </div>
-      </div>
-
-      <!-- Result -->
-      <div aria-live="polite" class="rounded-xl border border-white/[0.08] bg-gradient-to-b from-accent-500/[0.06] to-transparent p-6 text-center sm:p-8">
-        <p class="text-xs font-medium uppercase tracking-[0.18em] text-ink-500">Votre coût estimé</p>
-        <p class="mt-3 flex items-baseline justify-center gap-1.5">
-          <span id="sim-price" class="display-stat tabular-nums text-ink-50">96</span>
-          <span class="text-lg font-medium text-ink-400">CHF / mois</span>
-        </p>
-        <p id="sim-detail" class="mt-3 text-sm text-ink-400">
-          24 membres actifs × 4 CHF
-        </p>
-        <p id="sim-floor-note" class="mt-2 hidden text-xs text-amber-300">
-          Forfait minimum appliqué (39 CHF).
-        </p>
-        <div class="mt-6 border-t border-white/[0.06] pt-5">
-          <p class="text-xs text-ink-500">
-            Sans engagement · Résiliable au mois · Prix nets, sans TVA
-          </p>
-        </div>
-      </div>
+    <div aria-live="polite" class="rounded-[22px] bg-mist px-6 py-10 text-center">
+      <p class="text-[15px] font-medium text-slate">Votre coût estimé</p>
+      <p class="mt-2 flex items-baseline justify-center gap-2">
+        <span id="sim-price" class="text-[80px] font-semibold leading-none tracking-[-0.045em] tabular-nums text-graphite">96</span>
+        <span class="text-[17px] font-medium text-slate">CHF / mois</span>
+      </p>
+      <p id="sim-detail" class="mt-4 text-[15px] text-graphite">24 membres actifs × 4 CHF</p>
+      <p id="sim-floor-note" class="mt-2 hidden text-[13px] font-medium text-brand-600">Forfait minimum appliqué (39 CHF).</p>
+      <p class="mt-6 border-t border-hairline pt-5 text-[13px] text-slate">
+        Sans engagement · Résiliable au mois · Prix nets, sans TVA
+      </p>
     </div>
   </div>
 
@@ -116,6 +69,11 @@
       if (!$members || !$active) return;
       const PRICE_PER_ACTIVE = 4;
       const FLOOR = 39;
+      // Remplissage du rail (slider façon iOS)
+      const fill = (el) => {
+        const pct = ((el.value - el.min) / (el.max - el.min)) * 100;
+        el.style.setProperty('--fill', pct + '%');
+      };
       const update = () => {
         const total = parseInt($members.value, 10);
         const rate = parseInt($active.value, 10);
@@ -128,6 +86,8 @@
         $detail.textContent = `${active} membre${active > 1 ? 's' : ''} actif${active > 1 ? 's' : ''} × ${PRICE_PER_ACTIVE} CHF`;
         if (raw < FLOOR) $floor.classList.remove('hidden');
         else $floor.classList.add('hidden');
+        fill($members);
+        fill($active);
       };
       $members.addEventListener('input', update);
       $active.addEventListener('input', update);

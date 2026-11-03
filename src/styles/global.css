@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 @theme {
-  /* Ink scale — fonds & textes */
+  /* ── Sombre : cockpit /admin et espace client /espace (inchangés) ── */
   --color-ink-950: #08090a;
   --color-ink-900: #0f1011;
   --color-ink-800: #111214;
@@ -9,29 +9,35 @@
   --color-ink-200: #e4e4e7;
   --color-ink-300: #d4d4d8;
   --color-ink-400: #a1a1aa;
-  --color-ink-500: #8b8b94;   /* WCAG AA on ink-950: 5.1:1 (was #71717a, 4.3:1 — failed) */
-
-  /* Accent Linear */
+  --color-ink-500: #8b8b94;   /* WCAG AA on ink-950: 5.1:1 */
   --color-accent-500: #5e6ad2;
   --color-accent-400: #7170ff;
   --color-accent-300: #9b9bff;
-
-  /* Shadows */
   --shadow-cta: 0 18px 40px -12px rgba(94, 106, 210, 0.7);
 
-  /* Typographie */
+  /* ── Clair : site marketing (style Apple, sobre) ── */
+  --color-paper: #ffffff;
+  --color-mist: #f5f5f7;      /* fond de section / tuile */
+  --color-cloud: #e8e8ed;
+  --color-hairline: #d2d2d7;
+  --color-graphite: #1d1d1f;  /* texte principal, boutons */
+  --color-slate: #6e6e73;     /* texte secondaire — 5.1:1 sur blanc, 4.6:1 sur mist */
+  --color-ash: #86868b;       /* décor uniquement (icônes, filets), jamais du texte courant */
+  --color-night: #0a0a0b;     /* bande sombre (AG) */
+  /* Accent dérivé du logo (rouge → orange → or) */
+  --color-brand-500: #e8572a; /* aplats, icônes */
+  --color-brand-600: #c2410c; /* texte & liens — 5.2:1 sur blanc */
+  --color-brand-300: #ff9a62; /* accent sur fond sombre */
+
   --font-sans: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  /* SF Pro sur les appareils Apple, Inter (auto-hébergée) ailleurs */
+  --font-display: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", system-ui, sans-serif;
 }
 
 :root {
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
-}
-
-@property --angle {
-  syntax: "<angle>";
-  initial-value: 0deg;
-  inherits: false;
+  --ease-fluid: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 @property --aurora-angle {
@@ -40,45 +46,69 @@
   inherits: false;
 }
 
+/* ============================================================
+   BASE — thème piloté par <html data-theme="light|dark">
+   ============================================================ */
 html {
-  background-color: var(--color-ink-950);
-  color: var(--color-ink-50);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
-  font-feature-settings:
-    "cv11" 1,
-    "ss03" 1,
-    "calt" 1;
+  font-feature-settings: "cv11" 1, "ss03" 1, "calt" 1;
   font-variant-ligatures: contextual;
   scroll-behavior: smooth;
-  scroll-padding-top: 5rem;
+  scroll-padding-top: 4.5rem;
 }
-
+html[data-theme="dark"] {
+  background-color: var(--color-ink-950);
+  color: var(--color-ink-50);
+  color-scheme: dark;
+}
+html[data-theme="light"] {
+  background-color: var(--color-paper);
+  color: var(--color-graphite);
+  color-scheme: light;
+}
 body {
   min-height: 100dvh;
 }
 
-::selection {
+html[data-theme="dark"] ::selection {
   background-color: var(--color-accent-500);
   color: #ffffff;
 }
+html[data-theme="light"] ::selection {
+  background-color: rgba(232, 87, 42, 0.2);
+}
 
-/* Reveal au scroll — toggled par l'IntersectionObserver dans Layout */
+/* Focus visible — anneau net, couleur selon le thème */
+html[data-theme="dark"] :where(a, button, summary, input, textarea, select):focus-visible {
+  outline: 2px solid var(--color-accent-500);
+  outline-offset: 3px;
+  box-shadow: 0 0 0 6px rgba(94, 106, 210, 0.18);
+}
+/* En layer base : un utilitaire (focus:outline-none + ring) peut le remplacer */
+@layer base {
+  html[data-theme="light"] :where(a, button, summary, input, textarea, select, [tabindex]):focus-visible {
+    outline: 2px solid var(--color-brand-600);
+    outline-offset: 3px;
+  }
+}
+
+/* ============================================================
+   REVEAL AU SCROLL — fondu + montée, courbe fluide
+   ============================================================ */
 [data-reveal] {
   opacity: 0;
-  transform: translateY(16px);
+  transform: translate3d(0, 28px, 0);
   transition:
-    opacity 700ms cubic-bezier(0.16, 1, 0.3, 1),
-    transform 700ms cubic-bezier(0.16, 1, 0.3, 1);
-  will-change: opacity, transform;
+    opacity 900ms var(--ease-fluid),
+    transform 1100ms var(--ease-fluid);
 }
 [data-reveal].is-visible {
   opacity: 1;
   transform: none;
 }
-
 @media (prefers-reduced-motion: reduce) {
   [data-reveal],
   [data-reveal].is-visible {
@@ -91,7 +121,310 @@ body {
   }
 }
 
-/* FAQ accordion — natif <details>/<summary>, animation grid-row-trick */
+/* ============================================================
+   ANIMATIONS LIÉES AU SCROLL — amélioration progressive
+   (Chrome/Edge, Safari 26+). Ailleurs : état final, statique.
+   ============================================================ */
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    .sd-zoom {
+      animation: sd-zoom linear both;
+      animation-timeline: view();
+      animation-range: entry 0% cover 50%;
+    }
+    .sd-rise {
+      animation: sd-rise linear both;
+      animation-timeline: view();
+      animation-range: entry 0% cover 45%;
+    }
+    .sd-spread-l,
+    .sd-spread-r {
+      animation: sd-spread-l linear both;
+      animation-timeline: view();
+      animation-range: entry 10% cover 55%;
+    }
+    .sd-spread-r {
+      animation-name: sd-spread-r;
+    }
+  }
+}
+@keyframes sd-zoom {
+  from { transform: scale(0.9); }
+  to   { transform: none; }
+}
+@keyframes sd-rise {
+  from { transform: translate3d(0, 70px, 0); }
+  to   { transform: none; }
+}
+@keyframes sd-spread-l {
+  from { transform: translate3d(45%, 0, 0) scale(0.92); }
+  to   { transform: none; }
+}
+@keyframes sd-spread-r {
+  from { transform: translate3d(-45%, 0, 0) scale(0.92); }
+  to   { transform: none; }
+}
+
+/* ============================================================
+   COMPOSANTS — dans le layer components : les utilitaires Tailwind
+   restent prioritaires (w-full, px-…, etc. surchargent proprement)
+   ============================================================ */
+@layer components {
+  /* Typographie */
+  .t-hero {
+    font-size: clamp(2.6rem, 6.4vw, 5.25rem);
+    line-height: 1.04;
+    font-weight: 600;
+    letter-spacing: -0.022em;
+  }
+  .t-section {
+    font-size: clamp(2.15rem, 4.6vw, 3.75rem);
+    line-height: 1.07;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+  }
+  .t-tile {
+    font-size: clamp(1.5rem, 2.4vw, 2.125rem);
+    line-height: 1.12;
+    font-weight: 600;
+    letter-spacing: -0.016em;
+  }
+  .t-lead {
+    font-size: clamp(1.125rem, 1.5vw, 1.3125rem);
+    line-height: 1.5;
+    letter-spacing: -0.003em;
+  }
+  .t-eyebrow {
+    font-size: clamp(1rem, 1.3vw, 1.1875rem);
+    line-height: 1.3;
+    font-weight: 600;
+    letter-spacing: -0.008em;
+    color: var(--color-brand-600);
+  }
+  .text-gradient-brand {
+    background: linear-gradient(95deg, #b91c3c 0%, #d9480f 55%, #e67700 100%);
+    -webkit-background-clip: text;
+            background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+  }
+  .text-gradient-brand-night {
+    background: linear-gradient(95deg, #ff5a4e 0%, #ff8a3d 55%, #ffc15a 100%);
+    -webkit-background-clip: text;
+            background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+  }
+
+  /* Boutons pilule */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.375rem;
+    border-radius: 9999px;
+    padding: 0.8125rem 1.5rem;
+    font-size: 1.0625rem;
+    font-weight: 500;
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+    white-space: nowrap;
+    transition:
+      background-color 250ms var(--ease-fluid),
+      color 250ms var(--ease-fluid),
+      transform 250ms var(--ease-fluid);
+  }
+  .btn:active {
+    transform: scale(0.97);
+  }
+  .btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+  .btn-primary {
+    background-color: var(--color-graphite);
+    color: #ffffff;
+  }
+  .btn-primary:hover {
+    background-color: #000000;
+  }
+  .btn-secondary {
+    background-color: rgba(0, 0, 0, 0.055);
+    color: var(--color-graphite);
+  }
+  .btn-secondary:hover {
+    background-color: rgba(0, 0, 0, 0.09);
+  }
+  .btn-light {
+    background-color: #ffffff;
+    color: var(--color-graphite);
+  }
+  .btn-light:hover {
+    background-color: var(--color-mist);
+  }
+  .btn-sm {
+    padding: 0.4375rem 0.9375rem;
+    font-size: 0.875rem;
+  }
+
+  /* Lien texte avec chevron (« En savoir plus › ») */
+  .link-chevron {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.2rem;
+    font-size: 1.0625rem;
+    font-weight: 500;
+    color: var(--color-brand-600);
+    text-underline-offset: 0.2em;
+  }
+  .link-chevron:hover {
+    text-decoration: underline;
+  }
+  .link-chevron svg {
+    transition: transform 300ms var(--ease-fluid);
+  }
+  .link-chevron:hover svg {
+    transform: translateX(2px);
+  }
+
+  /* Pastille d'info (« Fait en Suisse ») */
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    border-radius: 9999px;
+    background-color: var(--color-mist);
+    padding: 0.375rem 0.875rem;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--color-graphite);
+  }
+
+  /* Tuile façon Apple : grands rayons, aplat, pas de bordure */
+  .tile {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    border-radius: 28px;
+    background-color: var(--color-mist);
+    container-type: inline-size;
+  }
+
+  /* Cadre iPhone — la largeur se règle via --dw (accepte min()/cqw) */
+  .device {
+    width: var(--dw, 260px);
+    flex-shrink: 0;
+  }
+  .device__frame {
+    position: relative;
+    aspect-ratio: 260 / 540;
+    border-radius: calc(var(--dw, 260px) * 0.17);
+    padding: calc(var(--dw, 260px) * 0.026);
+    background: linear-gradient(150deg, #48484a 0%, #1d1d1f 22%, #0b0b0c 70%, #3a3a3c 100%);
+    box-shadow:
+      inset 0 0 0 1px rgba(255, 255, 255, 0.12),
+      0 0 0 1px rgba(0, 0, 0, 0.06),
+      0 44px 90px -30px rgba(0, 0, 0, 0.38),
+      0 18px 36px -18px rgba(0, 0, 0, 0.22);
+  }
+  .device__screen {
+    position: relative;
+    height: 100%;
+    overflow: hidden;
+    border-radius: calc(var(--dw, 260px) * 0.145);
+    background-color: #000000;
+  }
+  .device__island {
+    position: absolute;
+    left: 50%;
+    top: calc(var(--dw, 260px) * 0.03);
+    z-index: 2;
+    width: calc(var(--dw, 260px) * 0.3);
+    height: calc(var(--dw, 260px) * 0.088);
+    transform: translateX(-50%);
+    border-radius: 9999px;
+    background-color: #000000;
+  }
+
+  /* Barre de navigation translucide */
+  .nav-glass {
+    background-color: rgba(255, 255, 255, 0.72);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+            backdrop-filter: saturate(180%) blur(20px);
+    border-bottom: 1px solid transparent;
+    transition:
+      border-color 300ms var(--ease-fluid),
+      background-color 300ms var(--ease-fluid);
+  }
+
+  /* Slider façon iOS (simulateur) — --fill posé par le JS */
+  .range {
+    -webkit-appearance: none;
+            appearance: none;
+    width: 100%;
+    height: 28px;
+    background: transparent;
+    cursor: pointer;
+  }
+  .range::-webkit-slider-runnable-track {
+    height: 4px;
+    border-radius: 9999px;
+    background: linear-gradient(
+      to right,
+      var(--color-graphite) var(--fill, 50%),
+      var(--color-hairline) var(--fill, 50%)
+    );
+  }
+  .range::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 26px;
+    height: 26px;
+    margin-top: -11px;
+    border-radius: 9999px;
+    background: #ffffff;
+    box-shadow: 0 0 0 0.5px rgba(0, 0, 0, 0.06), 0 3px 8px rgba(0, 0, 0, 0.16), 0 1px 1px rgba(0, 0, 0, 0.06);
+    transition: transform 200ms var(--ease-fluid);
+  }
+  .range:active::-webkit-slider-thumb {
+    transform: scale(1.1);
+  }
+  .range::-moz-range-track {
+    height: 4px;
+    border-radius: 9999px;
+    background: var(--color-hairline);
+  }
+  .range::-moz-range-progress {
+    height: 4px;
+    border-radius: 9999px;
+    background: var(--color-graphite);
+  }
+  .range::-moz-range-thumb {
+    width: 26px;
+    height: 26px;
+    border: 0;
+    border-radius: 9999px;
+    background: #ffffff;
+    box-shadow: 0 0 0 0.5px rgba(0, 0, 0, 0.06), 0 3px 8px rgba(0, 0, 0, 0.16);
+  }
+  .range:focus-visible {
+    outline: none;
+  }
+  .range:focus-visible::-webkit-slider-thumb {
+    box-shadow: 0 0 0 4px rgba(194, 65, 12, 0.3), 0 3px 8px rgba(0, 0, 0, 0.16);
+  }
+  .range:focus-visible::-moz-range-thumb {
+    box-shadow: 0 0 0 4px rgba(194, 65, 12, 0.3), 0 3px 8px rgba(0, 0, 0, 0.16);
+  }
+}
+
+html[data-theme="light"] .nav-scrolled {
+  border-bottom-color: rgba(0, 0, 0, 0.08);
+  background-color: rgba(255, 255, 255, 0.92);
+}
+
+/* ============================================================
+   FAQ — <details>/<summary> natif, ouverture fluide
+   ============================================================ */
 .faq-item summary {
   list-style: none;
 }
@@ -101,7 +434,7 @@ body {
 .faq-item .faq-content-wrapper {
   display: grid;
   grid-template-rows: 0fr;
-  transition: grid-template-rows 280ms cubic-bezier(0.16, 1, 0.3, 1);
+  transition: grid-template-rows 420ms var(--ease-fluid);
 }
 .faq-item[open] .faq-content-wrapper {
   grid-template-rows: 1fr;
@@ -110,7 +443,7 @@ body {
   overflow: hidden;
 }
 .faq-item .faq-toggle {
-  transition: transform 280ms cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform 420ms var(--ease-fluid);
 }
 .faq-item[open] .faq-toggle {
   transform: rotate(45deg);
@@ -122,16 +455,16 @@ body {
   }
 }
 
-/* Cursor spotlight — supprimé : effet jugé superflu (audit 10/06/2026) */
-
-/* View Transitions — fade doux entre pages */
+/* ============================================================
+   VIEW TRANSITIONS — fondu doux entre pages
+   ============================================================ */
 @view-transition {
   navigation: auto;
 }
 ::view-transition-old(root),
 ::view-transition-new(root) {
-  animation-duration: 320ms;
-  animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+  animation-duration: 360ms;
+  animation-timing-function: var(--ease-fluid);
 }
 @media (prefers-reduced-motion: reduce) {
   ::view-transition-old(root),
@@ -140,229 +473,7 @@ body {
   }
 }
 
-/* ============================================================
-   FOCUS-VISIBLE — accent glow ring (accessibility + premium)
-   ============================================================ */
-:where(a, button, summary, input, textarea, select):focus-visible {
-  outline: 2px solid var(--color-accent-500);
-  outline-offset: 3px;
-  box-shadow: 0 0 0 6px rgba(94, 106, 210, 0.18);
-  transition: box-shadow 180ms var(--ease-out-expo);
-}
-
-/* ============================================================
-   NOISE OVERLAY — film grain (très subtil, desktop only pour perf)
-   ============================================================ */
-@media (min-width: 1024px) {
-  body::after {
-    content: "";
-    position: fixed;
-    inset: 0;
-    z-index: 9999;
-    pointer-events: none;
-    opacity: 0.035;
-    mix-blend-mode: soft-light;
-    background-image: url("data:image/svg+xml;utf8,<svg viewBox='0 0 220 220' xmlns='http://www.w3.org/2000/svg'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
-  }
-}
-@media (prefers-reduced-motion: reduce) {
-  body::after { display: none; }
-}
-
-/* ============================================================
-   SPLIT-TEXT — H1/H2 par mot, stagger CSS
-   ============================================================ */
-[data-split-text] .word {
-  display: inline-block;
-  opacity: 0;
-  transform: translateY(0.4em);
-  transition:
-    opacity 720ms var(--ease-out-expo) calc(var(--word-i, 0) * 45ms),
-    transform 720ms var(--ease-out-expo) calc(var(--word-i, 0) * 45ms);
-  will-change: opacity, transform;
-}
-[data-split-text].is-visible .word {
-  opacity: 1;
-  transform: none;
-}
-@media (prefers-reduced-motion: reduce) {
-  [data-split-text] .word {
-    opacity: 1;
-    transform: none;
-    transition: none;
-  }
-}
-
-/* ============================================================
-   PARALLAX — scroll-driven Y offset (halos, blobs)
-   ============================================================ */
-[data-parallax] {
-  will-change: transform;
-  transform: translate3d(0, var(--py, 0px), 0);
-}
-@media (prefers-reduced-motion: reduce) {
-  [data-parallax] { transform: none; }
-}
-
-/* ============================================================
-   FEATURE CHAPTERS — per-chapter scroll progress (-1 → +1)
-   Used by Features.astro to drive subtle parallax on the phone
-   and the colored halo. JS sets --cp on each [data-feature-chapter].
-   ============================================================ */
-[data-feature-chapter] {
-  --cp: 0;
-}
-[data-feature-chapter] .feature-shot-inner {
-  transform: translate3d(0, calc(var(--cp) * -22px), 0) scale(1.18);
-  will-change: transform;
-}
-[data-feature-chapter] .feature-halo {
-  transform: translate3d(0, calc(var(--cp) * 64px), 0);
-  will-change: transform;
-}
-[data-feature-chapter].is-hero .feature-shot-inner {
-  transform: translate3d(0, calc(var(--cp) * -34px), 0) scale(1.22);
-}
-[data-feature-chapter].is-hero .feature-halo {
-  transform: translate3d(0, calc(var(--cp) * 110px), 0);
-}
-@media (prefers-reduced-motion: reduce) {
-  [data-feature-chapter] .feature-shot-inner {
-    transform: scale(1.18);
-  }
-  [data-feature-chapter].is-hero .feature-shot-inner {
-    transform: scale(1.22);
-  }
-  [data-feature-chapter] .feature-halo {
-    transform: none;
-  }
-}
-
-/* ============================================================
-   HERO AG TRIO — phone central en avant, flanqué de 2 écrans
-   inclinés et atténués (éventail). Le centre garde son scale +
-   parallax ; les côtés sont en profondeur, statiques.
-   ============================================================ */
-.feature-trio {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.feature-trio__center {
-  position: relative;
-  z-index: 20;
-}
-.feature-trio__side {
-  position: relative;
-  z-index: 10;
-  filter: brightness(0.72) saturate(0.95);
-  transition:
-    filter 600ms var(--ease-out-expo),
-    transform 600ms var(--ease-out-expo);
-}
-.feature-trio__side--left {
-  transform: translate(30%, 18px) rotate(-6deg) scale(0.86);
-}
-.feature-trio__side--right {
-  transform: translate(-30%, 18px) rotate(6deg) scale(0.86);
-}
-@media (prefers-reduced-motion: reduce) {
-  .feature-trio__side {
-    transition: none;
-  }
-}
-
-/* MAGNETIC + TILT 3D — supprimés (audit 10/06/2026) */
-
-/* ============================================================
-   GRADIENT BORDER — conic anime au hover (cards premium)
-   ============================================================ */
-[data-gradient-border] {
-  position: relative;
-}
-[data-gradient-border]::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  padding: 1px;
-  background: conic-gradient(
-    from var(--angle, 0deg),
-    transparent 0%,
-    rgba(113, 112, 255, 0.55) 18%,
-    rgba(94, 106, 210, 0.75) 28%,
-    transparent 45%,
-    transparent 100%
-  );
-  -webkit-mask:
-    linear-gradient(#000 0 0) content-box,
-    linear-gradient(#000 0 0);
-  -webkit-mask-composite: xor;
-          mask-composite: exclude;
-  opacity: 0;
-  transition: opacity 380ms var(--ease-out-expo);
-  pointer-events: none;
-}
-[data-gradient-border]:hover::after {
-  opacity: 1;
-  animation: gradient-border-spin 4.5s linear infinite;
-}
-@keyframes gradient-border-spin {
-  to { --angle: 360deg; }
-}
-@media (prefers-reduced-motion: reduce) {
-  [data-gradient-border]:hover::after { animation: none; }
-}
-
-/* ============================================================
-   ICON LIFT — petit halo accent autour de l'icône au hover de la card
-   ============================================================ */
-.icon-tile {
-  transition: transform 380ms var(--ease-out-expo),
-              border-color 380ms var(--ease-out-expo),
-              background-color 380ms var(--ease-out-expo),
-              box-shadow 380ms var(--ease-out-expo);
-}
-.group:hover .icon-tile {
-  transform: translateY(-2px) scale(1.04);
-  border-color: rgba(94, 106, 210, 0.35);
-  box-shadow: 0 8px 30px -10px rgba(94, 106, 210, 0.45);
-}
-
-/* SVG DRAW-ON-SCROLL — supprimé (audit 10/06/2026) */
-
-/* ============================================================
-   FLOAT — animation Y subtile (phones, halos)
-   ============================================================ */
-@keyframes float-y {
-  0%, 100% { transform: translateY(0); }
-  50%      { transform: translateY(-10px); }
-}
-.animate-float       { animation: float-y 6.5s ease-in-out infinite; }
-.animate-float-delay { animation: float-y 7.5s ease-in-out -2s infinite; }
-.animate-float-slow  { animation: float-y 9s   ease-in-out -4s infinite; }
-.animate-float-late  { animation: float-y 8s   ease-in-out -1s infinite; }
-@media (prefers-reduced-motion: reduce) {
-  .animate-float,
-  .animate-float-delay,
-  .animate-float-slow,
-  .animate-float-late { animation: none; }
-}
-
-/* ============================================================
-   NAV SCROLL — ombre + opacité au scroll
-   ============================================================ */
-.nav-scrolled {
-  background-color: rgba(8, 9, 10, 0.88) !important;
-  box-shadow:
-    0 1px 0 rgba(255, 255, 255, 0.06),
-    0 12px 32px -16px rgba(0, 0, 0, 0.6);
-}
-
-/* ============================================================
-   LINK UNDERLINE animé (footer, légaux)
-   ============================================================ */
+/* Lien souligné animé (footer, pages légales) */
 .link-underline {
   position: relative;
   display: inline-block;
@@ -385,34 +496,117 @@ body {
   transform: scaleX(1);
 }
 
-/* ============================================================
-   STEP DOT — pastille animée pour Onboarding
-   ============================================================ */
-.step-dot {
-  position: relative;
+/* Masque la scrollbar (carrousels) tout en gardant le scroll */
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
-.step-dot::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  border: 1px solid rgba(94, 106, 210, 0.45);
-  animation: step-ping 2.6s var(--ease-out-expo) infinite;
-}
-@keyframes step-ping {
-  0%   { transform: scale(1);   opacity: 0.6; }
-  80%  { transform: scale(1.6); opacity: 0; }
-  100% { transform: scale(1.6); opacity: 0; }
-}
-@media (prefers-reduced-motion: reduce) {
-  .step-dot::after { animation: none; }
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
 }
 
 /* ============================================================
-   V2 — AURORA GLOBALE (un seul effet, fixé au viewport)
-   Conic gradient qui tourne lentement, plus de coupure entre
-   sections puisque ce n'est pas confiné à une section.
+   JOIN MODAL — erreurs de champ + transition d'étape
    ============================================================ */
+.join-error {
+  display: none;
+}
+[data-field][data-invalid] .join-error {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+.join-error::before {
+  content: "";
+  display: inline-block;
+  width: 0.875rem;
+  height: 0.875rem;
+  flex-shrink: 0;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%23d70015' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'><circle cx='8' cy='8' r='6.5'/><path d='M8 5v3M8 11h.01'/></svg>");
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+[data-field][data-invalid] input:not([type="radio"]):not([type="checkbox"]),
+[data-field][data-invalid] textarea,
+[data-field][data-invalid] select,
+[data-field][data-invalid] [data-cs-trigger] {
+  border-color: rgba(215, 0, 21, 0.55);
+  background-color: #fff5f5;
+}
+[data-cs-trigger][aria-expanded="true"] ~ .cs-chevron {
+  transform: rotate(180deg);
+}
+.join-step {
+  animation: join-step-in 420ms var(--ease-fluid) both;
+}
+@keyframes join-step-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: none; }
+}
+.join-modal:not(.hidden) .join-panel {
+  animation: join-panel-in 520ms var(--ease-fluid) both;
+}
+.join-modal:not(.hidden) [data-join-backdrop] {
+  animation: join-fade-in 320ms ease-out both;
+}
+@keyframes join-panel-in {
+  from { opacity: 0; transform: translateY(24px) scale(0.98); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes join-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .join-step,
+  .join-modal:not(.hidden) .join-panel,
+  .join-modal:not(.hidden) [data-join-backdrop] {
+    animation: none;
+  }
+}
+
+/* Autofill : neutralise le fond jaune des champs pré-remplis */
+html[data-theme="dark"] input:-webkit-autofill,
+html[data-theme="dark"] input:-webkit-autofill:hover,
+html[data-theme="dark"] input:-webkit-autofill:focus,
+html[data-theme="dark"] textarea:-webkit-autofill {
+  -webkit-text-fill-color: var(--color-ink-50) !important;
+  -webkit-box-shadow: 0 0 0 30px var(--color-ink-900) inset !important;
+  caret-color: var(--color-ink-50);
+  transition: background-color 9999s ease-out;
+}
+html[data-theme="light"] input:-webkit-autofill,
+html[data-theme="light"] input:-webkit-autofill:hover,
+html[data-theme="light"] input:-webkit-autofill:focus,
+html[data-theme="light"] textarea:-webkit-autofill {
+  -webkit-text-fill-color: var(--color-graphite) !important;
+  -webkit-box-shadow: 0 0 0 30px var(--color-mist) inset !important;
+  caret-color: var(--color-graphite);
+  transition: background-color 9999s ease-out;
+}
+
+/* ============================================================
+   THÈME SOMBRE UNIQUEMENT — cockpit /admin et espace /espace
+   ============================================================ */
+
+/* Grain de film très subtil (desktop) */
+@media (min-width: 1024px) {
+  html[data-theme="dark"] body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    pointer-events: none;
+    opacity: 0.035;
+    mix-blend-mode: soft-light;
+    background-image: url("data:image/svg+xml;utf8,<svg viewBox='0 0 220 220' xmlns='http://www.w3.org/2000/svg'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  html[data-theme="dark"] body::after { display: none; }
+}
+
+/* Aurora de fond (fixée au viewport) */
 .aurora-global {
   position: fixed;
   inset: -10vw;
@@ -435,7 +629,6 @@ body {
   opacity: 0.55;
   animation: aurora-spin 55s linear infinite;
 }
-/* On low-power devices, freeze to a static gradient — no animation, no composite cost */
 @media (max-width: 768px), (prefers-reduced-motion: reduce) {
   .aurora-global { animation: none; opacity: 0.4; }
 }
@@ -443,86 +636,7 @@ body {
   to { --aurora-angle: 360deg; }
 }
 
-
-/* ============================================================
-   V2 — EDITORIAL TYPOGRAPHY (massive impact text)
-   ============================================================ */
-.display-hero {
-  font-size: clamp(2.25rem, 8.5vw, 7.5rem);
-  line-height: 0.95;
-  font-weight: 700;
-  letter-spacing: -0.045em;
-}
-.display-section {
-  font-size: clamp(2.25rem, 5.5vw, 4.5rem);
-  line-height: 1;
-  font-weight: 700;
-  letter-spacing: -0.035em;
-}
-.display-feature {
-  font-size: clamp(2.5rem, 6vw, 5.25rem);
-  line-height: 1.0;
-  font-weight: 700;
-  letter-spacing: -0.045em;
-}
-.display-stat {
-  font-size: clamp(3.5rem, 10vw, 8rem);
-  line-height: 0.9;
-  font-weight: 800;
-  letter-spacing: -0.055em;
-  font-variant-numeric: tabular-nums;
-}
-.italic-display {
-  font-style: italic;
-  font-weight: 300;
-  background: linear-gradient(120deg, #a78bfa 0%, #67e8f9 50%, #5e6ad2 100%);
-  -webkit-background-clip: text;
-          background-clip: text;
-  -webkit-text-fill-color: transparent;
-  color: transparent;
-}
-
-/* ============================================================
-   V2 — COUNTER REVEAL (smooth count-up via CSS via JS data update)
-   ============================================================ */
-
-/* ============================================================
-   V2 — BENTO CARDS
-   ============================================================ */
-.bento {
-  position: relative;
-  overflow: hidden;
-  border-radius: 1.5rem;
-  border: 1px solid rgba(255, 255, 255, 0.07);
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.025), rgba(255, 255, 255, 0)),
-    rgb(15, 16, 17);
-  transition:
-    border-color 380ms var(--ease-out-expo),
-    transform 480ms var(--ease-out-expo);
-}
-.bento::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  background:
-    radial-gradient(circle at var(--mx, 50%) var(--my, 0%),
-      rgba(94, 106, 210, 0.12),
-      transparent 50%);
-  opacity: 0;
-  transition: opacity 380ms var(--ease-out-expo);
-  pointer-events: none;
-}
-.bento:hover {
-  border-color: rgba(255, 255, 255, 0.14);
-}
-.bento:hover::before {
-  opacity: 1;
-}
-/* ============================================================
-   V2 — SHIMMER on CTA primaries (subtle moving light)
-   ============================================================ */
+/* Reflet animé sur les CTA (bouton de connexion cockpit / espace) */
 .cta-shimmer {
   position: relative;
   overflow: hidden;
@@ -532,12 +646,7 @@ body {
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(
-    100deg,
-    transparent 25%,
-    rgba(255, 255, 255, 0.22) 50%,
-    transparent 75%
-  );
+  background: linear-gradient(100deg, transparent 25%, rgba(255, 255, 255, 0.22) 50%, transparent 75%);
   transform: translateX(-100%);
   transition: transform 800ms var(--ease-out-quart);
   pointer-events: none;
@@ -552,9 +661,7 @@ body {
   .cta-shimmer::after { display: none; }
 }
 
-/* ============================================================
-   V2 — TICKER / LIVE STATUS DOT
-   ============================================================ */
+/* Pastille « live » (cockpit) */
 .live-dot {
   position: relative;
   display: inline-block;
@@ -573,199 +680,9 @@ body {
   animation: live-pulse 1.8s ease-out infinite;
 }
 @keyframes live-pulse {
-  0%   { transform: scale(1);    opacity: 0.7; }
-  100% { transform: scale(2.6);  opacity: 0;   }
+  0%   { transform: scale(1);   opacity: 0.7; }
+  100% { transform: scale(2.6); opacity: 0;   }
 }
 @media (prefers-reduced-motion: reduce) {
   .live-dot::after { animation: none; }
 }
-
-/* ============================================================
-   V2 — GRID LINES BG (subtle technical grid)
-   ============================================================ */
-.grid-bg {
-  background-image:
-    linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
-  background-size: 64px 64px;
-  mask-image: radial-gradient(ellipse 70% 60% at center, #000, transparent 80%);
-  -webkit-mask-image: radial-gradient(ellipse 70% 60% at center, #000, transparent 80%);
-}
-
-/* ============================================================
-   JOIN MODAL — wizard form (errors + step transition)
-   ============================================================ */
-.join-error {
-  display: none;
-}
-[data-field][data-invalid] .join-error {
-  display: flex;
-  align-items: center;
-  gap: 0.375rem;
-}
-.join-error::before {
-  content: "";
-  display: inline-block;
-  width: 0.875rem;
-  height: 0.875rem;
-  flex-shrink: 0;
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%23fb7185' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'><circle cx='8' cy='8' r='6.5'/><path d='M8 5v3M8 11h.01'/></svg>");
-  background-size: contain;
-  background-repeat: no-repeat;
-}
-[data-field][data-invalid] input:not([type="radio"]):not([type="checkbox"]),
-[data-field][data-invalid] textarea,
-[data-field][data-invalid] select,
-[data-field][data-invalid] [data-cs-trigger] {
-  border-color: rgba(251, 113, 133, 0.55);
-}
-[data-cs-trigger][aria-expanded="true"] ~ .cs-chevron {
-  transform: rotate(180deg);
-}
-.join-step {
-  animation: join-step-in 360ms var(--ease-out-expo) both;
-}
-@keyframes join-step-in {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-@media (prefers-reduced-motion: reduce) {
-  .join-step {
-    animation: none;
-  }
-  .join-panel {
-    transition: none;
-  }
-}
-
-/* ============================================================
-   PHONE GLASS — reflet spéculaire sur la vitre (device realism).
-   Statique partout ; sur les [data-feature-chapter] le reflet
-   glisse avec --cp (scroll-driven), façon lumière qui balaie.
-   ============================================================ */
-.phone-glare {
-  position: absolute;
-  inset: 0;
-  z-index: 20;
-  pointer-events: none;
-  background: linear-gradient(
-    122deg,
-    rgba(255, 255, 255, 0.13) 0%,
-    rgba(255, 255, 255, 0.05) 14%,
-    transparent 34%,
-    transparent 66%,
-    rgba(255, 255, 255, 0.04) 82%,
-    transparent 100%
-  );
-  background-size: 100% 220%;
-  background-position: 0 calc(50% - var(--cp, 0) * 32%);
-  mix-blend-mode: screen;
-}
-
-/* ============================================================
-   PHONE SHOWCASE — hero cluster "main de cartes" (survol fluide)
-   --fit = échelle globale (responsive) ; chaque tel est posé via
-   --x/--y (px natifs, mis à l'échelle), --r rotation, --z, --s.
-   ============================================================ */
-.phone-show {
-  --fit: 0.62; /* fallback no-JS ; ajusté en continu par JS selon la largeur d'écran */
-  position: relative;
-  width: 100%;
-  height: calc(540px * var(--fit) + 6rem); /* la hauteur suit l'échelle */
-}
-.phone-show__item {
-  position: absolute;
-  inset: 0;
-  margin: auto;
-  width: 260px;
-  height: 540px;
-  transform-origin: center center;
-  transform: translate(
-      calc(var(--x) * 1px * var(--fit)),
-      calc(var(--y) * 1px * var(--fit))
-    )
-    rotate(var(--r)) scale(calc(var(--fit) * var(--s)));
-  transition:
-    transform 0.5s cubic-bezier(0.16, 1, 0.3, 1),
-    filter 0.45s cubic-bezier(0.16, 1, 0.3, 1);
-  z-index: var(--z);
-  filter: brightness(0.82) saturate(0.95);
-  will-change: transform, filter;
-}
-.phone-show__item[data-pos="c1"],
-.phone-show__item[data-pos="c2"] {
-  filter: brightness(1) saturate(1);
-}
-.phone-show__item:hover {
-  z-index: 50;
-  filter: brightness(1.06) saturate(1.05)
-    drop-shadow(0 26px 55px rgba(94, 106, 210, 0.4));
-  transform: translate(
-      calc(var(--x) * 1px * var(--fit)),
-      calc((var(--y) - 42) * 1px * var(--fit))
-    )
-    rotate(calc(var(--r) * 0.3)) scale(calc(var(--fit) * (var(--s) + 0.08)));
-}
-.phone-show__item[data-pos="l"] {
-  --x: -235;
-  --y: 46;
-  --r: -10deg;
-  --z: 1;
-  --s: 0.9;
-}
-.phone-show__item[data-pos="c1"] {
-  --x: -82;
-  --y: -16;
-  --r: -3deg;
-  --z: 4;
-  --s: 1;
-}
-.phone-show__item[data-pos="c2"] {
-  --x: 82;
-  --y: 4;
-  --r: 3deg;
-  --z: 3;
-  --s: 0.96;
-}
-.phone-show__item[data-pos="r"] {
-  --x: 235;
-  --y: 56;
-  --r: 10deg;
-  --z: 2;
-  --s: 0.9;
-}
-@media (prefers-reduced-motion: reduce) {
-  .phone-show__item {
-    transition: none;
-  }
-}
-
-/* Autofill Chrome/Opera/Edge : neutralise le fond jaune sur les champs
-   pré-remplis par le browser (formulaire d'inscription, login admin). */
-input:-webkit-autofill,
-input:-webkit-autofill:hover,
-input:-webkit-autofill:focus,
-textarea:-webkit-autofill,
-textarea:-webkit-autofill:hover,
-textarea:-webkit-autofill:focus {
-  -webkit-text-fill-color: var(--color-ink-50) !important;
-  -webkit-box-shadow: 0 0 0 30px var(--color-ink-900) inset !important;
-  caret-color: var(--color-ink-50);
-  transition: background-color 9999s ease-out;
-}
-
-/* Masque la scrollbar (carrousels mockup mobile) tout en gardant le scroll */
-.no-scrollbar {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}
-.no-scrollbar::-webkit-scrollbar {
-  display: none;
-}
-

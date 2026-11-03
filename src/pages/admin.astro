@@ -9,7 +9,7 @@ const PUBLISHABLE_KEY = "sb_publishable_VALB2_pMZ2GjMNP3mmyChg_y-vuitny";
 const ADMIN_EMAIL = "contact@konclav.ch";
 ---
 
-<Layout title="Cockpit — Konclav" description="Espace d'administration Konclav." noindex={true}>
+<Layout title="Cockpit — Konclav" description="Espace d'administration Konclav." noindex={true} dark>
   <main
     id="main"
     class="mx-auto min-h-dvh w-full max-w-6xl px-6 pb-24 pt-10"
@@ -2010,7 +2010,7 @@ const ADMIN_EMAIL = "contact@konclav.ch";
 
     // ----- Édition du contenu du site -----
     const SITE_CONTENT_FIELDS = [
-      { key: "hero.title", label: "Hero — titre principal (H1)", placeholder: "Gérez votre association dans une seule app !", multiline: false, max: 120 },
+      { key: "hero.title", label: "Hero — titre principal (H1)", placeholder: "Gérez votre association dans une seule app.", multiline: false, max: 120 },
       { key: "hero.subtitle", label: "Hero — sous-titre", placeholder: "Konclav, c'est l'intranet privé pensé pour les associations suisses. Tâches, agenda, documents, cotisations, AG, votations — toute la vie associative dans une seule app mobile.", multiline: true, max: 500, hint: "Le formatting italique du défaut est perdu si tu modifies (sécurité)." },
       { key: "hero.cta_primary", label: "Hero — bouton principal", placeholder: "S'inscrire", multiline: false, max: 40 },
       { key: "cta_final.eyebrow", label: "Bas de page — eyebrow", placeholder: "On se cale ?", multiline: false, max: 40 },

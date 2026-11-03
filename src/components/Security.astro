@@ -5,68 +5,42 @@ const points = [
   {
     icon: "database" as const,
     title: "Cloisonnement RLS Postgres",
-    description:
-      "Row Level Security stricte. Chaque association ne voit que ses propres données, garanti par la base.",
+    description: "Row Level Security stricte. Chaque association ne voit que ses propres données, garanti par la base.",
   },
   {
     icon: "lock" as const,
     title: "TLS 1.2+ & AES-256",
-    description:
-      "Chiffrement en transit et au repos. Standards industriels modernes, sans compromis.",
+    description: "Chiffrement en transit et au repos. Standards industriels modernes, sans compromis.",
   },
   {
     icon: "shield-check" as const,
     title: "2FA TOTP",
-    description:
-      "Second facteur pour tous les comptes admin. Compatible Google Authenticator, Authy, 1Password.",
+    description: "Second facteur pour tous les comptes admin. Compatible Google Authenticator, Authy, 1Password.",
   },
   {
     icon: "hard-drive" as const,
     title: "Sauvegardes chiffrées 30j",
-    description:
-      "Backups quotidiens chiffrés, conservés 30 jours, restauration testée régulièrement.",
+    description: "Backups quotidiens chiffrés, conservés 30 jours, restauration testée régulièrement.",
   },
 ];
 ---
 
-<section
-  id="security"
-  class="relative border-t border-white/[0.06] px-6 py-32 sm:py-40"
->
-  <div class="mx-auto max-w-7xl">
-    <div class="mx-auto max-w-3xl text-center">
-      <p data-reveal class="text-xs font-medium uppercase tracking-[0.18em] text-accent-400">
-        Sécurité
-      </p>
-      <h2
-        data-reveal
-        data-split-text
-        class="display-section mt-4 text-balance text-ink-50"
-      >
-        Solide par défaut.
-      </h2>
-      <p
-        data-reveal
-        class="mx-auto mt-5 max-w-xl text-pretty text-base leading-relaxed text-ink-400 sm:text-lg"
-      >
-        Les fondamentaux techniques qui font qu'une asso peut compter sur Konclav.
-      </p>
-    </div>
+<section id="security" class="px-5 py-24 sm:px-6 sm:py-32">
+  <div class="mx-auto max-w-[820px] text-center">
+    <p data-reveal class="t-eyebrow">Sécurité</p>
+    <h2 data-reveal style="transition-delay: 60ms" class="t-section mt-3 text-balance text-graphite">Solide par défaut.</h2>
+    <p data-reveal style="transition-delay: 120ms" class="t-lead mx-auto mt-5 max-w-[560px] text-pretty text-slate">
+      Les fondamentaux techniques qui font qu'une asso peut compter sur Konclav.
+    </p>
+  </div>
 
-    <div class="mt-20 grid grid-cols-12 gap-4 sm:gap-5">
-      {points.map((p, i) => (
-        <article
-          data-reveal
-          style={`transition-delay: ${i * 80}ms`}
-          class="bento group relative col-span-12 flex flex-col gap-3 p-6 sm:col-span-6 lg:col-span-3"
-        >
-          <div class="icon-tile inline-flex h-9 w-9 items-center justify-center rounded-lg border border-white/10 bg-white/[0.03] text-accent-400">
-            <Icon name={p.icon} class="h-4 w-4" />
-          </div>
-          <h3 class="text-sm font-semibold tracking-tight text-ink-50">{p.title}</h3>
-          <p class="text-sm leading-relaxed text-ink-400">{p.description}</p>
-        </article>
-      ))}
-    </div>
+  <div class="mx-auto mt-14 grid max-w-[1080px] gap-x-8 gap-y-10 sm:mt-16 sm:grid-cols-2 lg:grid-cols-4">
+    {points.map((p, i) => (
+      <article data-reveal style={`transition-delay: ${i * 80}ms`} class="border-t border-hairline pt-7">
+        <Icon name={p.icon} class="h-7 w-7 text-brand-500" strokeWidth={1.6} />
+        <h3 class="mt-5 text-[19px] font-semibold tracking-[-0.012em] text-graphite">{p.title}</h3>
+        <p class="mt-2 text-[15px] leading-relaxed text-slate">{p.description}</p>
+      </article>
+    ))}
   </div>
 </section>

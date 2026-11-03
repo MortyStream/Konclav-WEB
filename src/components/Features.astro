@@ -1,432 +1,153 @@
 ---
 import PhoneShot from "./PhoneShot.astro";
 
-// Halos ambiants par feature (subtils, ne pollue pas la typo qui reste en accent violet)
-const haloColors: Record<string, string> = {
-  accent: "rgba(94,106,210,0.42)",
-  amber: "rgba(251,191,36,0.28)",
-  sky: "rgba(56,189,248,0.30)",
-  fuchsia: "rgba(217,70,239,0.30)",
-  emerald: "rgba(74,222,128,0.28)",
-  rose: "rgba(244,63,94,0.28)",
-};
-const shadowColors: Record<string, string> = {
-  accent: "rgba(94,106,210,0.32)",
-  amber: "rgba(251,191,36,0.22)",
-  sky: "rgba(56,189,248,0.22)",
-  fuchsia: "rgba(217,70,239,0.22)",
-  emerald: "rgba(74,222,128,0.22)",
-  rose: "rgba(244,63,94,0.22)",
-};
-
-const tabs = [
+// Tuiles façon Apple : texte centré en haut, iPhone qui sort du bas de la tuile
+// et remonte au scroll (.sd-rise). Grille 6 colonnes : 3+3 puis 2+2+2.
+const tiles = [
   {
     tab: "Tâches",
-    color: "accent",
     title: "Des tâches qui passent par une validation.",
     desc: "Assignez, fixez une échéance, suivez l'avancement. Et pour les dépenses, un vrai circuit d'approbation : chaque achat passe par un responsable avant d'être engagé.",
-    points: ["Attribution & échéances", "Validation des dépenses", "Priorités et rappels"],
     src: "/app/feat-taches.webp",
     alt: "Konclav — détail d'une tâche avec circuit de validation Approuver / Rejeter",
+    span: "lg:col-span-3",
   },
   {
     tab: "Calendrier",
-    color: "amber",
     title: "Tous les événements, par équipe.",
     desc: "Vues mois, semaine et jour. Entraînements, répétitions, matchs ou réunions — chaque événement avec son lieu et ses participants.",
-    points: ["Vues mois / semaine / jour", "Événements par équipe et par pôle", "Lieux et participants"],
     src: "/app/feat-calendrier.webp",
     alt: "Konclav — calendrier de l'association, vue mois",
+    span: "lg:col-span-3",
   },
   {
     tab: "Annuaire",
-    color: "sky",
     title: "Qui fait quoi, en un coup d'œil.",
     desc: "Tous les membres, leurs rôles et leurs pôles au même endroit. Le comité voit qui s'est connecté et qui reste à intégrer.",
-    points: ["Rôles & pôles", "Recherche instantanée", "Profils et coordonnées"],
     src: "/app/feat-annuaire.webp",
     alt: "Konclav — annuaire des membres avec rôles et pôles",
+    span: "lg:col-span-2",
+    narrow: true,
   },
   {
     tab: "Documents",
-    color: "fuchsia",
     title: "Statuts, PV, contrats — classés par pôle.",
     desc: "La mémoire de l'association au même endroit. Comité, sportif, communication, logistique : chacun son espace, recherche instantanée.",
-    points: ["Classé par pôle", "Statuts, PV, contrats", "Recherche instantanée"],
     src: "/app/feat-documents.webp",
     alt: "Konclav — documents et dossiers classés par pôle",
+    span: "lg:col-span-2",
+    narrow: true,
   },
   {
     tab: "Cotisations & finances",
-    color: "emerald",
     title: "La trésorerie, sans tableur.",
     desc: "Cotisations encaissées, frais remboursés, balance de l'année — en direct. Le trésorier voit ce qu'il reste à recouvrer et les notes à traiter, sans ouvrir Excel.",
-    points: ["Suivi des cotisations", "Notes de frais & remboursements", "Balance et flux mensuels"],
     src: "/app/feat-finances.webp",
     alt: "Konclav — tableau de bord financier : balance, cotisations, frais remboursés",
-  },
-  {
-    tab: "AG & signatures",
-    color: "rose",
-    title: "L'assemblée générale, dans votre poche.",
-    desc: "Démarrez une AG : les membres confirment leur présence par signature électronique, votent les ordres du jour, et le procès-verbal est archivé — horodaté et conservé.",
-    points: ["Signature électronique de présence", "Votations en direct", "PV archivé automatiquement"],
-    src: "/app/feat-ag.webp",
-    alt: "Konclav — écran réunions / AG avec PV archivé",
+    span: "md:col-span-2 lg:col-span-2",
+    narrow: true,
   },
 ];
+
+const ag = {
+  desc: "Démarrez une AG : les membres confirment leur présence par signature électronique, votent les ordres du jour, et le procès-verbal est archivé — horodaté et conservé.",
+  points: ["Signature électronique de présence", "Votations en direct", "PV archivé automatiquement"],
+};
 ---
 
-<section id="features" class="relative isolate overflow-hidden">
-  <!-- Section intro -->
-  <div class="relative px-6 pt-32 sm:pt-40">
-    <div class="mx-auto max-w-3xl text-center">
-      <p data-reveal class="text-xs font-medium uppercase tracking-[0.18em] text-accent-400">
-        Fonctionnalités
-      </p>
-      <h2
-        data-reveal
-        data-split-text
-        class="display-section mt-4 text-balance text-ink-50"
-      >
-        Toute votre asso, écran par écran.
-      </h2>
-      <p
-        data-reveal
-        class="mx-auto mt-5 max-w-xl text-pretty text-base leading-relaxed text-ink-400 sm:text-lg"
-      >
-        Tâches, agenda, annuaire, documents, finances, assemblées — chaque
-        espace de l'app, pensé pour le quotidien d'une association.
-      </p>
-    </div>
+<section id="features" class="px-5 pt-24 pb-24 sm:px-6 sm:pt-32 sm:pb-32">
+  <div class="mx-auto max-w-[820px] text-center">
+    <p data-reveal class="t-eyebrow">Fonctionnalités</p>
+    <h2 data-reveal style="transition-delay: 60ms" class="t-section mt-3 text-balance text-graphite">
+      Toute votre asso, écran par écran.
+    </h2>
+    <p data-reveal style="transition-delay: 120ms" class="t-lead mx-auto mt-5 max-w-[620px] text-pretty text-slate">
+      Tâches, agenda, annuaire, documents, finances, assemblées — chaque
+      espace de l'app, pensé pour le quotidien d'une association.
+    </p>
   </div>
 
-  <!-- ============================================
-       MOBILE : carousel cinéma plein-écran
-       ============================================ -->
-  <div data-feature-carousel class="mx-auto mt-16 max-w-6xl pb-24 px-6 md:hidden">
-    <div
-      data-carousel-track
-      class="-mx-6 flex snap-x snap-mandatory gap-6 overflow-x-auto px-6 pb-2 no-scrollbar"
-    >
-      {
-        tabs.map((t, i) => (
-          <article
-            data-carousel-item
-            data-index={i}
-            class="flex w-[88%] shrink-0 snap-center snap-always flex-col items-center"
-          >
-            <div class="relative">
-              <div
-                aria-hidden="true"
-                class="pointer-events-none absolute -inset-12 -z-10 rounded-full opacity-60 blur-3xl"
-                style={`background: radial-gradient(closest-side, ${haloColors[t.color]}, transparent 70%);`}
-              />
-              <PhoneShot src={t.src} alt={t.alt} reveal={false} hoverScale={false} priority={i === 0} />
-            </div>
-            <div class="mt-8 text-center">
-              <p class="text-[11px] font-medium uppercase tracking-[0.18em] text-accent-400">
-                {t.tab}
-              </p>
-              <h3 class="mt-3 text-xl font-semibold leading-tight tracking-tight text-ink-50">
-                {t.title}
-              </h3>
-              <p class="mx-auto mt-3 max-w-sm text-sm leading-relaxed text-ink-400">
-                {t.desc}
-              </p>
-            </div>
-          </article>
-        ))
-      }
-    </div>
-    <div class="mt-8 flex justify-center gap-2" role="tablist" aria-label="Fonctionnalités">
-      {
-        tabs.map((t, i) => (
-          <button
-            type="button"
-            data-dot
-            data-index={i}
-            aria-label={`Aller à ${t.tab}`}
-            aria-selected={i === 0 ? "true" : "false"}
-            class="dot h-1.5 rounded-full transition-all duration-300"
-            style={`width: ${i === 0 ? "1.5rem" : "0.375rem"}; background-color: ${i === 0 ? "var(--color-ink-50)" : "rgba(255,255,255,0.2)"};`}
-          />
-        ))
-      }
-    </div>
-  </div>
-
-  <!-- ============================================
-       DESKTOP : 5 chapitres éditoriaux alternés + 1 hero final.
-       Scroll → halo + phone bougent à des vitesses différentes
-       via --cp (chapter progress, -1 → +1) calculé en JS.
-       ============================================ -->
-  <div class="hidden md:block">
+  <div class="mx-auto mt-14 grid max-w-[1080px] grid-cols-1 gap-5 sm:mt-16 md:grid-cols-2 lg:grid-cols-6">
     {
-      tabs.map((t, i) => {
-        const isHero = i === tabs.length - 1;
-        const phoneOnLeft = i % 2 === 0;
-
-        if (isHero) {
-          return (
-            <article
-              data-feature-chapter
-              class="is-hero relative overflow-hidden px-6 py-36 lg:py-48"
-            >
-              <!-- Hero halo : XL, centré, plus saturé -->
-              <div aria-hidden="true" class="pointer-events-none absolute inset-0 -z-10">
-                <div
-                  class="feature-halo absolute left-1/2 top-1/2 h-[1100px] w-[1100px] -translate-x-1/2 -translate-y-1/2 rounded-full opacity-55 blur-3xl"
-                  style={`background: radial-gradient(closest-side, ${haloColors[t.color]}, transparent 70%);`}
-                />
-                <div
-                  class="absolute left-1/2 top-1/2 h-[420px] w-[420px] -translate-x-1/2 -translate-y-1/2 rounded-full opacity-35 blur-2xl"
-                  style={`background: radial-gradient(closest-side, ${haloColors[t.color]}, transparent 60%);`}
-                />
-              </div>
-
-              <!-- Hairline divider — marque la rupture avec les chapitres précédents -->
-              <div
-                aria-hidden="true"
-                class="absolute inset-x-0 top-0 mx-auto h-px max-w-[60%]"
-                style="background: linear-gradient(90deg, transparent, rgba(255,255,255,0.10) 30%, rgba(255,255,255,0.10) 70%, transparent);"
-              />
-
-              <div class="mx-auto max-w-5xl text-center">
-                <p
-                  data-reveal
-                  class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.03] px-3 py-1 text-[11px] font-medium uppercase tracking-[0.18em] text-accent-400"
-                >
-                  <span class="h-1.5 w-1.5 rounded-full" style="background: rgba(244,63,94,0.85);" />
-                  {t.tab}
-                </p>
-
-                <h3
-                  data-reveal
-                  data-split-text
-                  style="transition-delay: 80ms"
-                  class="display-feature mt-8 text-balance text-ink-50"
-                >
-                  L'assemblée générale, <span class="italic-display">dans votre poche.</span>
-                </h3>
-
-                <div
-                  data-reveal
-                  style="transition-delay: 160ms"
-                  class="feature-trio mt-24"
-                >
-                  <!-- Côté gauche : votation en direct -->
-                  <div class="feature-trio__side feature-trio__side--left hidden lg:block">
-                    <PhoneShot
-                      src="/app/feat-ag-votation.webp"
-                      alt="Konclav — AG en cours : présence, quorum et votation Pour / Contre / Blanc en direct"
-                      reveal={false}
-                      hoverScale={false}
-                      priority={false}
-                    />
-                  </div>
-
-                  <!-- Centre : signature de présence -->
-                  <div
-                    class="feature-shot-inner feature-trio__center"
-                    style={`filter: drop-shadow(0 60px 100px ${shadowColors[t.color]});`}
-                  >
-                    <PhoneShot
-                      src={t.src}
-                      alt={t.alt}
-                      reveal={false}
-                      hoverScale={false}
-                      priority={true}
-                    />
-                  </div>
-
-                  <!-- Côté droit : élections / scrutins -->
-                  <div class="feature-trio__side feature-trio__side--right hidden lg:block">
-                    <PhoneShot
-                      src="/app/feat-ag-election.webp"
-                      alt="Konclav — élections de l'AG : scrutin pour un poste avec candidats et vote blanc"
-                      reveal={false}
-                      hoverScale={false}
-                      priority={false}
-                    />
-                  </div>
-                </div>
-
-                <p
-                  data-reveal
-                  style="transition-delay: 240ms"
-                  class="mx-auto mt-28 max-w-2xl text-pretty text-lg leading-relaxed text-ink-300 lg:text-xl"
-                >
-                  {t.desc}
-                </p>
-
-                <ul
-                  data-reveal
-                  style="transition-delay: 320ms"
-                  class="mx-auto mt-12 flex flex-wrap justify-center gap-x-10 gap-y-4"
-                >
-                  {t.points.map((pt) => (
-                    <li class="flex items-center gap-2.5 text-base text-ink-200 lg:text-lg">
-                      <svg
-                        viewBox="0 0 16 16"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        class="h-4 w-4 shrink-0 text-accent-400"
-                        aria-hidden="true"
-                      >
-                        <path d="m3.5 8.5 3 3 6-7" />
-                      </svg>
-                      {pt}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </article>
-          );
-        }
-
-        return (
-          <article
-            data-feature-chapter
-            class="relative px-6 py-24 lg:py-32"
-          >
-            <!-- Halo ambient (parallaxé) -->
-            <div aria-hidden="true" class="pointer-events-none absolute inset-0 -z-10">
-              <div
-                class={`feature-halo absolute top-1/2 h-[720px] w-[720px] -translate-y-1/2 rounded-full opacity-40 blur-3xl ${
-                  phoneOnLeft ? "left-[6%]" : "right-[6%]"
-                }`}
-                style={`background: radial-gradient(closest-side, ${haloColors[t.color]}, transparent 70%);`}
+      tiles.map((t, i) => (
+        <article
+          data-reveal
+          style={`transition-delay: ${(i % 3) * 80}ms`}
+          class={`tile flex flex-col ${t.span}`}
+        >
+          <div class="px-7 pt-10 text-center sm:px-10 sm:pt-12">
+            <p class="text-[15px] font-semibold text-brand-600">{t.tab}</p>
+            <h3 class={`t-tile mx-auto mt-2 max-w-[420px] text-balance text-graphite ${t.narrow ? "lg:text-[26px]" : ""}`}>{t.title}</h3>
+            <p class="mx-auto mt-4 max-w-[440px] text-pretty text-[15px] leading-relaxed text-slate sm:text-base">{t.desc}</p>
+          </div>
+          <div class="flex justify-center pt-10">
+            <div class="sd-rise">
+              <PhoneShot
+                src={t.src}
+                alt={t.alt}
+                class="[--dw:min(270px,62cqw)] [margin-bottom:calc(var(--dw)*-0.78)]"
               />
             </div>
-
-            <div class="mx-auto max-w-6xl">
-              <div class="grid items-center gap-12 lg:grid-cols-2 lg:gap-20">
-                <!-- Phone column (parallaxé) -->
-                <div data-reveal class={`relative flex justify-center ${phoneOnLeft ? "" : "lg:order-last"}`}>
-                  <div
-                    class="feature-shot-inner"
-                    style={`filter: drop-shadow(0 40px 70px ${shadowColors[t.color]});`}
-                  >
-                    <PhoneShot
-                      src={t.src}
-                      alt={t.alt}
-                      reveal={false}
-                      hoverScale={false}
-                      priority={true}
-                    />
-                  </div>
-                </div>
-
-                <!-- Text column -->
-                <div data-reveal style={`transition-delay: 120ms`}>
-                  <p class="text-xs font-medium uppercase tracking-[0.18em] text-accent-400">
-                    {t.tab}
-                  </p>
-                  <h3 class="mt-5 text-balance text-4xl font-semibold leading-[1.05] tracking-tight text-ink-50 lg:text-5xl xl:text-6xl">
-                    {t.title}
-                  </h3>
-                  <p class="mt-7 max-w-md text-lg leading-relaxed text-ink-400 lg:text-xl">
-                    {t.desc}
-                  </p>
-                  <ul class="mt-10 space-y-4">
-                    {t.points.map((pt) => (
-                      <li class="flex items-start gap-3 text-base text-ink-200 lg:text-lg">
-                        <svg
-                          viewBox="0 0 16 16"
-                          fill="none"
-                          stroke="currentColor"
-                          stroke-width="2"
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          class="mt-1.5 h-4 w-4 shrink-0 text-accent-400"
-                          aria-hidden="true"
-                        >
-                          <path d="m3.5 8.5 3 3 6-7" />
-                        </svg>
-                        {pt}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
-            </div>
-          </article>
-        );
-      })
+          </div>
+        </article>
+      ))
     }
   </div>
 </section>
 
-<script is:inline>
-  (function () {
-    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+<!-- AG — bande sombre, mise en scène produit -->
+<section aria-labelledby="ag-title" class="relative overflow-hidden bg-night px-5 py-24 sm:px-6 sm:py-32">
+  <div
+    aria-hidden="true"
+    class="pointer-events-none absolute left-1/2 top-[58%] -z-0 h-[560px] w-[760px] -translate-x-1/2 -translate-y-1/2 rounded-full opacity-40 blur-3xl"
+    style="background: radial-gradient(closest-side, rgba(232,87,42,0.55), transparent 72%);"
+  >
+  </div>
 
-    // ===== DESKTOP : scroll-driven --cp (-1 → +1) per chapter =====
-    // Cheap rAF loop: only chapters currently in/near viewport get updates.
-    const chapters = Array.from(document.querySelectorAll('[data-feature-chapter]'));
-    if (chapters.length && !reduced) {
-      const active = new Set();
-      const io = new IntersectionObserver(
-        (entries) => {
-          entries.forEach((e) => {
-            if (e.isIntersecting) active.add(e.target);
-            else active.delete(e.target);
-          });
-          if (active.size) schedule();
-        },
-        { rootMargin: '20% 0px 20% 0px' }
-      );
-      chapters.forEach((c) => io.observe(c));
+  <div class="relative mx-auto max-w-[900px] text-center">
+    <p data-reveal class="t-eyebrow !text-brand-300">AG & signatures</p>
+    <h2 id="ag-title" data-reveal style="transition-delay: 60ms" class="t-section mt-3 text-balance text-white">
+      L'assemblée générale, <span class="text-gradient-brand-night">dans votre poche.</span>
+    </h2>
+    <p data-reveal style="transition-delay: 120ms" class="t-lead mx-auto mt-6 max-w-[660px] text-pretty text-[#a1a1a6]">
+      {ag.desc}
+    </p>
+  </div>
 
-      let ticking = false;
-      const update = () => {
-        const vh = window.innerHeight;
-        active.forEach((ch) => {
-          const rect = ch.getBoundingClientRect();
-          const centerOffset = (rect.top + rect.height / 2) - vh / 2;
-          const range = (rect.height + vh) / 2;
-          const p = Math.max(-1, Math.min(1, centerOffset / range));
-          ch.style.setProperty('--cp', p.toFixed(3));
-        });
-        ticking = false;
-      };
-      const schedule = () => {
-        if (!ticking) { requestAnimationFrame(update); ticking = true; }
-      };
-      window.addEventListener('scroll', schedule, { passive: true });
-      window.addEventListener('resize', schedule, { passive: true });
-      update();
-    }
+  <div data-reveal style="transition-delay: 160ms" class="relative mx-auto mt-16 max-w-[900px] [container-type:inline-size] sm:mt-20">
+    <div class="flex items-center justify-center">
+      <div class="sd-spread-l relative z-0 -mr-[7cqw] opacity-80">
+        <PhoneShot
+          src="/app/feat-ag-votation.webp"
+          alt="Konclav — AG en cours : présence, quorum et votation Pour / Contre / Blanc en direct"
+          class="[--dw:min(250px,33cqw)]"
+        />
+      </div>
+      <div class="relative z-10">
+        <PhoneShot
+          src="/app/feat-ag.webp"
+          alt="Konclav — écran réunions / AG avec PV archivé"
+          class="[--dw:min(300px,40cqw)]"
+        />
+      </div>
+      <div class="sd-spread-r relative z-0 -ml-[7cqw] opacity-80">
+        <PhoneShot
+          src="/app/feat-ag-election.webp"
+          alt="Konclav — élections de l'AG : scrutin pour un poste avec candidats et vote blanc"
+          class="[--dw:min(250px,33cqw)]"
+        />
+      </div>
+    </div>
+  </div>
 
-    // ===== MOBILE carousel dots (inchangé) =====
-    const carousel = document.querySelector("[data-feature-carousel]");
-    if (!carousel) return;
-    const track = carousel.querySelector("[data-carousel-track]");
-    const items = Array.from(carousel.querySelectorAll("[data-carousel-item]"));
-    const dots = Array.from(carousel.querySelectorAll("[data-dot]"));
-    const setDot = (i) =>
-      dots.forEach((d, idx) => {
-        const on = idx === i;
-        d.setAttribute("aria-selected", on ? "true" : "false");
-        d.style.width = on ? "1.5rem" : "0.375rem";
-        d.style.backgroundColor = on ? "var(--color-ink-50)" : "rgba(255,255,255,0.2)";
-      });
-    const cio = new IntersectionObserver(
-      (entries) =>
-        entries.forEach((e) => {
-          if (e.intersectionRatio > 0.6) setDot(parseInt(e.target.getAttribute("data-index"), 10));
-        }),
-      { root: track, threshold: [0.6, 0.9] }
-    );
-    items.forEach((it) => cio.observe(it));
-    dots.forEach((d, i) =>
-      d.addEventListener("click", () =>
-        items[i].scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" })
-      )
-    );
-  })();
-</script>
+  <ul data-reveal class="relative mx-auto mt-14 flex max-w-[900px] flex-wrap justify-center gap-x-10 gap-y-4 sm:mt-16">
+    {ag.points.map((pt) => (
+      <li class="flex items-center gap-2.5 text-[17px] text-[#e8e8ed]">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4 shrink-0 text-brand-300" aria-hidden="true">
+          <path d="m3.5 8.5 3 3 6-7" />
+        </svg>
+        {pt}
+      </li>
+    ))}
+  </ul>
+</section>

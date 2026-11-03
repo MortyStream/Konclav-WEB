@@ -2,82 +2,49 @@
 const steps = [
   {
     title: "Demande",
-    description:
-      "Vous remplissez un court formulaire — votre asso, vos outils actuels, vos contraintes. On répond sous 48h ouvrées.",
+    description: "Vous remplissez un court formulaire — votre asso, vos outils actuels, vos contraintes. On répond sous 48h ouvrées.",
     duration: "5 min",
   },
   {
     title: "Provisionnement",
-    description:
-      "On crée votre espace, on configure vos rôles, on importe vos membres existants (CSV ou copier-coller).",
+    description: "On crée votre espace, on configure vos rôles, on importe vos membres existants (CSV ou copier-coller).",
     duration: "48 h",
   },
   {
     title: "Go live",
-    description:
-      "Formation d'une heure avec votre comité, support dédié les premiers jours. Vos membres reçoivent leur accès.",
+    description: "Formation d'une heure avec votre comité, support dédié les premiers jours. Vos membres reçoivent leur accès.",
     duration: "7 jours",
   },
 ];
 ---
 
-<section
-  id="onboarding"
-  class="relative border-t border-white/[0.06] px-6 py-28 sm:py-36"
->
-  <div class="mx-auto max-w-7xl">
-    <div class="mx-auto max-w-3xl text-center">
-      <p data-reveal class="text-xs font-medium uppercase tracking-[0.18em] text-accent-400">Démarrage</p>
-      <h2
-        data-reveal
-        data-split-text
-        class="display-section mt-4 text-balance text-ink-50"
-      >
-        De zéro à go live en 7 jours.
-      </h2>
-      <p
-        data-reveal
-        class="mx-auto mt-5 max-w-xl text-pretty text-base leading-relaxed text-ink-400 sm:text-lg"
-      >
-        Pas d'installation, pas de migration douloureuse. On vous accompagne
-        pas à pas.
-      </p>
-    </div>
-
-    <ol class="relative mt-16 grid gap-4 sm:gap-5 lg:grid-cols-3">
-      {steps.map((step, i) => (
-        <li
-          data-reveal
-          style={`transition-delay: ${i * 120}ms`}
-          class="bento group relative flex flex-col p-6 sm:p-7"
-        >
-          <!-- Step number badge -->
-          <div class="flex items-center gap-3">
-            <span class="step-dot inline-flex h-8 w-8 items-center justify-center rounded-full border border-accent-500/40 bg-ink-950 text-[11px] font-semibold tabular-nums text-accent-300">
-              {String(i + 1).padStart(2, "0")}
-            </span>
-            <span class="text-[10px] font-semibold uppercase tracking-[0.18em] text-ink-500">
-              Étape {i + 1} / 3
-            </span>
-          </div>
-
-          <h3 class="mt-5 text-xl font-semibold tracking-tight text-ink-50">
-            {step.title}
-          </h3>
-          <p class="mt-2 text-sm leading-relaxed text-ink-400">
-            {step.description}
-          </p>
-
-          <!-- Duration indicator at bottom -->
-          <div class="mt-6 flex items-center gap-2 border-t border-white/[0.05] pt-4">
-            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" class="h-3.5 w-3.5 text-accent-400" aria-hidden="true">
-              <circle cx="8" cy="8" r="6" />
-              <path d="M8 4.5V8l2 1.5" />
-            </svg>
-            <span class="text-[12px] font-medium tabular-nums text-ink-50">{step.duration}</span>
-          </div>
-        </li>
-      ))}
-    </ol>
+<section id="onboarding" class="bg-mist px-5 py-24 sm:px-6 sm:py-32">
+  <div class="mx-auto max-w-[820px] text-center">
+    <p data-reveal class="t-eyebrow">Démarrage</p>
+    <h2 data-reveal style="transition-delay: 60ms" class="t-section mt-3 text-balance text-graphite">De zéro à go live en 7 jours.</h2>
+    <p data-reveal style="transition-delay: 120ms" class="t-lead mx-auto mt-5 max-w-[560px] text-pretty text-slate">
+      Pas d'installation, pas de migration douloureuse. On vous accompagne pas à pas.
+    </p>
   </div>
+
+  <ol class="mx-auto mt-14 grid max-w-[1080px] gap-5 sm:mt-16 lg:grid-cols-3">
+    {steps.map((step, i) => (
+      <li data-reveal style={`transition-delay: ${i * 110}ms`} class="flex flex-col rounded-[28px] bg-white p-8 sm:p-10">
+        <span class="text-[56px] font-semibold leading-none tracking-[-0.04em] text-brand-500 tabular-nums" aria-hidden="true">
+          {i + 1}
+        </span>
+        <h3 class="mt-6 text-[24px] font-semibold tracking-[-0.016em] text-graphite">
+          <span class="sr-only">Étape {i + 1} : </span>{step.title}
+        </h3>
+        <p class="mt-2 text-[15px] leading-relaxed text-slate sm:text-base">{step.description}</p>
+        <p class="mt-auto flex items-center gap-2 pt-8 text-sm font-medium text-graphite">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" class="h-4 w-4 text-brand-500" aria-hidden="true">
+            <circle cx="8" cy="8" r="6" />
+            <path d="M8 4.5V8l2 1.5" />
+          </svg>
+          <span class="tabular-nums">{step.duration}</span>
+        </p>
+      </li>
+    ))}
+  </ol>
 </section>

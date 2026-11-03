@@ -1,69 +1,35 @@
 ---
+// Cadre iPhone. La largeur se règle par --dw (prop `width` en px, ou classe CSS
+// qui pose --dw avec min()/cqw pour un rendu fluide). Hauteur via aspect-ratio.
 interface Props {
   src: string;
   alt: string;
-  rotate?: string;
-  translateY?: string;
-  delay?: number;
-  zIndex?: number;
-  float?: "" | "float" | "float-delay" | "float-slow" | "float-late";
-  hoverScale?: boolean;
+  width?: number;
   priority?: boolean;
   reveal?: boolean;
+  delay?: number;
+  class?: string;
 }
 
-const {
-  src,
-  alt,
-  rotate = "",
-  translateY = "",
-  delay = 0,
-  zIndex = 0,
-  float = "",
-  hoverScale = true,
-  priority = false,
-  reveal = true,
-} = Astro.props;
+const { src, alt, width, priority = false, reveal = false, delay = 0, class: cls = "" } = Astro.props;
 
-const floatClass = float ? `animate-${float}` : "";
-const hoverClass = hoverScale ? "hover:scale-[1.03]" : "";
+const style = [width ? `--dw: ${width}px` : "", delay ? `transition-delay: ${delay}ms` : ""].filter(Boolean).join("; ");
 ---
 
-<div
-  data-reveal={reveal ? "" : undefined}
-  style={`transition-delay: ${delay}ms; z-index: ${zIndex};`}
-  class="relative shrink-0 snap-center"
->
-  <div class={floatClass}>
-    <div
-      class={`transition-transform duration-500 ease-out ${hoverClass} ${rotate} ${translateY}`}
-    >
-      <div
-        class="relative h-[540px] w-[260px] rounded-[44px] border border-white/10 bg-ink-900 p-[6px] shadow-[0_30px_80px_-20px_rgba(94,106,210,0.35),0_0_0_1px_rgba(255,255,255,0.04),inset_0_1.5px_0_0_rgba(255,255,255,0.10)]"
-      >
-        <div
-          class="relative h-full overflow-hidden rounded-[38px] bg-black ring-1 ring-white/5"
-        >
-          <img
-            src={src}
-            alt={alt}
-            width="720"
-            height="1560"
-            loading={priority ? "eager" : "lazy"}
-            fetchpriority={priority ? "high" : undefined}
-            decoding="async"
-            class="h-full w-full object-cover object-top"
-          />
-          <!-- Reflet spéculaire sur la vitre -->
-          <div class="phone-glare" aria-hidden="true"></div>
-          <!-- Notch -->
-          <div
-            class="absolute left-1/2 top-2 z-30 flex h-6 w-20 -translate-x-1/2 items-center justify-center rounded-full bg-black"
-          >
-            <div class="h-1 w-1 rounded-full bg-white/20"></div>
-          </div>
-        </div>
-      </div>
+<div class={`device ${cls}`} style={style || undefined} data-reveal={reveal ? "" : undefined}>
+  <div class="device__frame">
+    <div class="device__screen">
+      <img
+        src={src}
+        alt={alt}
+        width="720"
+        height="1560"
+        loading={priority ? "eager" : "lazy"}
+        fetchpriority={priority ? "high" : undefined}
+        decoding="async"
+        class="h-full w-full object-cover object-top"
+      />
+      <div class="device__island" aria-hidden="true"></div>
     </div>
   </div>
 </div>

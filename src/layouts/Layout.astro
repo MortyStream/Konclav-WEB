@@ -13,6 +13,8 @@ interface Props {
   description?: string;
   image?: string;
   noindex?: boolean;
+  /** Thème sombre historique — réservé au cockpit /admin et à l'espace client /espace */
+  dark?: boolean;
 }
 
 const {
@@ -20,6 +22,7 @@ const {
   description = "Konclav est un intranet privé mobile pour les associations suisses. Tâches, agenda partagé, documents. Hébergé en Suisse, sans pub ni revente de données.",
   image = "/og.jpg",
   noindex = false,
+  dark = false,
 } = Astro.props;
 
 const canonical = new URL(Astro.url.pathname, Astro.site ?? Astro.url.origin).toString();
@@ -27,14 +30,14 @@ const imageUrl = new URL(image, Astro.site ?? Astro.url.origin).toString();
 ---
 
 <!doctype html>
-<html lang="fr-CH">
+<html lang="fr-CH" data-theme={dark ? "dark" : "light"}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="generator" content={Astro.generator} />
     <meta name="description" content={description} />
-    <meta name="theme-color" content="#08090a" />
-    <meta name="color-scheme" content="dark" />
+    <meta name="theme-color" content={dark ? "#08090a" : "#ffffff"} />
+    <meta name="color-scheme" content={dark ? "dark" : "light"} />
     {noindex && <meta name="robots" content="noindex, nofollow" />}
     <link rel="canonical" href={canonical} />
 
@@ -130,14 +133,14 @@ const imageUrl = new URL(image, Astro.site ?? Astro.url.origin).toString();
 
     <title>{title}</title>
   </head>
-  <body class="text-ink-50 font-sans antialiased">
+  <body class={dark ? "text-ink-50 font-sans antialiased" : "bg-paper font-display text-graphite antialiased"}>
     <a
       href="#main"
-      class="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-lg focus:bg-accent-500 focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-white"
+      class="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-lg focus:bg-graphite focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-white"
     >
       Aller au contenu
     </a>
-    <div aria-hidden="true" class="aurora-global"></div>
+    {dark && <div aria-hidden="true" class="aurora-global"></div>}
     <slot />
     <JoinModal />
 
