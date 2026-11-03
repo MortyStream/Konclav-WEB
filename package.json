@@ -7,7 +7,7 @@
   },
   "scripts": {
     "dev": "astro dev",
-    "build": "astro build --outDir dist-next && node scripts/swap-dist.mjs",
+    "build": "node scripts/build.mjs",
     "preview": "astro preview",
     "start": "node server.js",
     "og": "node scripts/og-gen.mjs",

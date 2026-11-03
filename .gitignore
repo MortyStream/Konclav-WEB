@@ -1,7 +1,10 @@
-# build output (dist-next = build en cours, dist-prev = build précédent, cf. scripts/swap-dist.mjs)
+# build output (dist-next = build en cours, dist-prev = build précédent, cf. scripts/build.mjs + swap-dist.mjs)
 dist/
 dist-next/
 dist-prev/
+dist-prev-trash-*/
+dist-broken-*/
+.build.lock/
 # generated types
 .astro/
 

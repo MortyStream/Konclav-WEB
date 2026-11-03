@@ -86,8 +86,10 @@ const imageUrl = new URL(image, Astro.site ?? Astro.url.origin).toString();
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
     <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-    <!-- Mesure d'audience interne — Supabase Zurich, sans cookie, hash quotidien irréversible -->
+    <!-- html.js : le reveal ne masque le contenu que si le JS tourne (cf. global.css).
+         Mesure d'audience interne — Supabase Zurich, sans cookie, hash quotidien irréversible -->
     <script is:inline>
+      document.documentElement.classList.add("js");
       (function () {
         var EP = "https://ehbdngidjrkhfrprfgqg.supabase.co/functions/v1/website-track";
         function send(eventName) {
@@ -244,6 +246,8 @@ const imageUrl = new URL(image, Astro.site ?? Astro.url.origin).toString();
             revealEls.forEach((el) => io.observe(el));
           }
         }
+        // Reveal en place : le filet CSS (apparition forcée à 2,5 s) n'est plus nécessaire.
+        document.documentElement.classList.add('reveal-ready');
 
         // Parallax — éléments avec data-parallax="0.3" se translatent au scroll
         const parallaxEls = document.querySelectorAll('[data-parallax]');

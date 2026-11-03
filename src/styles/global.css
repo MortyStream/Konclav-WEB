@@ -97,24 +97,38 @@ html[data-theme="dark"] :where(a, button, summary, input, textarea, select):focu
 
 /* ============================================================
    REVEAL AU SCROLL — fondu + montée, courbe fluide
+   Le contenu n'est masqué que si le JS tourne (html.js, posé en tête de page) :
+   un script bloqué (CSP, extension, erreur) laisse la page lisible, sans animation.
+   Filet : si le script du bas de page ne pose pas html.reveal-ready, tout
+   apparaît après 2,5 s.
    ============================================================ */
-[data-reveal] {
+html.js [data-reveal] {
   opacity: 0;
   transform: translate3d(0, 28px, 0);
   transition:
     opacity 900ms var(--ease-fluid),
     transform 1100ms var(--ease-fluid);
 }
-[data-reveal].is-visible {
+html.js [data-reveal].is-visible {
   opacity: 1;
   transform: none;
 }
+html.js:not(.reveal-ready) [data-reveal] {
+  animation: reveal-failsafe 1ms 2.5s forwards;
+}
+@keyframes reveal-failsafe {
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
 @media (prefers-reduced-motion: reduce) {
-  [data-reveal],
-  [data-reveal].is-visible {
+  html.js [data-reveal],
+  html.js [data-reveal].is-visible {
     opacity: 1;
     transform: none;
     transition: none;
+    animation: none;
   }
   html {
     scroll-behavior: auto;
