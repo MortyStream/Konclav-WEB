@@ -108,47 +108,47 @@ const PUBLISHABLE_KEY = "sb_publishable_VALB2_pMZ2GjMNP3mmyChg_y-vuitny";
             <a href="mailto:contact@konclav.ch" class="text-accent-400 hover:underline">contactez-nous</a>.
           </p>
           <div>
-            <label class="mb-1.5 block text-[13px] font-medium text-ink-400">Association (figé)</label>
-            <input data-cp-field="asso_name" disabled
+            <label for="cp-f-asso_name" class="mb-1.5 block text-[13px] font-medium text-ink-400">Association (figé)</label>
+            <input id="cp-f-asso_name" data-cp-field="asso_name" disabled
               class="w-full cursor-not-allowed rounded-xl border-0 bg-white/[0.04] px-3.5 py-2.5 text-[15px] text-ink-400" />
           </div>
           <div class="grid grid-cols-1 gap-x-4 gap-y-5 sm:grid-cols-2">
             <div>
-              <label class="mb-1.5 block text-[13px] font-medium text-ink-400">Nom du contact *</label>
-              <input data-cp-field="contact_name" required class="cp-input" />
+              <label for="cp-f-contact_name" class="mb-1.5 block text-[13px] font-medium text-ink-400">Nom du contact *</label>
+              <input id="cp-f-contact_name" data-cp-field="contact_name" required class="cp-input" />
             </div>
             <div>
-              <label class="mb-1.5 block text-[13px] font-medium text-ink-400">Email du contact *</label>
-              <input data-cp-field="contact_email" type="email" required class="cp-input" />
+              <label for="cp-f-contact_email" class="mb-1.5 block text-[13px] font-medium text-ink-400">Email du contact *</label>
+              <input id="cp-f-contact_email" data-cp-field="contact_email" type="email" required class="cp-input" />
             </div>
           </div>
           <div class="grid grid-cols-1 gap-x-4 gap-y-5 sm:grid-cols-2">
             <div>
-              <label class="mb-1.5 block text-[13px] font-medium text-ink-400">Téléphone</label>
-              <input data-cp-field="phone" type="tel" class="cp-input" />
+              <label for="cp-f-phone" class="mb-1.5 block text-[13px] font-medium text-ink-400">Téléphone</label>
+              <input id="cp-f-phone" data-cp-field="phone" type="tel" class="cp-input" />
             </div>
             <div>
-              <label class="mb-1.5 block text-[13px] font-medium text-ink-400">N° TVA (si assujetti)</label>
-              <input data-cp-field="vat_number" class="cp-input" placeholder="CHE-123.456.789 TVA" />
+              <label for="cp-f-vat_number" class="mb-1.5 block text-[13px] font-medium text-ink-400">N° TVA (si assujetti)</label>
+              <input id="cp-f-vat_number" data-cp-field="vat_number" class="cp-input" placeholder="CHE-123.456.789 TVA" />
             </div>
           </div>
           <div>
-            <label class="mb-1.5 block text-[13px] font-medium text-ink-400">Adresse</label>
-            <input data-cp-field="address_line" class="cp-input" placeholder="Rue + n°" />
+            <label for="cp-f-address_line" class="mb-1.5 block text-[13px] font-medium text-ink-400">Adresse</label>
+            <input id="cp-f-address_line" data-cp-field="address_line" class="cp-input" placeholder="Rue + n°" />
           </div>
           <div class="grid grid-cols-3 gap-x-4 gap-y-5">
             <div>
-              <label class="mb-1.5 block text-[13px] font-medium text-ink-400">NPA</label>
-              <input data-cp-field="postal_code" class="cp-input" />
+              <label for="cp-f-postal_code" class="mb-1.5 block text-[13px] font-medium text-ink-400">NPA</label>
+              <input id="cp-f-postal_code" data-cp-field="postal_code" class="cp-input" />
             </div>
             <div class="col-span-2">
-              <label class="mb-1.5 block text-[13px] font-medium text-ink-400">Localité</label>
-              <input data-cp-field="city" class="cp-input" />
+              <label for="cp-f-city" class="mb-1.5 block text-[13px] font-medium text-ink-400">Localité</label>
+              <input id="cp-f-city" data-cp-field="city" class="cp-input" />
             </div>
           </div>
           <div>
-            <label class="mb-1.5 block text-[13px] font-medium text-ink-400">Pays</label>
-            <input data-cp-field="country" maxlength="2" class="cp-input uppercase" />
+            <label for="cp-f-country" class="mb-1.5 block text-[13px] font-medium text-ink-400">Pays</label>
+            <input id="cp-f-country" data-cp-field="country" maxlength="2" class="cp-input uppercase" />
           </div>
           <p data-cp-contact-error role="alert" hidden class="text-[13px] text-[#ff453a]"></p>
           <div class="flex flex-wrap items-center justify-between gap-x-4 gap-y-3 border-t border-white/[0.08] pt-5">
@@ -167,8 +167,8 @@ const PUBLISHABLE_KEY = "sb_publishable_VALB2_pMZ2GjMNP3mmyChg_y-vuitny";
             <p class="mt-1.5 text-[15px] leading-relaxed text-ink-400">Pour ce qui n'est pas modifiable ici (nom officiel de l'association, changement de président…), décrivez votre demande. Kévin la traite et revient vers vous.</p>
           </div>
           <div>
-            <label class="mb-1.5 block text-[13px] font-medium text-ink-400">Sujet</label>
-            <select data-cp-cr-subject class="cp-input">
+            <label for="cp-cr-subject" class="mb-1.5 block text-[13px] font-medium text-ink-400">Sujet</label>
+            <select id="cp-cr-subject" data-cp-cr-subject class="cp-input">
               <option>Nom de l'association</option>
               <option>Changement de président·e</option>
               <option>Coordonnées de facturation</option>
@@ -177,8 +177,8 @@ const PUBLISHABLE_KEY = "sb_publishable_VALB2_pMZ2GjMNP3mmyChg_y-vuitny";
             </select>
           </div>
           <div>
-            <label class="mb-1.5 block text-[13px] font-medium text-ink-400">Votre demande *</label>
-            <textarea data-cp-cr-message rows="4" required maxlength="4000" class="cp-input" placeholder="Décrivez ce que vous souhaitez modifier…"></textarea>
+            <label for="cp-cr-message" class="mb-1.5 block text-[13px] font-medium text-ink-400">Votre demande *</label>
+            <textarea id="cp-cr-message" data-cp-cr-message rows="4" required maxlength="4000" class="cp-input" placeholder="Décrivez ce que vous souhaitez modifier…"></textarea>
           </div>
           <p data-cp-cr-error role="alert" hidden class="text-[13px] text-[#ff453a]"></p>
           <div class="flex flex-wrap items-center justify-between gap-x-4 gap-y-3">
@@ -214,6 +214,9 @@ const PUBLISHABLE_KEY = "sb_publishable_VALB2_pMZ2GjMNP3mmyChg_y-vuitny";
   .cp-tab:hover { color: var(--color-ink-50); }
   main[data-portal] .cp-tab:focus-visible { outline-offset: 1px; }
   .cp-tab[aria-selected="true"] { background-color: var(--color-ink-800); color: var(--color-ink-50); box-shadow: 0 1px 3px rgba(0,0,0,.4), inset 0 0 0 .5px rgba(255,255,255,.08); }
+  @media (pointer: coarse) {
+    .cp-tab, main[data-portal] > header button, [data-cp-pdf], [data-cp-zip] { min-height: 40px; }
+  }
   [data-portal] select, [data-portal] input, [data-portal] textarea { color-scheme: dark; }
   [data-portal] input:-webkit-autofill, [data-portal] input:-webkit-autofill:hover, [data-portal] input:-webkit-autofill:focus {
     -webkit-text-fill-color: var(--color-ink-50) !important;
@@ -225,9 +228,10 @@ const PUBLISHABLE_KEY = "sb_publishable_VALB2_pMZ2GjMNP3mmyChg_y-vuitny";
     -webkit-box-shadow: 0 0 0 30px var(--color-ink-800) inset !important;
   }
   .cp-toasts { position: fixed; bottom: 1.25rem; left: 50%; transform: translateX(-50%); z-index: 80; display: flex; flex-direction: column; align-items: center; gap: .5rem; width: min(92vw, 28rem); pointer-events: none; }
-  .cp-toast { pointer-events: auto; max-width: 100%; border-radius: 22px; border: 1px solid rgba(255,255,255,.08); background: var(--color-ink-800); padding: .55rem 1.1rem; font-size: .8125rem; font-weight: 500; line-height: 1.35; color: var(--color-ink-50); box-shadow: 0 4px 16px rgba(0,0,0,.35); transition: opacity .3s; animation: cp-toast-in .25s cubic-bezier(0.16, 1, 0.3, 1); }
+  /* Même règle que .ck-toast du cockpit */
+  .cp-toast { pointer-events: auto; max-width: 100%; border-radius: 22px; border: 1px solid rgba(255,255,255,.08); background: var(--color-ink-800); padding: .6rem 1.15rem; font-size: .8125rem; font-weight: 500; line-height: 1.35; color: var(--color-ink-50); box-shadow: 0 6px 20px rgba(0,0,0,.4); transition: opacity .3s; animation: cp-toast-in .25s cubic-bezier(0.16, 1, 0.3, 1); }
   .cp-toast-ok { border-color: rgba(255,255,255,.08); }
-  .cp-toast-err { border-color: rgba(255,69,58,.45); }
+  .cp-toast-err { border-color: rgba(255,69,58,.45); color: #ff6961; }
   @keyframes cp-toast-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
   @media (prefers-reduced-motion: reduce) { .cp-toast { animation: none; } }
 </style>
@@ -253,6 +257,7 @@ const PUBLISHABLE_KEY = "sb_publishable_VALB2_pMZ2GjMNP3mmyChg_y-vuitny";
     const contactError = root.querySelector("[data-cp-contact-error]");
     const contactMsg = root.querySelector("[data-cp-contact-msg]");
     const tabs = root.querySelectorAll("[data-cp-tab]");
+    const tablist = root.querySelector('[role="tablist"]');
     const panels = {
       invoices: root.querySelector('[data-cp-panel="invoices"]'),
       contact: root.querySelector('[data-cp-panel="contact"]'),
@@ -357,8 +362,12 @@ const PUBLISHABLE_KEY = "sb_publishable_VALB2_pMZ2GjMNP3mmyChg_y-vuitny";
           '<p class="mt-2 text-[15px] leading-relaxed text-ink-400">Cela arrivera lors de la mise en route. Si vous pensez qu\'il y a une erreur, contactez-nous à <a href="mailto:contact@konclav.ch" class="text-accent-400 hover:underline">contact@konclav.ch</a>.</p>' +
           '</div>';
         invoicesPanel.innerHTML = "";
+        tablist.hidden = true;
+        Object.values(panels).forEach((el) => { if (el) el.hidden = true; });
         return;
       }
+      tablist.hidden = false;
+      switchTab(Array.from(tabs).find((t) => t.getAttribute("aria-selected") === "true")?.dataset.cpTab || "invoices");
       renderHeadline(dashboardData);
       renderInvoices(dashboardData.invoices || []);
       fillContactForm(dashboardData.customer);
@@ -431,7 +440,7 @@ const PUBLISHABLE_KEY = "sb_publishable_VALB2_pMZ2GjMNP3mmyChg_y-vuitny";
           return '<li data-inv="' + esc(inv.id) + '" class="flex flex-wrap items-center gap-x-5 gap-y-3 px-5 py-4 transition-colors hover:bg-white/[0.04] sm:px-6">' +
             '<div class="min-w-0 basis-full sm:basis-0 sm:flex-1">' +
             '<p class="flex flex-wrap items-center gap-x-2 gap-y-1"><span class="whitespace-nowrap text-[15px] font-semibold tabular-nums text-ink-50">' + esc(inv.number) + "</span>" +
-            (isCredit ? '<span class="rounded-full bg-white/[0.08] px-2 py-0.5 text-[11px] font-semibold text-ink-200">AVOIR</span>' : "") +
+            (isCredit ? '<span class="inline-block rounded-full bg-white/[0.08] px-2 py-0.5 text-[11px] font-medium lowercase text-ink-200 first-letter:uppercase">AVOIR</span>' : "") +
             statusBadge(inv.status) +
             (isLate(inv) ? '<span class="whitespace-nowrap text-[12px] font-medium text-[#ff453a]">Échéance dépassée</span>' : "") +
             "</p>" +

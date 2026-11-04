@@ -148,7 +148,7 @@ const imageUrl = new URL(image, Astro.site ?? Astro.url.origin).toString();
       Aller au contenu
     </a>
     <slot />
-    <JoinModal />
+    {!dark && <JoinModal />}
 
     <script is:inline>
       (function () {
@@ -210,7 +210,7 @@ const imageUrl = new URL(image, Astro.site ?? Astro.url.origin).toString();
           });
         };
 
-        if (!location.pathname.startsWith("/admin")) {
+        if (!location.pathname.startsWith("/admin") && !location.pathname.startsWith("/espace")) {
           try {
             const raw = localStorage.getItem(CONTENT_KEY);
             if (raw) {

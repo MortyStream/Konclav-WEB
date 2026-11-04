@@ -198,13 +198,13 @@ const ADMIN_EMAIL = "contact@konclav.ch";
       <div data-panel="leads" role="tabpanel" hidden>
         <div class="mt-8" data-ck-stats></div>
         <div class="mt-8 flex flex-wrap items-center justify-between gap-3">
-          <div class="flex flex-wrap items-center gap-2" data-ck-filters role="group" aria-label="Filtrer par statut"></div>
+          <div class="ck-seg" data-ck-filters role="group" aria-label="Filtrer par statut"></div>
           <div class="flex items-center gap-2">
             <div class="ck-seg" role="group" aria-label="Vue">
               <button type="button" data-view="list" class="ck-pill ck-pill-on">Liste</button>
               <button type="button" data-view="kanban" class="ck-pill">Kanban</button>
             </div>
-            <button type="button" data-ck-broadcast class="ck-pill">📣 Email groupé</button>
+            <button type="button" data-ck-broadcast class="ck-pill">Email groupé</button>
           </div>
         </div>
         <div class="mt-6 space-y-2" data-ck-list aria-live="polite"></div>
@@ -231,8 +231,8 @@ const ADMIN_EMAIL = "contact@konclav.ch";
               <span class="ck-live-dot" aria-hidden="true"></span><span data-au-live-n>0 en ce moment</span>
             </span>
           </div>
-          <div class="flex flex-wrap items-center gap-2">
-            <div class="ck-seg" data-au-periods role="group" aria-label="Période">
+          <div class="flex max-w-full flex-nowrap items-center gap-2 overflow-x-auto [scrollbar-width:none]">
+            <div class="ck-seg shrink-0" data-au-periods role="group" aria-label="Période">
               <button type="button" data-period="24h" class="ck-pill">24h</button>
               <button type="button" data-period="7d"  class="ck-pill ck-pill-on">7 j</button>
               <button type="button" data-period="30d" class="ck-pill">30 j</button>
@@ -445,7 +445,7 @@ const ADMIN_EMAIL = "contact@konclav.ch";
           </label>
 
           <p data-bi-error role="alert" hidden class="text-sm text-[#ff453a]"></p>
-          <div class="flex justify-end gap-2 pt-2">
+          <div class="sticky bottom-0 z-10 -mx-6 -mb-6 mt-2 flex justify-end gap-2 bg-ink-900/90 px-6 pb-6 pt-3 backdrop-blur-xl">
             <button type="button" data-modal-close class="rounded-full bg-white/[0.08] px-4 py-2 text-sm font-medium text-ink-50 transition-colors hover:bg-white/[0.12]">Annuler</button>
             <button type="submit" data-bi-submit class="rounded-full bg-ink-50 px-4 py-2 text-sm font-medium text-black transition-colors hover:bg-white/90 disabled:cursor-not-allowed disabled:opacity-60">Enregistrer</button>
           </div>
@@ -519,7 +519,7 @@ const ADMIN_EMAIL = "contact@konclav.ch";
       <div class="ck-modal-back"></div>
       <div class="ck-modal-card">
         <div class="flex items-center justify-between gap-3 px-6 pb-1 pt-5">
-          <h3 id="ck-email-title" class="text-[17px] font-semibold tracking-[-0.01em] text-ink-50">Email à <span data-em-to class="text-accent-300"></span></h3>
+          <h3 id="ck-email-title" class="text-[17px] font-semibold tracking-[-0.01em] text-ink-50">Email à <span data-em-to class="text-accent-400"></span></h3>
           <div class="flex items-center gap-3">
             <button type="button" data-em-edit-tpl class="text-xs text-ink-500 hover:text-ink-300">✎ Modèles</button>
             <button type="button" data-modal-close class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white/[0.08] text-[11px] text-ink-400 transition-colors hover:bg-white/[0.14] hover:text-ink-50" aria-label="Fermer">✕</button>
@@ -539,7 +539,7 @@ const ADMIN_EMAIL = "contact@konclav.ch";
             <textarea data-em-body rows="10" required maxlength="5000" class="ck-input"></textarea>
           </label>
           <p data-em-error role="alert" hidden class="text-sm text-[#ff453a]"></p>
-          <div class="flex justify-end gap-2 pt-1">
+          <div class="sticky bottom-0 z-10 -mx-6 -mb-6 mt-2 flex justify-end gap-2 bg-ink-900/90 px-6 pb-6 pt-3 backdrop-blur-xl">
             <button type="button" data-modal-close class="rounded-full bg-white/[0.08] px-4 py-2 text-sm font-medium text-ink-50 transition-colors hover:bg-white/[0.12]">Annuler</button>
             <button type="submit" data-em-send class="rounded-full bg-ink-50 px-4 py-2 text-sm font-medium text-black transition-colors hover:bg-white/90 disabled:cursor-not-allowed disabled:opacity-60">Envoyer</button>
           </div>
@@ -564,7 +564,7 @@ const ADMIN_EMAIL = "contact@konclav.ch";
       <div class="ck-modal-back"></div>
       <div class="ck-modal-card ck-modal-wide">
         <div class="flex items-center justify-between gap-3 px-6 pb-1 pt-5">
-          <h3 id="ck-bug-title" class="text-[17px] font-semibold tracking-[-0.01em] text-ink-50">🐛 Rapports de bug</h3>
+          <h3 id="ck-bug-title" class="text-[17px] font-semibold tracking-[-0.01em] text-ink-50">Rapports de bug</h3>
           <button type="button" data-modal-close class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white/[0.08] text-[11px] text-ink-400 transition-colors hover:bg-white/[0.14] hover:text-ink-50" aria-label="Fermer">✕</button>
         </div>
         <div data-bug-body class="max-h-[75vh] overflow-y-auto px-6 pb-6 pt-4"></div>
@@ -583,7 +583,7 @@ const ADMIN_EMAIL = "contact@konclav.ch";
       <div class="ck-modal-back"></div>
       <div class="ck-modal-card ck-modal-wide">
         <div class="flex items-center justify-between gap-3 px-6 pb-1 pt-5">
-          <h3 id="ck-nt-title" class="text-[17px] font-semibold tracking-[-0.01em] text-ink-50">📝 Bloc-notes</h3>
+          <h3 id="ck-nt-title" class="text-[17px] font-semibold tracking-[-0.01em] text-ink-50">Bloc-notes</h3>
           <div class="flex items-center gap-3">
             <span data-nt-status class="text-xs text-ink-500"></span>
             <button type="button" data-modal-close class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white/[0.08] text-[11px] text-ink-400 transition-colors hover:bg-white/[0.14] hover:text-ink-50" aria-label="Fermer">✕</button>
@@ -602,7 +602,7 @@ const ADMIN_EMAIL = "contact@konclav.ch";
       <div class="ck-modal-card ck-modal-wide">
         <div class="flex items-center justify-between gap-3 px-6 pb-1 pt-5">
           <div class="flex items-center gap-3">
-            <h3 id="ck-cal-title" class="text-[17px] font-semibold tracking-[-0.01em] text-ink-50">📅 Échéances</h3>
+            <h3 id="ck-cal-title" class="text-[17px] font-semibold tracking-[-0.01em] text-ink-50">Échéances</h3>
             <div class="flex items-center gap-1">
               <button type="button" data-cal-prev class="flex h-7 w-7 items-center justify-center rounded-full bg-white/[0.08] text-sm text-ink-300 transition-colors hover:bg-white/[0.14] hover:text-ink-50" aria-label="Mois précédent">‹</button>
               <span data-cal-month class="min-w-32 text-center text-sm font-medium text-ink-200"></span>
@@ -627,7 +627,7 @@ const ADMIN_EMAIL = "contact@konclav.ch";
       <div class="ck-modal-back"></div>
       <div class="ck-modal-card ck-modal-wide">
         <div class="flex items-center justify-between gap-3 px-6 pb-1 pt-5">
-          <h3 id="ck-cr-title" class="text-[17px] font-semibold tracking-[-0.01em] text-ink-50">📨 Demandes de modification</h3>
+          <h3 id="ck-cr-title" class="text-[17px] font-semibold tracking-[-0.01em] text-ink-50">Demandes de modification</h3>
           <button type="button" data-modal-close class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white/[0.08] text-[11px] text-ink-400 transition-colors hover:bg-white/[0.14] hover:text-ink-50" aria-label="Fermer">✕</button>
         </div>
         <div data-cr-body class="max-h-[75vh] overflow-y-auto px-6 pb-6 pt-4"></div>
@@ -649,7 +649,7 @@ const ADMIN_EMAIL = "contact@konclav.ch";
       <div class="ck-modal-back"></div>
       <div class="ck-modal-card">
         <div class="flex items-center justify-between gap-3 px-6 pb-1 pt-5">
-          <h3 id="ck-bb-title" class="text-[17px] font-semibold tracking-[-0.01em] text-ink-50">📣 Email groupé</h3>
+          <h3 id="ck-bb-title" class="text-[17px] font-semibold tracking-[-0.01em] text-ink-50">Email groupé</h3>
           <button type="button" data-modal-close class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white/[0.08] text-[11px] text-ink-400 transition-colors hover:bg-white/[0.14] hover:text-ink-50" aria-label="Fermer">✕</button>
         </div>
         <form data-bb-form class="space-y-3 px-6 pb-6 pt-4">
@@ -657,7 +657,7 @@ const ADMIN_EMAIL = "contact@konclav.ch";
             <span class="mb-1 block font-medium text-ink-400">Segment</span>
             <select data-bb-segment class="ck-input"></select>
           </label>
-          <p data-bb-count class="text-xs font-medium text-accent-300"></p>
+          <p data-bb-count class="text-xs font-medium text-accent-400"></p>
           <label class="block text-xs">
             <span class="mb-1 block font-medium text-ink-400">Sujet</span>
             <input data-bb-subject required maxlength="200" class="ck-input" />
@@ -667,7 +667,7 @@ const ADMIN_EMAIL = "contact@konclav.ch";
             <textarea data-bb-body rows="10" required maxlength="5000" class="ck-input"></textarea>
           </label>
           <p data-bb-error role="alert" hidden class="text-sm text-[#ff453a]"></p>
-          <div class="flex justify-end gap-2 pt-1">
+          <div class="sticky bottom-0 z-10 -mx-6 -mb-6 mt-2 flex justify-end gap-2 bg-ink-900/90 px-6 pb-6 pt-3 backdrop-blur-xl">
             <button type="button" data-modal-close class="rounded-full bg-white/[0.08] px-4 py-2 text-sm font-medium text-ink-50 transition-colors hover:bg-white/[0.12]">Annuler</button>
             <button type="submit" data-bb-send class="rounded-full bg-ink-50 px-4 py-2 text-sm font-medium text-black transition-colors hover:bg-white/90 disabled:cursor-not-allowed disabled:opacity-60">Envoyer</button>
           </div>
@@ -687,7 +687,7 @@ const ADMIN_EMAIL = "contact@konclav.ch";
           <p class="text-xs text-ink-500">Modifie les textes les plus visibles du site sans toucher au code. Laisser vide = remettre le texte par défaut du site. La mise à jour est visible immédiatement sur konclav.ch (cache navigateur 24 h pour la fluidité).</p>
           <div data-sc-list class="space-y-4"></div>
           <p data-sc-error role="alert" hidden class="text-sm text-[#ff453a]"></p>
-          <div class="flex justify-end gap-2 pt-1">
+          <div class="sticky bottom-0 z-10 -mx-6 -mb-6 mt-2 flex justify-end gap-2 bg-ink-900/90 px-6 pb-6 pt-3 backdrop-blur-xl">
             <button type="button" data-modal-close class="rounded-full bg-white/[0.08] px-4 py-2 text-sm font-medium text-ink-50 transition-colors hover:bg-white/[0.12]">Annuler</button>
             <button type="button" data-sc-save class="rounded-full bg-ink-50 px-4 py-2 text-sm font-medium text-black transition-colors hover:bg-white/90 disabled:cursor-not-allowed disabled:opacity-60">Enregistrer</button>
           </div>
@@ -707,7 +707,7 @@ const ADMIN_EMAIL = "contact@konclav.ch";
           <p class="text-xs text-ink-500">Envoyés automatiquement à chaque provisionnement d'asso. Variables : <code class="rounded-md bg-white/[0.08] px-1">{"{prenom}"}</code> et <code class="rounded-md bg-white/[0.08] px-1">{"{asso}"}</code>. Le délai est en jours.</p>
           <div data-onb-list class="space-y-3"></div>
           <p data-onb-error role="alert" hidden class="text-sm text-[#ff453a]"></p>
-          <div class="flex justify-end gap-2 pt-1">
+          <div class="sticky bottom-0 z-10 -mx-6 -mb-6 mt-2 flex justify-end gap-2 bg-ink-900/90 px-6 pb-6 pt-3 backdrop-blur-xl">
             <button type="button" data-modal-close class="rounded-full bg-white/[0.08] px-4 py-2 text-sm font-medium text-ink-50 transition-colors hover:bg-white/[0.12]">Annuler</button>
             <button type="button" data-onb-save class="rounded-full bg-ink-50 px-4 py-2 text-sm font-medium text-black transition-colors hover:bg-white/90 disabled:cursor-not-allowed disabled:opacity-60">Enregistrer</button>
           </div>
@@ -726,7 +726,7 @@ const ADMIN_EMAIL = "contact@konclav.ch";
         <div class="space-y-3 px-6 pb-6 pt-4">
           <p class="text-xs text-ink-500">Variables disponibles : <code class="rounded-md bg-white/[0.08] px-1">{"{prenom}"}</code> et <code class="rounded-md bg-white/[0.08] px-1">{"{asso}"}</code> — remplacées automatiquement à l'ouverture.</p>
           <div data-tpl-list class="space-y-3"></div>
-          <div class="flex justify-end gap-2 pt-1">
+          <div class="sticky bottom-0 z-10 -mx-6 -mb-6 mt-2 flex justify-end gap-2 bg-ink-900/90 px-6 pb-6 pt-3 backdrop-blur-xl">
             <button type="button" data-modal-close class="rounded-full bg-white/[0.08] px-4 py-2 text-sm font-medium text-ink-50 transition-colors hover:bg-white/[0.12]">Annuler</button>
             <button type="button" data-tpl-save class="rounded-full bg-ink-50 px-4 py-2 text-sm font-medium text-black transition-colors hover:bg-white/90 disabled:cursor-not-allowed disabled:opacity-60">Enregistrer les modèles</button>
           </div>
@@ -835,13 +835,22 @@ const ADMIN_EMAIL = "contact@konclav.ch";
   .ck-seg .ck-pill:hover { background: transparent; color: var(--color-ink-50); }
   .ck-seg .ck-pill-on,
   .ck-seg .ck-pill-on:hover { background: var(--color-ink-800); color: var(--color-ink-50); box-shadow: 0 1px 3px rgba(0,0,0,.5), inset 0 0 0 .5px rgba(255,255,255,.08); }
+  /* La piste défile (overflow) : l'anneau global à 3 px de décalage y serait rogné → anneau intérieur */
+  .ck-seg :is(.ck-tab, .ck-subtab, .ck-pill):focus-visible { outline-offset: -2px; }
+  /* Écran tactile : cibles d'au moins 40 px (onglets, pastilles, en-tête, fermeture des modals) */
+  @media (pointer: coarse) {
+    .ck-tab, .ck-subtab, .ck-pill { min-height: 40px; }
+    main[data-cockpit] > header button { min-height: 40px; }
+    .ck-modal-card [data-modal-close].h-7 { width: 36px; height: 36px; }
+  }
 
   /* Champs : remplissage gris, sans bordure, anneau accent net au focus */
   .ck-input { width: 100%; border: 0; border-radius: 12px; background: rgba(255,255,255,.07); padding: .65rem .85rem; font-size: .875rem; color: var(--color-ink-50); transition: background-color .15s; }
   .ck-input::placeholder { color: var(--color-ink-500); }
+  [data-sc-field]::placeholder { color: var(--color-ink-400); }
   main[data-cockpit] :is(input, textarea, select):focus-visible { outline: 2px solid var(--color-accent-400); outline-offset: 0; }
   main[data-cockpit] input[type="checkbox"]:focus-visible { outline-offset: 2px; }
-  main[data-cockpit] [data-ck-q]:focus-visible { outline: none; }
+  main[data-cockpit] [data-ck-q]:focus-visible { outline: none; box-shadow: inset 0 -2px 0 var(--color-accent-400); }
   [data-ck-q]::-webkit-search-cancel-button { opacity: .45; cursor: pointer; }
   [data-cockpit] input[type="checkbox"] { accent-color: var(--color-accent-500); }
   [data-cockpit] thead th { font-weight: 500; }
@@ -849,6 +858,12 @@ const ADMIN_EMAIL = "contact@konclav.ch";
   [data-cockpit] select,
   [data-cockpit] input,
   [data-cockpit] textarea { color-scheme: dark; }
+  main[data-cockpit] select {
+    appearance: none; -webkit-appearance: none; cursor: pointer; padding-right: 2rem;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' fill='none' stroke='%23aeaeb2' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 4.5 6 7.5 9 4.5'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right .75rem center; background-size: 12px 12px;
+  }
+  main[data-cockpit] select.rounded-full { background-position: right .55rem center; background-size: 10px 10px; padding-right: 1.6rem; }
   [data-cockpit] select option { background-color: var(--color-ink-800); color: var(--color-ink-50); }
   [data-cockpit] select option:disabled { color: var(--color-ink-500); }
   [data-cockpit] select option:checked { background: linear-gradient(0deg, rgba(232,87,42,.35), rgba(232,87,42,.35)), var(--color-ink-800); color: var(--color-ink-50); }
@@ -881,10 +896,10 @@ const ADMIN_EMAIL = "contact@konclav.ch";
   /* Palette ⌘K façon Spotlight */
   .ck-modal-card.ck-cmdk { border-radius: 16px; border-color: rgba(255,255,255,.08); background: rgba(28,28,30,.85); -webkit-backdrop-filter: blur(28px) saturate(160%); backdrop-filter: blur(28px) saturate(160%); box-shadow: 0 24px 72px rgba(0,0,0,.6); }
   .ck-line { display: grid; grid-template-columns: 1fr 4rem 6rem 6rem 2rem; gap: .5rem; align-items: center; }
-  @media (max-width: 640px) { .ck-line { grid-template-columns: 1fr 1fr 1fr; } .ck-line .ck-line-rm { grid-column: span 3; } }
+  @media (max-width: 640px) { .ck-line { grid-template-columns: 4.5rem 1fr auto 2rem; } .ck-line [data-l-desc] { grid-column: 1 / -1; } .ck-line .ck-line-rm { grid-column: auto; } }
 
   /* Graphes */
-  .ck-axis-label { fill: var(--color-ink-500); font-size: 10px; font-family: inherit; font-variant-numeric: tabular-nums; }
+  .ck-axis-label { fill: var(--color-ink-500); font-size: 11px; font-family: inherit; font-variant-numeric: tabular-nums; }
   .ck-grid-line { stroke: rgba(255,255,255,.06); }
   .ck-delta-up { color: #30d158; }
   .ck-delta-down { color: #ff453a; }
@@ -898,6 +913,8 @@ const ADMIN_EMAIL = "contact@konclav.ch";
   /* Pastille « en direct » : vert système, pulsation douce sans halo */
   .ck-live-dot { width: 7px; height: 7px; border-radius: 999px; background: #30d158; animation: ck-pulse 2s ease-in-out infinite; }
   @keyframes ck-pulse { 50% { opacity: .4; } }
+  .ck-live-idle { background-color: rgba(255,255,255,.08); color: var(--color-ink-400); }
+  .ck-live-idle .ck-live-dot { background: var(--color-ink-500); animation: none; }
   .ck-avatar { letter-spacing: -0.02em; }
   /* Fade-in cascade pour les éléments marqués data-anim-in */
   @keyframes ck-fade-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
@@ -916,8 +933,11 @@ const ADMIN_EMAIL = "contact@konclav.ch";
   .ck-th-sort { cursor: pointer; user-select: none; transition: color .15s; }
   .ck-th-sort:hover { color: var(--color-ink-50); }
   .ck-th-sort.is-active { color: var(--color-ink-50); }
-  .ck-th-sort-arrow { display: inline-block; margin-left: 4px; opacity: .5; font-size: 9px; vertical-align: middle; }
+  .ck-th-sort-arrow { display: inline-block; margin-left: 4px; opacity: .7; font-size: 9px; vertical-align: middle; }
   .ck-th-sort.is-active .ck-th-sort-arrow { color: var(--color-accent-400); opacity: 1; }
+  @media (max-width: 639.98px) {
+    .ck-tscroll:not(.is-end) { -webkit-mask-image: linear-gradient(to right, #000 88%, transparent); mask-image: linear-gradient(to right, #000 88%, transparent); }
+  }
   /* Recherche dans tableau : champ de recherche façon macOS */
   .ck-search-input { width: 100%; padding: .5rem .85rem .5rem 2.25rem; border: 0; border-radius: 10px; background: rgba(255,255,255,.07); font-size: .85rem; color: var(--color-ink-50); transition: background-color .15s; }
   .ck-search-input::placeholder { color: var(--color-ink-500); }
@@ -931,9 +951,9 @@ const ADMIN_EMAIL = "contact@konclav.ch";
   .ck-copy-btn:hover { color: var(--color-ink-50); background: rgba(255,255,255,.14); }
   .ck-copy-btn.is-copied { color: #30d158; background: rgba(48,209,88,.14); }
   @media (prefers-reduced-motion: reduce) { .ck-skel::after, .ck-live-dot { animation: none; } }
-  /* Toasts : capsule graphite */
+  /* Toasts : capsule graphite (même règle que .cp-toast de l'espace client) */
   .ck-toasts { position: fixed; bottom: 1.25rem; left: 50%; transform: translateX(-50%); z-index: 80; display: flex; flex-direction: column; align-items: center; gap: .5rem; width: min(92vw, 28rem); pointer-events: none; }
-  .ck-toast { pointer-events: auto; max-width: 100%; border-radius: 999px; border: 1px solid rgba(255,255,255,.08); background: var(--color-ink-800); padding: .6rem 1.15rem; font-size: .8125rem; font-weight: 500; color: var(--color-ink-50); box-shadow: 0 6px 20px rgba(0,0,0,.4); transition: opacity .3s; animation: ck-toast-in .25s cubic-bezier(0.16, 1, 0.3, 1); }
+  .ck-toast { pointer-events: auto; max-width: 100%; border-radius: 22px; border: 1px solid rgba(255,255,255,.08); background: var(--color-ink-800); padding: .6rem 1.15rem; font-size: .8125rem; font-weight: 500; line-height: 1.35; color: var(--color-ink-50); box-shadow: 0 6px 20px rgba(0,0,0,.4); transition: opacity .3s; animation: ck-toast-in .25s cubic-bezier(0.16, 1, 0.3, 1); }
   .ck-toast-ok { border-color: rgba(255,255,255,.08); }
   .ck-toast-err { border-color: rgba(255,69,58,.45); color: #ff6961; }
   @keyframes ck-toast-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
@@ -1001,7 +1021,7 @@ const ADMIN_EMAIL = "contact@konclav.ch";
         const okBtn = m.querySelector("[data-cf-ok]");
         okBtn.textContent = o.okText || "Confirmer";
         okBtn.className = "rounded-full px-4 py-2 text-sm font-medium transition-colors " + (o.danger
-          ? "bg-[#ff453a]/[0.16] text-[#ff453a] hover:bg-[#ff453a]/[0.24]"
+          ? "bg-[#ff453a]/[0.16] text-[#ff6961] hover:bg-[#ff453a]/[0.24]"
           : "bg-ink-50 text-black hover:bg-white/90");
         const cleanup = () => {
           okBtn.removeEventListener("click", onOk);
@@ -1021,6 +1041,18 @@ const ADMIN_EMAIL = "contact@konclav.ch";
         openModal("confirm");
       });
     }
+
+    // Icônes au trait (monochromes, couleur du texte) — remplacent les emoji des empty states
+    const svgIcon = (paths, cls) => '<svg aria-hidden="true" viewBox="0 0 24 24" class="' + (cls || "h-6 w-6") + '" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">' + paths + "</svg>";
+    const ICONS = {
+      check: svgIcon('<path d="M5 12.5 9.5 17 19 7.5"/>'),
+      search: svgIcon('<circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>'),
+      building: svgIcon('<path d="M3 9.5 12 4l9 5.5"/><path d="M5 10v8M9.5 10v8M14.5 10v8M19 10v8"/><path d="M3 20h18"/>'),
+      users: svgIcon('<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><path d="M16 4.6a3.5 3.5 0 0 1 0 6.8"/><path d="M18.5 14.2a6.5 6.5 0 0 1 3 5.8"/>'),
+      repeat: svgIcon('<path d="m17 2 4 4-4 4"/><path d="M3 11v-1a4 4 0 0 1 4-4h14"/><path d="m7 22-4-4 4-4"/><path d="M21 13v1a4 4 0 0 1-4 4H3"/>'),
+      doc: svgIcon('<path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M9 13h6M9 17h4"/>'),
+    };
+    const ICON_REPEAT_SM = svgIcon('<path d="m17 2 4 4-4 4"/><path d="M3 11v-1a4 4 0 0 1 4-4h14"/><path d="m7 22-4-4 4-4"/><path d="M21 13v1a4 4 0 0 1-4 4H3"/>', "inline-block h-3 w-3 align-[-1px]");
 
     // ckEmpty : génère un empty state élégant (icône + titre + message + CTA optionnel)
     function ckEmpty(icon, title, message, ctaHtml) {
@@ -1092,6 +1124,11 @@ const ADMIN_EMAIL = "contact@konclav.ch";
       return '<div class="relative mb-3 max-w-sm"><svg class="absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>' +
         '<input type="search" data-table-search="' + key + '" class="ck-search-input" placeholder="' + esc(placeholder || "Rechercher…") + '" value="' + esc(st.q) + '" /></div>';
     }
+    // Tableaux qui défilent (téléphone) : le fondu du bord droit disparaît une fois au bout
+    root.addEventListener("scroll", (e) => {
+      const t = e.target;
+      if (t && t.classList && t.classList.contains("ck-tscroll")) t.classList.toggle("is-end", t.scrollLeft + t.clientWidth >= t.scrollWidth - 4);
+    }, true);
     // Délégation : clic header → toggle tri ; input search → debounced re-render
     const tableReloaders = {}; // { key: () => void }
     function registerTable(key, reloader) { tableReloaders[key] = reloader; }
@@ -1154,6 +1191,8 @@ const ADMIN_EMAIL = "contact@konclav.ch";
     const isAbort = (e) => !!e && (e.name === "AbortError" || e.code === 20);
 
     // ===== Helpers visuels partagés (Aperçu, Facturation, Assos, Inscriptions) =====
+    // Texte d'une pastille teintée (fond = couleur à 15 %) : variante éclaircie pour rester ≥ 4.5:1
+    const tintText = (c) => ({ "#0a84ff": "#409cff", "#ff453a": "#ff6961", "#98989d": "#aeaeb2", "#636366": "#aeaeb2" })[c] || c;
     function colorFromName(name) {
       const s = String(name || "");
       let h = 0;
@@ -1211,23 +1250,71 @@ const ADMIN_EMAIL = "contact@konclav.ch";
       });
       return buckets;
     }
+    // Graphes responsives : chaque SVG est construit à la largeur réelle de son conteneur
+    // (1 unité = 1 px CSS → libellés d'axe à 11 px quelle que soit la largeur) et reconstruit
+    // quand cette largeur change. chartHost() renvoie un hôte + un rendu provisoire à 720 ;
+    // mountCharts(scope) le repeint à la bonne largeur juste après l'insertion dans le DOM.
+    const ckCharts = new Map(); // id → { render(W) → html, after(host, W) }
+    let ckChartSeq = 0;
+    const ckChartRO = typeof ResizeObserver === "function" ? new ResizeObserver((entries) => {
+      entries.forEach((en) => {
+        const host = en.target;
+        if (!host.isConnected) { ckChartRO.unobserve(host); return; }
+        const w = Math.round(en.contentRect.width);
+        if (!w || String(w) === host.dataset.ckW) return;
+        clearTimeout(host._ckT);
+        host._ckT = setTimeout(() => paintChart(host), 60);
+      });
+    }) : null;
+    function chartHost(render, after) {
+      const id = "ckc" + (++ckChartSeq);
+      ckCharts.set(id, { render, after });
+      return '<div data-ck-chart="' + id + '">' + render(720) + "</div>";
+    }
+    function paintChart(host) {
+      const c = ckCharts.get(host.dataset.ckChart);
+      if (!c || !host.isConnected) return;
+      const w = Math.round(host.clientWidth);
+      if (w && String(w) === host.dataset.ckW) return;
+      host.dataset.ckW = w ? String(w) : "";
+      const W = w || 720;
+      host.innerHTML = c.render(W);
+      if (c.after) c.after(host, W);
+    }
+    function mountCharts(scope) {
+      ckCharts.forEach((_, id) => { if (!root.querySelector('[data-ck-chart="' + id + '"]')) ckCharts.delete(id); });
+      scope.querySelectorAll("[data-ck-chart]").forEach((host) => {
+        if (host.dataset.ckMounted) return;
+        host.dataset.ckMounted = "1";
+        paintChart(host);
+        if (ckChartRO) ckChartRO.observe(host);
+      });
+    }
+    // Libellés d'axe X : au plus un tous les `minGap` px, alignés sur le dernier point (le plus récent)
+    const axisStep = (n, innerW, minGap, cap) => Math.max(1, Math.ceil(n / Math.max(2, Math.min(cap || n, Math.floor(innerW / minGap)))));
+
     // Mini-graphe en barres pour montants mensuels (Aperçu MRR, Facturation revenus)
     function monthlyBarsSvg(months, color, formatY) {
       if (!months || !months.length) return "";
-      const W = 720, H = 220, padL = 74, padR = 12, padT = 14, padB = 32;
-      const innerW = W - padL - padR, innerH = H - padT - padB;
+      return chartHost((W) => monthlyBarsAt(W, months, color, formatY));
+    }
+    function monthlyBarsAt(W, months, color, formatY) {
+      const H = W < 480 ? 190 : 220, padR = 12, padT = 14, padB = 32;
       const max = Math.max(1, ...months.map((m) => Number(m.total) || 0));
       const niceMax = max <= 5 ? max : Math.ceil(max / 5) * 5;
+      const yTicks = [0, niceMax / 2, niceMax];
+      const yText = yTicks.map((v) => formatY(v));
+      const padL = 14 + Math.ceil(Math.max(...yText.map((t) => String(t).length)) * 6.6);
+      const innerW = W - padL - padR, innerH = H - padT - padB;
       const barW = innerW / months.length;
       const barGap = Math.min(22, barW * 0.42);
-      const yTicks = [0, niceMax / 2, niceMax];
-      const grid = yTicks.map((v) => {
+      const grid = yTicks.map((v, k) => {
         const y = padT + innerH - (v / niceMax) * innerH;
         return '<line x1="' + padL + '" x2="' + (W - padR) + '" y1="' + y + '" y2="' + y + '" class="ck-grid-line" />' +
-          '<text x="' + (padL - 8) + '" y="' + (y + 3) + '" text-anchor="end" class="ck-axis-label">' + esc(formatY(v)) + "</text>";
+          '<text x="' + (padL - 8) + '" y="' + (y + 4) + '" text-anchor="end" class="ck-axis-label">' + esc(yText[k]) + "</text>";
       }).join("");
       let bars = "", xLabels = "";
-      const xStep = Math.max(1, Math.ceil(months.length / 8));
+      const xStep = axisStep(months.length, innerW, 58);
       months.forEach((m, i) => {
         const v = Number(m.total) || 0;
         const x = padL + i * barW;
@@ -1243,7 +1330,7 @@ const ADMIN_EMAIL = "contact@konclav.ch";
         } else {
           bars += '<rect x="' + finalX.toFixed(1) + '" y="' + (padT + innerH - 2) + '" width="' + w.toFixed(1) + '" height="2" rx="1" fill="rgba(255,255,255,.1)">' + tip + "</rect>";
         }
-        if (i % xStep === 0 || i === months.length - 1) {
+        if ((months.length - 1 - i) % xStep === 0) {
           xLabels += '<text x="' + (x + barW / 2).toFixed(1) + '" y="' + (H - 10) + '" text-anchor="middle" class="ck-axis-label">' + esc(m.label) + "</text>";
         }
       });
@@ -1434,10 +1521,12 @@ const ADMIN_EMAIL = "contact@konclav.ch";
       const funnelStep = (f, idx) => {
         const n = counts[f.key] || 0;
         const prev = idx > 0 ? (counts[FUNNEL[idx - 1].key] || 0) : null;
-        const widthPct = Math.max(8, Math.round((n / funnelMax) * 100));
+        const widthPct = n ? Math.max(8, Math.round((n / funnelMax) * 100)) : 0;
         const passRate = prev !== null && prev > 0 ? Math.round((n / prev) * 100) : null;
         const color = STATUSES.find((s) => s.value === f.key)?.color || "#0a84ff";
-        return '<button type="button" data-filter="' + f.key + '" class="ck-funnel-step group flex-1 rounded-2xl bg-white/[0.04] p-4 text-left transition-colors hover:bg-white/[0.07]">' +
+        const on = leadFilter === f.key;
+        return '<button type="button" data-filter="' + f.key + '" aria-pressed="' + (on ? "true" : "false") + '" class="ck-funnel-step group flex-1 rounded-2xl p-4 text-left transition-colors ' +
+          (on ? "bg-white/[0.08] ring-1 ring-inset ring-white/15" : "bg-white/[0.04] hover:bg-white/[0.07]") + '">' +
           '<div class="flex items-center justify-between gap-2"><span class="flex items-center gap-1.5 text-[13px] font-medium text-ink-400"><span class="inline-block h-2 w-2 shrink-0 rounded-full" style="background:' + color + '"></span>' + f.label + "</span>" +
           (passRate !== null ? '<span class="text-[11px] text-ink-500 tabular-nums">' + passRate + "% du précédent</span>" : "") + "</div>" +
           '<p class="mt-1.5 text-3xl font-semibold tracking-tight text-ink-50 tabular-nums">' + n + "</p>" +
@@ -1457,9 +1546,7 @@ const ADMIN_EMAIL = "contact@konclav.ch";
         "</div></div>";
       filtersEl.innerHTML = [{ value: "all", label: "Tous" }].concat(STATUSES).map((s) => {
         const on = leadFilter === s.value;
-        return '<button type="button" data-filter="' + s.value + '" class="rounded-full px-3.5 py-1.5 text-xs font-medium transition-colors ' +
-          (on ? "bg-ink-50 text-black" : "bg-white/[0.08] text-ink-300 hover:bg-white/[0.12] hover:text-ink-50") +
-          '">' + esc(s.label) + (s.value === "all" ? "" : " · " + (counts[s.value] || 0)) + "</button>";
+        return '<button type="button" data-filter="' + s.value + '" class="ck-pill' + (on ? " ck-pill-on" : "") + '">' + esc(s.label) + (s.value === "all" ? "" : " · " + (counts[s.value] || 0)) + "</button>";
       }).join("");
       if (focusLeadId) leadView = "list";
       syncViewPills();
@@ -1481,15 +1568,18 @@ const ADMIN_EMAIL = "contact@konclav.ch";
       const modules = Array.isArray(l.modules) && l.modules.length
         ? l.modules.map((m) => '<span class="rounded-full bg-white/[0.08] px-2 py-0.5 text-[11px] text-ink-300">' + esc(m) + "</span>").join(" ")
         : '<span class="text-ink-500">—</span>';
+      let firstTail = true;
+      const tailMl = () => { if (!firstTail) return ""; firstTail = false; return " max-sm:ml-6"; };
+      const tint = tintText(st.color);
       return '<details class="group rounded-[20px] bg-ink-900" data-lead="' + esc(l.id) + '">' +
         '<summary class="flex cursor-pointer flex-wrap items-center gap-x-4 gap-y-2 px-5 py-4 [&::-webkit-details-marker]:hidden">' +
         '<span class="h-2 w-2 shrink-0 rounded-full" style="background:' + st.color + '"></span>' +
-        '<span class="min-w-0 flex-1"><span class="block truncate text-sm font-semibold text-ink-50">' + esc(l.asso_name) + "</span>" +
-        '<span class="block text-xs text-ink-500">' + esc(l.canton) + " · " + esc(l.member_count) + " membres · " + date + "</span></span>" +
-        (l.next_action_at ? '<span class="text-[11px] font-medium ' + (l.next_action_at <= todayISO() ? "text-[#ff453a]" : "text-ink-500") + '">🔔 ' + fmtDate(l.next_action_at) + "</span>" : "") +
-        (l.provisioned_org_id ? '<span class="rounded-full bg-[#30d158]/[0.14] px-2 py-0.5 text-[10px] font-medium text-[#30d158]">App ✓</span>' : "") +
-        '<span class="text-xs text-ink-400">' + esc(l.first_name + " " + l.last_name) + "</span>" +
-        '<select data-status class="rounded-full border-0 bg-white/[0.08] py-1.5 pl-3 pr-2 text-xs font-medium text-ink-50">' + options + "</select>" +
+        '<span class="min-w-0 flex-1 max-sm:basis-[calc(100%-1.5rem)]"><span class="block truncate text-sm font-semibold text-ink-50">' + esc(l.asso_name) + "</span>" +
+        '<span class="block truncate text-xs text-ink-500">' + esc(l.canton) + " · " + esc(l.member_count) + " membres · " + date + "</span></span>" +
+        (l.next_action_at ? '<span class="whitespace-nowrap text-[11px] font-medium' + tailMl() + " " + (l.next_action_at <= todayISO() ? "text-[#ff453a]" : "text-ink-500") + '">🔔 ' + fmtDate(l.next_action_at) + "</span>" : "") +
+        (l.provisioned_org_id ? '<span class="whitespace-nowrap rounded-full bg-[#30d158]/[0.14] px-2 py-0.5 text-[10px] font-medium text-[#30d158]' + tailMl() + '">App ✓</span>' : "") +
+        '<span class="hidden text-xs text-ink-400 sm:inline">' + esc(l.first_name + " " + l.last_name) + "</span>" +
+        '<select data-status class="rounded-full border-0 bg-white/[0.08] py-1.5 pl-3 pr-2 text-xs font-medium text-ink-50' + tailMl() + '" style="background-color:' + st.color + '26;color:' + tint + '">' + options + "</select>" +
         "</summary>" +
         '<div class="space-y-4 border-t border-white/[0.08] px-5 py-4 text-sm">' +
         '<p><span class="text-ink-500">Contact :</span> <a class="text-accent-400 underline decoration-accent-400/40 underline-offset-2" href="mailto:' + esc(l.email) + '">' + esc(l.email) + "</a>" +
@@ -1510,10 +1600,10 @@ const ADMIN_EMAIL = "contact@konclav.ch";
         '<input type="date" data-next-action value="' + esc(l.next_action_at || "") + '" class="rounded-full border-0 bg-white/[0.08] px-3 py-1.5 text-xs text-ink-50" /></label>' +
         '<button type="button" data-save-reminder class="rounded-full bg-white/[0.08] px-3.5 py-1.5 text-xs font-medium text-ink-50 transition-colors hover:bg-white/[0.12]">Planifier</button>' +
         '<span class="flex-1"></span>' +
-        '<button type="button" data-lead-email class="rounded-full bg-white/[0.08] px-3.5 py-1.5 text-xs font-medium text-ink-50 transition-colors hover:bg-white/[0.12]">✉️ Email</button>' +
+        '<button type="button" data-lead-email class="rounded-full bg-white/[0.08] px-3.5 py-1.5 text-xs font-medium text-ink-50 transition-colors hover:bg-white/[0.12]">Email</button>' +
         (l.provisioned_org_id
           ? '<span class="rounded-full bg-[#30d158]/[0.14] px-3.5 py-1.5 text-xs font-medium text-[#30d158]">Provisionnée ✓</span>'
-          : '<button type="button" data-lead-provision class="rounded-full bg-ink-50 px-3.5 py-1.5 text-xs font-medium text-black transition-colors hover:bg-white/90 disabled:cursor-not-allowed disabled:opacity-60">🚀 Provisionner</button>') +
+          : '<button type="button" data-lead-provision class="rounded-full bg-ink-50 px-3.5 py-1.5 text-xs font-medium text-black transition-colors hover:bg-white/90 disabled:cursor-not-allowed disabled:opacity-60">Provisionner</button>') +
         "</div>" +
         '<div data-lead-events class="border-t border-white/[0.08] pt-3 text-xs text-ink-500"></div>' +
         "</div></details>";
@@ -1521,6 +1611,13 @@ const ADMIN_EMAIL = "contact@konclav.ch";
     filtersEl.addEventListener("click", (e) => {
       const btn = e.target.closest("[data-filter]"); if (!btn) return;
       leadFilter = btn.dataset.filter; renderLeads();
+    });
+    statsEl.addEventListener("click", (e) => {
+      const btn = e.target.closest("[data-filter]"); if (!btn) return;
+      leadFilter = leadFilter === btn.dataset.filter ? "all" : btn.dataset.filter;
+      renderLeads();
+      const again = statsEl.querySelector('[data-filter="' + btn.dataset.filter + '"]');
+      if (again) again.focus({ preventScroll: true });
     });
     listEl.addEventListener("click", (e) => {
       if (e.target.closest("[data-status]")) { e.preventDefault(); e.stopPropagation(); }
@@ -1613,7 +1710,7 @@ const ADMIN_EMAIL = "contact@konclav.ch";
               '<div draggable="true" data-kb-card="' + esc(l.id) + '" class="cursor-grab rounded-2xl bg-ink-800 p-3 transition-colors hover:bg-[#3a3a3c] active:cursor-grabbing">' +
               '<p class="truncate text-sm font-semibold text-ink-50">' + esc(l.asso_name) + "</p>" +
               '<p class="mt-0.5 truncate text-[11px] text-ink-500">' + esc((l.first_name || "") + " " + (l.last_name || "")) + (l.canton ? " · " + esc(l.canton) : "") + "</p>" +
-              (l.next_action_at ? '<p class="mt-1 text-[11px] ' + (l.next_action_at <= todayISO() ? "text-[#ff453a]" : "text-ink-500") + '">🔔 ' + fmtDate(l.next_action_at) + "</p>" : "") +
+              (l.next_action_at ? '<p class="mt-1 text-[11px] ' + (l.next_action_at <= todayISO() ? "text-[#ff6961]" : "text-ink-500") + '">🔔 ' + fmtDate(l.next_action_at) + "</p>" : "") +
               (l.provisioned_org_id ? '<p class="mt-1 text-[11px] text-[#30d158]">App ✓</p>' : "") +
               "</div>"
             ).join("") + "</div></div>";
@@ -1796,8 +1893,9 @@ const ADMIN_EMAIL = "contact@konclav.ch";
       ovContent.innerHTML =
         // === Barre d'actions ===
         '<div class="mt-6 flex flex-wrap justify-end gap-2">' +
-        '<button type="button" data-cal-open class="rounded-full bg-white/[0.08] px-3.5 py-1.5 text-xs font-medium text-ink-50 transition-colors hover:bg-white/[0.12]">📅 Calendrier des échéances</button>' +
+        '<button type="button" data-cal-open class="rounded-full bg-white/[0.08] px-3.5 py-1.5 text-xs font-medium text-ink-50 transition-colors hover:bg-white/[0.12]">Calendrier des échéances</button>' +
         "</div>" +
+        changeReqBanner() +
         // === Bloc business principal : MRR héros + 3 KPIs ===
         '<div class="mt-3 grid grid-cols-1 gap-3 lg:grid-cols-12">' +
         '<div class="lg:col-span-5">' +
@@ -1806,7 +1904,7 @@ const ADMIN_EMAIL = "contact@konclav.ch";
           'ARR <span class="text-ink-200 tabular-nums">' + fmtCHF(arr, "CHF") + "</span>") +
         "</div>" +
         '<div class="grid grid-cols-1 gap-3 sm:grid-cols-3 lg:col-span-7">' +
-        kpiCard("Encaissé · mois en cours", fmtCHF(paidMonth, "CHF"), monthDelta, "#30d158", "billing") +
+        kpiCard("Encaissé · mois en cours", fmtCHF(paidMonth, "CHF"), monthDelta, paidMonth > 0 ? "#30d158" : "#f5f5f7", "billing") +
         kpiCard("En attente", fmtCHF(dueOpen, "CHF"), lateSum > 0 ? '<span class="ck-delta-down">dont ' + fmtCHF(lateSum, "CHF") + " en retard</span>" : '<span class="text-ink-500">aucun retard</span>', dueOpen > 0 ? "#ff9f0a" : "#aeaeb2", "billing") +
         kpiCard("Nouveaux leads · 7 j", String(newLeads.length), due.length > 0 ? '<span class="ck-delta-down">' + due.length + " à relancer</span>" : '<span class="text-[#30d158]">tout est à jour</span>', "#f5f5f7", "leads") +
         "</div>" +
@@ -1844,7 +1942,7 @@ const ADMIN_EMAIL = "contact@konclav.ch";
         // === Listes À relancer / Dernières demandes ===
         '<div class="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-2">' +
         '<div class="rounded-[20px] bg-ink-900 p-5">' +
-        '<h3 class="mb-3 text-[15px] font-semibold tracking-[-0.01em] text-ink-50">🔔 À relancer</h3>' +
+        '<h3 class="mb-3 text-[15px] font-semibold tracking-[-0.01em] text-ink-50">À relancer</h3>' +
         miniList(due, (l) =>
           '<li><button type="button" data-goto-lead="' + esc(l.id) + '" class="flex w-full items-center gap-3 rounded-xl px-2 py-2 text-left text-[13px] transition-colors hover:bg-white/[0.05]">' +
           avatarBadge(l.asso_name, "h-7 w-7 text-[10px]") +
@@ -1866,8 +1964,9 @@ const ADMIN_EMAIL = "contact@konclav.ch";
         renderActivityFeed(allLeads, invs, events) +
         renderOverviewExtras(allLeads, events, mon, sys, onb) +
         (visitors !== null
-          ? '<p class="mt-6 text-center text-xs text-ink-500">' + fmtNum(visitors) + ' visiteurs sur konclav.ch ces 7 derniers jours · <button type="button" data-goto="audience" class="text-accent-300 hover:text-accent-400">voir l\'audience</button></p>'
+          ? '<p class="mt-6 text-center text-xs text-ink-500">' + fmtNum(visitors) + ' visiteurs sur konclav.ch ces 7 derniers jours · <button type="button" data-goto="audience" class="text-accent-400 hover:underline">voir l\'audience</button></p>'
           : "");
+      mountCharts(ovContent);
     }
 
     // Fil d'activité : unifie lead_events + dernières factures payées/émises + derniers leads créés
@@ -1902,19 +2001,19 @@ const ADMIN_EMAIL = "contact@konclav.ch";
       const shown = items.slice(0, 10);
       if (!shown.length) {
         return '<div class="mt-6 rounded-[20px] bg-ink-900 p-5">' +
-          '<h3 class="mb-3 text-[15px] font-semibold tracking-[-0.01em] text-ink-50">📰 Activité récente</h3>' +
+          '<h3 class="mb-3 text-[15px] font-semibold tracking-[-0.01em] text-ink-50">Activité récente</h3>' +
           '<p class="text-sm text-ink-500">Pas encore d\'activité — les nouvelles inscriptions, conversions et paiements apparaîtront ici.</p></div>';
       }
       return '<div class="mt-6 rounded-[20px] bg-ink-900 p-5">' +
-        '<h3 class="mb-3 text-[15px] font-semibold tracking-[-0.01em] text-ink-50">📰 Activité récente</h3>' +
+        '<h3 class="mb-3 text-[15px] font-semibold tracking-[-0.01em] text-ink-50">Activité récente</h3>' +
         '<ol class="relative space-y-3 pl-6 before:absolute before:left-[11px] before:top-2 before:bottom-2 before:w-px before:bg-white/[0.08]">' +
         shown.map((it) => {
           const rel = relativeTime(it.when);
           const clickable = it.goto && it.goto.lead;
           const inner =
-            '<span class="absolute -left-6 top-0.5 flex h-5 w-5 items-center justify-center rounded-full text-[10px]" style="background:' + it.color + '29;color:' + it.color + '">' + it.icon + "</span>" +
-            '<div class="flex flex-wrap items-baseline justify-between gap-2 text-xs">' +
-            '<div class="min-w-0">' + it.text + "</div>" +
+            '<span class="absolute -left-[17px] top-1 h-2 w-2 rounded-full" style="background:' + it.color + '"></span>' +
+            '<div class="flex items-baseline gap-3 text-xs">' +
+            '<div class="min-w-0 flex-1 truncate">' + it.text + "</div>" +
             '<span class="shrink-0 text-[11px] text-ink-500" title="' + esc(it.when) + '">' + rel + "</span>" +
             "</div>";
           return clickable
@@ -1946,14 +2045,14 @@ const ADMIN_EMAIL = "contact@konclav.ch";
 
       const convCard =
         '<div class="rounded-[20px] bg-ink-900 p-5">' +
-        '<h3 class="mb-2 text-[15px] font-semibold tracking-[-0.01em] text-ink-50">📈 Conversion</h3>' +
+        '<h3 class="mb-2 text-[15px] font-semibold tracking-[-0.01em] text-ink-50">Conversion</h3>' +
         statLine("Taux de conversion", cv.rate + " % <span class=\"text-ink-500\">(" + cv.converted + "/" + cv.total + ")</span>") +
         statLine("Temps moyen avant conversion", cv.avgDays !== null ? cv.avgDays + " j" : "—") +
         statLine("Top source", cv.topSource ? esc(cv.topSource[0]) + " <span class=\"text-ink-500\">(" + cv.topSource[1] + ")</span>" : "—") +
         "</div>";
 
       let sysCard = '<div class="rounded-[20px] bg-ink-900 p-5">' +
-        '<h3 class="mb-2 text-[15px] font-semibold tracking-[-0.01em] text-ink-50">🩺 Santé système</h3>';
+        '<h3 class="mb-2 text-[15px] font-semibold tracking-[-0.01em] text-ink-50">Santé système</h3>';
       if (mon) {
         const runs = Array.isArray(mon.cron_runs) ? mon.cron_runs : [];
         const last = runs[0];
@@ -1984,8 +2083,8 @@ const ADMIN_EMAIL = "contact@konclav.ch";
         : "";
       let bugsCard = '<div class="rounded-[20px] bg-ink-900 p-5">' +
         '<div class="mb-2 flex items-center justify-between">' +
-        '<h3 class="text-[15px] font-semibold tracking-[-0.01em] text-ink-50">🐛 Bugs signalés (app)</h3>' +
-        (lastBugs.length ? '<button type="button" data-bugs-all class="text-[11px] font-medium text-accent-300 hover:text-accent-400">Voir les ' + lastBugs.length + "</button>" : "") +
+        '<h3 class="text-[15px] font-semibold tracking-[-0.01em] text-ink-50">Bugs signalés (app)</h3>' +
+        (lastBugs.length ? '<button type="button" data-bugs-all class="text-[11px] font-medium text-accent-400 hover:underline">Voir les ' + lastBugs.length + "</button>" : "") +
         "</div>";
       if (lastBugs.length) {
         bugsCard += lastBugs.slice(0, 4).map((b, i) =>
@@ -2007,8 +2106,8 @@ const ADMIN_EMAIL = "contact@konclav.ch";
       const ONB_ICON = { sent: "✓", pending: "⏳", failed: "✗", sending: "⏳", canceled: "⊘" };
       const ONB_COLOR = { sent: "text-[#30d158]", pending: "text-[#ff9f0a]", failed: "text-[#ff453a]", sending: "text-[#ff9f0a]", canceled: "text-ink-500" };
       let onbCard = '<div class="rounded-[20px] bg-ink-900 p-5">' +
-        '<div class="mb-2 flex items-center justify-between"><h3 class="text-[15px] font-semibold tracking-[-0.01em] text-ink-50">📬 Onboarding (envois auto)</h3>' +
-        '<button type="button" data-onb-open class="text-xs text-accent-300 hover:text-accent-400">Modifier</button></div>' +
+        '<div class="mb-2 flex items-center justify-between"><h3 class="text-[15px] font-semibold tracking-[-0.01em] text-ink-50">Onboarding (envois auto)</h3>' +
+        '<button type="button" data-onb-open class="text-xs text-accent-400 hover:underline">Modifier</button></div>' +
         '<p class="mb-3 text-xs text-ink-500">' + pending + " en attente · " + onbRows.filter((r) => r.status === "sent").length + " envoyé(s)" +
           (failedOnb ? ' · <span class="text-[#ff453a]">' + failedOnb + " échec(s)</span>" : "") + "</p>";
       if (!onbRows.length) {
@@ -2024,25 +2123,27 @@ const ADMIN_EMAIL = "contact@konclav.ch";
       onbCard += "</div>";
       // Card contenu du site
       const scCard = '<div class="rounded-[20px] bg-ink-900 p-5">' +
-        '<div class="mb-2 flex items-center justify-between"><h3 class="text-[15px] font-semibold tracking-[-0.01em] text-ink-50">✏️ Contenu du site</h3>' +
-        '<button type="button" data-sc-open class="text-xs text-accent-300 hover:text-accent-400">Éditer</button></div>' +
+        '<div class="mb-2 flex items-center justify-between"><h3 class="text-[15px] font-semibold tracking-[-0.01em] text-ink-50">Contenu du site</h3>' +
+        '<button type="button" data-sc-open class="text-xs text-accent-400 hover:underline">Éditer</button></div>' +
         '<p class="text-xs text-ink-500">Hero, sous-titre, CTA final — modifiables sans toucher au code, appliqués en direct sur konclav.ch.</p></div>';
       const notesPreview = kevinNotesCache.trim();
       const ntCard = '<div class="mt-4 rounded-[20px] bg-ink-900 p-5">' +
-        '<div class="mb-2 flex items-center justify-between"><h3 class="text-[15px] font-semibold tracking-[-0.01em] text-ink-50">📝 Bloc-notes</h3>' +
-        '<button type="button" data-nt-open class="text-xs text-accent-300 hover:text-accent-400">' + (notesPreview ? "Éditer" : "Écrire") + "</button></div>" +
+        '<div class="mb-2 flex items-center justify-between"><h3 class="text-[15px] font-semibold tracking-[-0.01em] text-ink-50">Bloc-notes</h3>' +
+        '<button type="button" data-nt-open class="text-xs text-accent-400 hover:underline">' + (notesPreview ? "Éditer" : "Écrire") + "</button></div>" +
         (notesPreview
           ? '<div class="whitespace-pre-wrap text-xs leading-relaxed text-ink-300">' + esc(notesPreview.split("\n").slice(0, 6).join("\n")) + (notesPreview.split("\n").length > 6 ? '\n<span class="text-ink-500">…</span>' : "") + "</div>"
           : '<p class="text-xs text-ink-500">Bloc-notes perso (todo, idées, contacts). Privé, visible de toi seul. Cliquez pour écrire.</p>') +
         "</div>";
-      const crBanner = lastChangeReqs.length
-        ? '<button type="button" data-cr-open class="mt-4 flex w-full items-center justify-between rounded-[20px] bg-[#ff9f0a]/[0.12] px-5 py-4 text-left transition-colors hover:bg-[#ff9f0a]/[0.18]">' +
-          '<span class="flex items-center gap-2 text-sm font-medium text-[#ff9f0a]">📨 ' + lastChangeReqs.length + " demande" + (lastChangeReqs.length > 1 ? "s" : "") + " de modification en attente</span>" +
-          '<span class="text-xs text-[#ff9f0a]/80">Traiter →</span></button>'
-        : "";
       return '<div class="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-2">' + convCard + onbCard + "</div>" +
              '<div class="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-3">' + sysCard + bugsCard + scCard + "</div>" +
-             crBanner + ntCard;
+             ntCard;
+    }
+    // Demandes de modification en attente : seule action client de l'Aperçu → en tête, sous la barre d'actions
+    function changeReqBanner() {
+      if (!lastChangeReqs.length) return "";
+      return '<button type="button" data-cr-open class="mb-2 mt-4 flex w-full items-center justify-between gap-3 rounded-[20px] bg-[#ff9f0a]/[0.12] px-5 py-4 text-left transition-colors hover:bg-[#ff9f0a]/[0.18]">' +
+        '<span class="flex min-w-0 items-center gap-2 text-sm font-medium text-[#ff9f0a]">' + lastChangeReqs.length + " demande" + (lastChangeReqs.length > 1 ? "s" : "") + " de modification en attente</span>" +
+        '<span class="shrink-0 whitespace-nowrap text-xs text-[#ff9f0a]/80">Traiter →</span></button>';
     }
 
     // ----- Édition du contenu du site -----
@@ -2184,18 +2285,18 @@ const ADMIN_EMAIL = "contact@konclav.ch";
     const crBody = root.querySelector("[data-cr-body]");
     function renderChangeReqs() {
       if (!lastChangeReqs.length) {
-        crBody.innerHTML = ckEmpty("✓", "Aucune demande en attente", "Les demandes envoyées par les comités d'asso depuis leur espace apparaîtront ici.", "");
+        crBody.innerHTML = ckEmpty(ICONS.check, "Aucune demande en attente", "Les demandes envoyées par les comités d'asso depuis leur espace apparaîtront ici.", "");
         return;
       }
       crBody.innerHTML = '<ul class="space-y-3">' + lastChangeReqs.map((c) =>
         '<li data-cr="' + esc(c.id) + '" class="rounded-2xl bg-white/[0.04] p-4">' +
         '<div class="flex flex-wrap items-center justify-between gap-2">' +
-        '<span class="rounded-full bg-accent-500/[0.16] px-2.5 py-0.5 text-[11px] font-medium text-accent-300">' + esc(c.subject) + "</span>" +
+        '<span class="rounded-full bg-accent-500/[0.16] px-2.5 py-0.5 text-[11px] font-medium text-accent-400">' + esc(c.subject) + "</span>" +
         '<span class="text-[11px] text-ink-500">' + fmtDate(c.created_at) + "</span></div>" +
         '<p class="mt-2 whitespace-pre-wrap text-sm text-ink-200">' + esc(c.message) + "</p>" +
         '<p class="mt-2 text-[11px] text-ink-500">' + esc(c.asso_name || "—") + " · " + esc(c.requested_by_name || c.requested_by_email || "—") + "</p>" +
         '<div class="mt-3 flex justify-end gap-2">' +
-        '<button type="button" data-cr-reject class="rounded-full bg-white/[0.08] px-3.5 py-1.5 text-xs font-medium text-[#ff453a] transition-colors hover:bg-[#ff453a]/[0.16]">Rejeter</button>' +
+        '<button type="button" data-cr-reject class="rounded-full bg-white/[0.08] px-3.5 py-1.5 text-xs font-medium text-[#ff7b72] transition-colors hover:bg-[#ff453a]/[0.16]">Rejeter</button>' +
         '<button type="button" data-cr-done class="rounded-full bg-ink-50 px-3.5 py-1.5 text-xs font-medium text-black transition-colors hover:bg-white/90 disabled:cursor-not-allowed disabled:opacity-60">Marquer traité</button>' +
         "</div></li>").join("") + "</ul>";
     }
@@ -2314,14 +2415,14 @@ const ADMIN_EMAIL = "contact@konclav.ch";
     }
 
     function openBugDetail(b) {
-      bugTitle.textContent = "🐛 Rapport de bug";
+      bugTitle.textContent = "Rapport de bug";
       bugBody.innerHTML = bugDetailHtml(b);
       openModal("bugs");
       loadBugShots(b, bugBody.querySelector("[data-bug-shots]"));
     }
 
     function openBugsList() {
-      bugTitle.textContent = "🐛 Rapports de bug · " + lastBugs.length;
+      bugTitle.textContent = "Rapports de bug · " + lastBugs.length;
       bugBody.innerHTML = '<ul class="space-y-2">' + lastBugs.map((b, i) =>
         '<li><button type="button" data-bug-row="' + i + '" class="block w-full rounded-2xl bg-white/[0.04] p-3.5 text-left transition-colors hover:bg-white/[0.07]">' +
         '<p class="flex items-start text-sm text-ink-50"><span class="min-w-0 flex-1">' + esc(String(b.description).slice(0, 140)) + (String(b.description).length > 140 ? "…" : "") + "</span>" +
@@ -2409,6 +2510,7 @@ const ADMIN_EMAIL = "contact@konclav.ch";
           const n = d && typeof d.active === "number" ? d.active : 0;
           if (pill) {
             pill.hidden = false;
+            pill.classList.toggle("ck-live-idle", n === 0);
             root.querySelector("[data-au-live-n]").textContent = n + " en ce moment";
           }
         } catch {}
@@ -2475,7 +2577,8 @@ const ADMIN_EMAIL = "contact@konclav.ch";
       y: { label: "Pages vues", color: "#ff8a50" },
     };
     const AU_PERIOD_LABEL = { "24h": "24 dernières heures", "7d": "7 derniers jours", "30d": "30 derniers jours", "90d": "90 derniers jours" };
-    const AU_CHART = { W: 920, H: 300, padL: 44, padR: 16, padT: 20, padB: 34 };
+    // Dimensions du graphe d'audience pour une largeur réelle W (px CSS)
+    const auChartDims = (W) => ({ W, H: W < 480 ? 220 : 300, padL: 44, padR: 16, padT: 20, padB: 34 });
 
     function fmtBucket(iso) {
       try {
@@ -2495,10 +2598,15 @@ const ADMIN_EMAIL = "contact@konclav.ch";
     // Mini-sparkline pour fond de KPI
     function miniSpark(points, field, color) {
       if (!points || !points.length) return '';
-      const vals = points.map((p) => Number(p[field]) || 0);
+      let vals = points.map((p) => Number(p[field]) || 0);
+      if (vals.length > 30) {
+        const k = Math.ceil(vals.length / 30), out = [];
+        for (let i = 0; i < vals.length; i += k) { const sl = vals.slice(i, i + k); out.push(sl.reduce((a, b) => a + b, 0) / sl.length); }
+        vals = out;
+      }
       const max = Math.max(1, ...vals);
       const w = 240, h = 70;
-      const dx = w / Math.max(1, points.length - 1);
+      const dx = w / Math.max(1, vals.length - 1);
       const ys = vals.map((v, i) => [i * dx, h - (v / max) * (h - 4) - 2]);
       const path = ys.map(([x, y], i) => (i === 0 ? "M" : "L") + x.toFixed(1) + " " + y.toFixed(1)).join(" ");
       const fill = "M0 " + h + " L" + ys.map(([x, y]) => x.toFixed(1) + " " + y.toFixed(1)).join(" L") + " L" + w + " " + h + " Z";
@@ -2523,8 +2631,8 @@ const ADMIN_EMAIL = "contact@konclav.ch";
       return d;
     }
 
-    function auGeometry(series, prevSeries, metric) {
-      const { W, H, padL, padR, padT, padB } = AU_CHART;
+    function auGeometry(series, prevSeries, metric, width) {
+      const { W, H, padL, padR, padT, padB } = auChartDims(width || 920);
       const innerW = W - padL - padR, innerH = H - padT - padB;
       const n = series.length;
       const vals = series.map((p) => Number(p[metric]) || 0);
@@ -2536,9 +2644,9 @@ const ADMIN_EMAIL = "contact@konclav.ch";
       return { W, H, padL, padR, padT, padB, innerW, innerH, n, vals, prevVals, niceMax, xAt, yAt, bottom: padT + innerH };
     }
 
-    function areaChart(series, prevSeries, metric) {
+    function areaChart(series, prevSeries, metric, width) {
       if (!series.length) return '<p class="py-12 text-center text-sm text-ink-500">Pas encore de données sur cette période.</p>';
-      const g = auGeometry(series, prevSeries, metric);
+      const g = auGeometry(series, prevSeries, metric, width);
       const m = AU_METRICS[metric];
 
       const pts = g.vals.map((v, i) => [g.xAt(i), g.yAt(v)]);
@@ -2559,11 +2667,12 @@ const ADMIN_EMAIL = "contact@konclav.ch";
           '<text x="' + (g.padL - 8) + '" y="' + (y + 3) + '" text-anchor="end" class="ck-axis-label">' + fmtNum(v) + "</text>";
       }).join("");
 
-      const xStep = Math.max(1, Math.ceil(g.n / 6));
+      const xStep = axisStep(g.n, g.innerW, 72, 8);
       let xLabels = "";
       series.forEach((p, i) => {
-        if (i % xStep !== 0 && i !== g.n - 1) return;
-        xLabels += '<text x="' + g.xAt(i).toFixed(1) + '" y="' + (g.H - 10) + '" text-anchor="middle" class="ck-axis-label">' + esc(fmtBucket(p.x)) + "</text>";
+        if ((g.n - 1 - i) % xStep !== 0) return;
+        const last = i === g.n - 1 && g.n > 1;
+        xLabels += '<text x="' + (last ? g.W - 2 : g.xAt(i)).toFixed(1) + '" y="' + (g.H - 10) + '" text-anchor="' + (last ? "end" : "middle") + '" class="ck-axis-label">' + esc(fmtBucket(p.x)) + "</text>";
       });
 
       return '<div class="relative" data-au-wrap>' +
@@ -2583,8 +2692,8 @@ const ADMIN_EMAIL = "contact@konclav.ch";
         "</div>";
     }
 
-    function wireAudienceChart(series, prevSeries) {
-      const wrap = auContent.querySelector("[data-au-wrap]");
+    function wireAudienceChart(host, series, prevSeries, width, animate) {
+      const wrap = host.querySelector("[data-au-wrap]");
       if (!wrap) return;
       const svg = wrap.querySelector("svg");
       const tip = wrap.querySelector("[data-au-tip]");
@@ -2593,8 +2702,8 @@ const ADMIN_EMAIL = "contact@konclav.ch";
       const crossDot = svg.querySelector("[data-au-cross-dot]");
       const linePath = svg.querySelector("[data-au-line]");
 
-      // Animation : la courbe se dessine
-      if (linePath && !REDUCED_CK) {
+      // Animation : la courbe se dessine (au premier affichage seulement, pas à chaque redimensionnement)
+      if (linePath && animate && !REDUCED_CK) {
         try {
           const len = linePath.getTotalLength();
           linePath.style.strokeDasharray = String(len);
@@ -2606,7 +2715,7 @@ const ADMIN_EMAIL = "contact@konclav.ch";
         } catch {}
       }
 
-      const g = auGeometry(series, prevSeries, auMetric);
+      const g = auGeometry(series, prevSeries, auMetric, width);
       const m = AU_METRICS[auMetric];
       const onMove = (e) => {
         const rect = svg.getBoundingClientRect();
@@ -2692,9 +2801,9 @@ const ADMIN_EMAIL = "contact@konclav.ch";
             ? "bg-ink-800 ring-1 ring-inset ring-accent-400/40"
             : "bg-ink-900" + (selectable ? " hover:bg-ink-800" : "")) + '">' +
           (sparkField && series.length
-            ? '<div class="pointer-events-none absolute inset-x-0 bottom-0 h-1/2 transition-opacity ' + (on ? "opacity-60" : "opacity-25") + '">' + miniSpark(series, sparkField, color) + "</div>"
+            ? '<div class="pointer-events-none absolute bottom-3 right-3 h-10 w-[38%] transition-opacity ' + (on ? "opacity-70" : "opacity-35") + '">' + miniSpark(series, sparkField, color) + "</div>"
             : "") +
-          '<div class="relative">' +
+          '<div class="relative' + (sparkField && series.length ? " max-w-[62%]" : "") + '">' +
           '<p class="text-[13px] font-medium ' + (on ? "text-accent-400" : "text-ink-400") + '">' + esc(label) + "</p>" +
           '<p class="mt-1 whitespace-nowrap text-2xl font-semibold tracking-tight text-ink-50 tabular-nums sm:text-3xl" ' + (typeof value === "number" ? 'data-count="' + value + '"' : "") + ">" + (typeof value === "number" ? fmtNum(value) : esc(value)) + "</p>" +
           '<p class="mt-1.5 text-xs font-medium">' + deltaHtml + "</p>" +
@@ -2749,7 +2858,11 @@ const ADMIN_EMAIL = "contact@konclav.ch";
         '<span class="text-xs font-normal text-ink-500">· ' + esc(AU_PERIOD_LABEL[auPeriod] || auPeriod) + "</span></h3>" +
         '<p class="text-xs text-ink-500"><span class="mr-3 inline-flex items-center gap-1.5"><span class="inline-block h-px w-4 border-t border-dashed border-white/40"></span>période précédente</span>' + esc(rangeLabel) + "</p>" +
         "</div>" +
-        areaChart(series, prevSeries, auMetric) +
+        (function () {
+          let first = true;
+          return chartHost((W) => areaChart(series, prevSeries, auMetric, W),
+            (host, W) => { wireAudienceChart(host, series, prevSeries, W, first); first = false; });
+        })() +
         "</div>" +
 
         '<div class="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-3">' +
@@ -2785,7 +2898,7 @@ const ADMIN_EMAIL = "contact@konclav.ch";
 
         '<p class="mt-6 text-center text-xs text-ink-500">Mesure d\'audience interne · hébergée à Zurich (Supabase) · sans cookie, anonyme by design</p>';
 
-      wireAudienceChart(series, prevSeries);
+      mountCharts(auContent);
       countUpAll();
     }
 
@@ -2816,8 +2929,8 @@ const ADMIN_EMAIL = "contact@konclav.ch";
     function renderOrgs(orgs) {
       orgsCache = orgs;
       if (!orgs.length) {
-        ogContent.innerHTML = ckEmpty("🏛️", "Aucune association provisionnée",
-          "Ouvre un lead dans « Inscriptions », clique « 🚀 Provisionner » — l'asso, le compte président et la fiche client se créent en une fois.",
+        ogContent.innerHTML = ckEmpty(ICONS.building, "Aucune association provisionnée",
+          "Ouvre un lead dans « Inscriptions », clique « Provisionner » — l'asso, le compte président et la fiche client se créent en une fois.",
           '<button type="button" data-goto-leads class="rounded-full bg-ink-50 px-4 py-2 text-sm font-medium text-black transition-colors hover:bg-white/90 disabled:cursor-not-allowed disabled:opacity-60">Ouvrir les inscriptions</button>');
         return;
       }
@@ -2837,7 +2950,7 @@ const ADMIN_EMAIL = "contact@konclav.ch";
       const linked = orgs.filter((o) => o.customer_id).length;
 
       ogContent.innerHTML =
-        '<div class="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-5">' +
+        '<div class="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-5 [&>*:last-child]:col-span-2 sm:[&>*:last-child]:col-span-1">' +
         summaryCard("Actives", active, "#30d158") +
         summaryCard("Suspendues", suspended, suspended > 0 ? "#ff453a" : "#98989d") +
         summaryCard("Membres", totalMembers, "#f5f5f7") +
@@ -2855,25 +2968,25 @@ const ADMIN_EMAIL = "contact@konclav.ch";
               billing: (o) => (o.customer_id ? (o.subscription ? Number(o.subscription.amount) || 0 : -1) : -2),
             });
           if (!shownOrgs.length) {
-            return ckEmpty("🔍", "Aucune asso ne correspond à ta recherche", "Modifie le filtre ou efface-le.", "");
+            return ckEmpty(ICONS.search, "Aucune asso ne correspond à ta recherche", "Modifie le filtre ou efface-le.", "");
           }
-          return '<div class="mt-2 relative overflow-x-auto rounded-[20px] bg-ink-900">' +
-        '<table class="w-full text-sm">' +
+          return '<div class="ck-tscroll mt-2 relative overflow-x-auto rounded-[20px] bg-ink-900">' +
+        '<table class="w-full min-w-[48rem] text-sm">' +
         '<thead class="border-b border-white/[0.08] text-[12px] text-ink-400">' +
         '<tr>' + thSort("orgs", "name", "Association") + '<th scope="col" class="px-4 py-3 text-left">Président</th>' + thSort("orgs", "members", "Membres", "right") + thSort("orgs", "last", "Dernière connexion") + thSort("orgs", "billing", "Facturation") + '<th scope="col" class="px-4 py-3"><span class="sr-only">Actions</span></th></tr></thead>' +
         '<tbody class="divide-y divide-white/[0.08]">' +
         shownOrgs.map((o) =>
           '<tr data-org="' + esc(o.id) + '" data-org-active="' + (o.is_active ? "1" : "") + '" data-org-name="' + esc(o.name) + '" data-org-customer="' + esc(o.customer_id || "") + '" data-org-president-name="' + esc(o.president?.name || "") + '" data-org-president-email="' + esc(o.president?.email || "") + '" class="transition-colors hover:bg-white/[0.04]">' +
           '<td class="px-4 py-3.5"><div class="flex items-center gap-3">' + avatarBadge(o.name) +
-          '<div class="min-w-0"><p class="flex items-center gap-2 truncate font-semibold text-ink-50">' + esc(o.name) +
+          '<div class="min-w-0"><p class="flex flex-wrap items-center gap-x-2 gap-y-1 font-semibold text-ink-50">' + esc(o.name) +
           (o.is_active
             ? ''
-            : ' <span class="rounded-full bg-[#ff453a]/[0.14] px-2 py-0.5 text-[10px] font-medium text-[#ff453a]">Suspendue</span>') +
-          (o.billing_status === "overdue" ? ' <span class="rounded-full bg-[#ff9f0a]/[0.14] px-2 py-0.5 text-[10px] font-medium text-[#ff9f0a]">Paiement en retard</span>' : "") +
-          (o.billing_status === "suspended" ? ' <span class="rounded-full bg-[#ff375f]/[0.14] px-2 py-0.5 text-[10px] font-medium text-[#ff375f]">Bloquée (impayé)</span>' : "") +
+            : ' <span class="whitespace-nowrap rounded-full bg-[#ff453a]/[0.14] px-2 py-0.5 text-[10px] font-medium text-[#ff6961]">Suspendue</span>') +
+          (o.billing_status === "overdue" ? ' <span class="whitespace-nowrap rounded-full bg-[#ff9f0a]/[0.14] px-2 py-0.5 text-[10px] font-medium text-[#ff9f0a]">Paiement en retard</span>' : "") +
+          (o.billing_status === "suspended" ? ' <span class="whitespace-nowrap rounded-full bg-[#ff375f]/[0.14] px-2 py-0.5 text-[10px] font-medium text-[#ff6482]">Bloquée (impayé)</span>' : "") +
           '</p><p class="font-mono text-[11px] text-ink-500">' + esc(o.slug) + "</p></div></div></td>" +
           '<td class="px-4 py-3.5">' + (o.president
-            ? '<p class="text-ink-200">' + esc(o.president.name) + '</p><p class="text-xs text-ink-500">' + esc(o.president.email) + "</p>"
+            ? '<p class="text-ink-200">' + esc(o.president.name) + '</p><p class="max-w-[13rem] truncate text-xs text-ink-500" title="' + esc(o.president.email) + '">' + esc(o.president.email) + "</p>"
             : '<span class="text-ink-500">—</span>') + "</td>" +
           '<td class="px-4 py-3.5 text-right tabular-nums text-ink-200">' + (o.member_count || 0) + "</td>" +
           (function () {
@@ -2884,7 +2997,7 @@ const ADMIN_EMAIL = "contact@konclav.ch";
           '<td class="px-4 py-3.5">' + (function () {
             if (!o.customer_id) {
               return o.president
-                ? '<button type="button" data-org-link-billing class="inline-flex items-center gap-1 rounded-full bg-accent-500/[0.14] px-2.5 py-1 text-[11px] font-medium text-accent-300 transition-colors hover:bg-accent-500/[0.22]">+ Créer fiche client</button>'
+                ? '<button type="button" data-org-link-billing class="inline-flex items-center gap-1 whitespace-nowrap rounded-full bg-accent-500/[0.14] px-2.5 py-1 text-[11px] font-medium text-accent-400 transition-colors hover:bg-accent-500/[0.22]">+ Créer fiche client</button>'
                 : '<button type="button" data-org-link-billing-manual class="inline-flex items-center gap-1 rounded-full bg-white/[0.08] px-2.5 py-1 text-[11px] font-medium text-ink-300 transition-colors hover:bg-white/[0.12] hover:text-ink-50" title="Pas de président → renseigner les coordonnées manuellement">+ Créer fiche…</button>';
             }
             const sub = o.subscription;
@@ -2903,11 +3016,11 @@ const ADMIN_EMAIL = "contact@konclav.ch";
               '<button type="button" data-org-billing class="inline-flex items-center gap-1 rounded-full bg-[#30d158]/[0.14] px-2.5 py-0.5 text-[10px] font-medium text-[#30d158] transition-colors hover:bg-[#30d158]/[0.22]">✓ Fiche liée</button>' +
               tarifBlock + "</div>";
           })() + "</td>" +
-          '<td class="px-4 py-3.5 text-right whitespace-nowrap">' +
-          '<button type="button" data-org-detail class="text-xs text-accent-300 hover:text-accent-400">Détails</button>' +
-          ' · <button type="button" data-org-toggle class="text-xs ' +
+          '<td class="px-4 py-3.5"><div class="flex flex-col items-end gap-1 whitespace-nowrap">' +
+          '<button type="button" data-org-detail class="text-xs text-ink-300 hover:text-ink-50">Détails</button>' +
+          '<button type="button" data-org-toggle class="text-xs ' +
           (o.is_active ? "text-[#ff453a] transition-opacity hover:opacity-75" : "text-[#30d158] transition-opacity hover:opacity-75") + '">' +
-          (o.is_active ? "Suspendre" : "Réactiver") + "</button></td></tr>"
+          (o.is_active ? "Suspendre" : "Réactiver") + "</button></div></td></tr>"
         ).join("") + "</tbody></table></div>";
         })();
     }
@@ -2929,7 +3042,7 @@ const ADMIN_EMAIL = "contact@konclav.ch";
       const freshness = (ll) => {
         if (!ll) return '<span class="text-ink-500">jamais connecté</span>';
         const days = (Date.now() - new Date(ll)) / 86400000;
-        const c = days <= 7 ? "#30d158" : days <= 30 ? "#ffd60a" : "#ff453a";
+        const c = days <= 7 ? "#30d158" : days <= 30 ? "#ffd60a" : "#ff6961";
         return '<span style="color:' + c + '">' + fmtDate(ll) + "</span>";
       };
       const membersBlock =
@@ -2959,7 +3072,7 @@ const ADMIN_EMAIL = "contact@konclav.ch";
             '<span class="text-ink-300">' + invs.length + " facture(s)</span>" +
             '<span class="text-[#30d158]">' + fmtCHF(paid, "CHF") + " encaissé</span>" +
             '<span class="text-[#ff9f0a]">' + fmtCHF(open, "CHF") + " en cours</span>" +
-            '<button type="button" data-goto-billing class="text-accent-300 hover:text-accent-400">Ouvrir la facturation →</button>' +
+            '<button type="button" data-goto-billing class="whitespace-nowrap text-accent-400 hover:underline">Ouvrir la facturation →</button>' +
             "</div></div>";
         } catch { billingBlock = '<div class="rounded-2xl bg-white/[0.04] p-4"><p class="text-xs text-[#ff453a]">Erreur de chargement des factures.</p></div>'; }
       }
@@ -3266,7 +3379,7 @@ const ADMIN_EMAIL = "contact@konclav.ch";
     }
     function renderCustomers() {
       if (!customers.length) {
-        bcContent.innerHTML = ckEmpty("👥", "Aucun client pour l'instant",
+        bcContent.innerHTML = ckEmpty(ICONS.users, "Aucun client pour l'instant",
           "Crée une fiche client manuellement, ou provisionne une asso depuis l'onglet Inscriptions — la fiche client se crée automatiquement.",
           '<button type="button" data-empty-new="customer" class="rounded-full bg-ink-50 px-4 py-2 text-sm font-medium text-black transition-colors hover:bg-white/90 disabled:cursor-not-allowed disabled:opacity-60">+ Nouveau client</button>');
         return;
@@ -3280,9 +3393,9 @@ const ADMIN_EMAIL = "contact@konclav.ch";
         });
       bcContent.innerHTML = '<div class="mt-4">' + tableSearchBar("customers", "Rechercher par asso, contact, email…") + "</div>" +
         (!shown.length
-          ? ckEmpty("🔍", "Aucun client ne correspond à ta recherche", "Modifie le filtre ou efface-le.", "")
-          : '<div class="mt-2 relative overflow-x-auto rounded-[20px] bg-ink-900">' +
-        '<table class="w-full text-sm">' +
+          ? ckEmpty(ICONS.search, "Aucun client ne correspond à ta recherche", "Modifie le filtre ou efface-le.", "")
+          : '<div class="ck-tscroll mt-2 relative overflow-x-auto rounded-[20px] bg-ink-900">' +
+        '<table class="w-full min-w-[40rem] text-sm">' +
         '<thead class="border-b border-white/[0.08] text-[12px] text-ink-400">' +
         '<tr>' + thSort("customers", "asso_name", "Association") + thSort("customers", "contact", "Contact") + thSort("customers", "city", "Localité") + '<th scope="col" class="px-4 py-3"><span class="sr-only">Actions</span></th></tr></thead>' +
         '<tbody class="divide-y divide-white/[0.08]">' +
@@ -3290,9 +3403,9 @@ const ADMIN_EMAIL = "contact@konclav.ch";
           '<tr data-customer="' + esc(c.id) + '" class="transition-colors hover:bg-white/[0.04]">' +
           '<td class="px-4 py-3.5"><div class="flex items-center gap-3">' + avatarBadge(c.asso_name, "h-8 w-8 text-[10px]") +
           '<div class="min-w-0"><p class="truncate font-semibold text-ink-50">' + esc(c.asso_name) + '</p><p class="text-xs text-ink-500">' + esc(c.vat_number || '—') + '</p></div></div></td>' +
-          '<td class="px-4 py-3.5"><p class="text-ink-200">' + esc(c.contact_name) + '</p><p class="text-xs text-ink-500"><a href="mailto:' + esc(c.contact_email) + '" class="hover:text-accent-300">' + esc(c.contact_email) + '</a></p></td>' +
+          '<td class="px-4 py-3.5"><p class="text-ink-200">' + esc(c.contact_name) + '</p><p class="text-xs text-ink-500"><a href="mailto:' + esc(c.contact_email) + '" class="hover:text-accent-400">' + esc(c.contact_email) + '</a></p></td>' +
           '<td class="px-4 py-3.5 text-ink-300">' + esc([c.postal_code, c.city, c.country].filter(Boolean).join(' ')) + '</td>' +
-          '<td class="px-4 py-3.5 text-right whitespace-nowrap"><button type="button" data-cust-statement class="text-xs text-ink-300 hover:text-ink-50" title="Relevé annuel PDF (compta)">📄 Relevé</button> · <button type="button" data-cust-edit class="text-xs text-accent-300 hover:text-accent-400">Modifier</button> · <button type="button" data-cust-del class="text-xs text-[#ff453a] transition-opacity hover:opacity-75">Supprimer</button></td>' +
+          '<td class="px-4 py-3.5 text-right whitespace-nowrap"><button type="button" data-cust-statement class="text-xs text-ink-300 hover:text-ink-50" title="Relevé annuel PDF (compta)">Relevé</button> · <button type="button" data-cust-edit class="text-xs text-ink-300 hover:text-ink-50">Modifier</button> · <button type="button" data-cust-del aria-label="Supprimer" title="Supprimer" class="px-1 text-xs text-[#ff453a] transition-opacity hover:opacity-75">×</button></td>' +
           '</tr>'
         ).join("") +
         '</tbody></table></div>');
@@ -3398,7 +3511,7 @@ const ADMIN_EMAIL = "contact@konclav.ch";
     }
     function renderSubscriptions() {
       if (!subsList.length) {
-        bsContent.innerHTML = ckEmpty("🔄", "Aucun abonnement",
+        bsContent.innerHTML = ckEmpty(ICONS.repeat, "Aucun abonnement",
           "Configure un abonnement par asso (mensuel ou annuel) — les factures se génèrent automatiquement à chaque échéance, en brouillon pour que tu valides avant envoi.",
           '<button type="button" data-empty-new="subscription" class="rounded-full bg-ink-50 px-4 py-2 text-sm font-medium text-black transition-colors hover:bg-white/90 disabled:cursor-not-allowed disabled:opacity-60">+ Nouvel abonnement</button>');
         return;
@@ -3414,9 +3527,9 @@ const ADMIN_EMAIL = "contact@konclav.ch";
         });
       bsContent.innerHTML = '<div class="mt-4">' + tableSearchBar("subscriptions", "Rechercher par asso, libellé…") + "</div>" +
         (!shownSubs.length
-          ? ckEmpty("🔍", "Aucun abonnement ne correspond à ta recherche", "Modifie le filtre ou efface-le.", "")
-          : '<div class="mt-2 relative overflow-x-auto rounded-[20px] bg-ink-900">' +
-        '<table class="w-full text-sm">' +
+          ? ckEmpty(ICONS.search, "Aucun abonnement ne correspond à ta recherche", "Modifie le filtre ou efface-le.", "")
+          : '<div class="ck-tscroll mt-2 relative overflow-x-auto rounded-[20px] bg-ink-900">' +
+        '<table class="w-full min-w-[48rem] text-sm">' +
         '<thead class="border-b border-white/[0.08] text-[12px] text-ink-400">' +
         '<tr>' + thSort("subscriptions", "asso", "Client") + '<th scope="col" class="px-4 py-3 text-left">Libellé</th>' + thSort("subscriptions", "amount", "Montant", "right") + thSort("subscriptions", "interval", "Intervalle") + thSort("subscriptions", "next", "Prochaine facture") + thSort("subscriptions", "status", "Statut") + '<th scope="col" class="px-4 py-3"><span class="sr-only">Actions</span></th></tr></thead>' +
         '<tbody class="divide-y divide-white/[0.08]">' +
@@ -3431,9 +3544,9 @@ const ADMIN_EMAIL = "contact@konclav.ch";
             ? '<span class="whitespace-nowrap rounded-full bg-[#30d158]/[0.14] px-2 py-0.5 text-[11px] font-medium text-[#30d158]">Actif</span>'
             : '<span class="whitespace-nowrap rounded-full bg-white/[0.08] px-2 py-0.5 text-[11px] font-medium text-ink-400">En pause</span>') + "</td>" +
           '<td class="px-4 py-3.5 text-right whitespace-nowrap">' +
-          '<button type="button" data-sub-edit class="text-xs text-accent-300 hover:text-accent-400">Modifier</button>' +
+          '<button type="button" data-sub-edit class="text-xs text-ink-300 hover:text-ink-50">Modifier</button>' +
           ' · <button type="button" data-sub-toggle class="text-xs text-ink-300 hover:text-ink-50">' + (s.active ? "Pause" : "Reprendre") + "</button>" +
-          ' · <button type="button" data-sub-del class="text-xs text-[#ff453a] transition-opacity hover:opacity-75">×</button>' +
+          ' · <button type="button" data-sub-del aria-label="Supprimer" title="Supprimer" class="px-1 text-xs text-[#ff453a] transition-opacity hover:opacity-75">×</button>' +
           "</td></tr>"
         ).join("") + "</tbody></table></div>");
     }
@@ -3546,7 +3659,7 @@ const ADMIN_EMAIL = "contact@konclav.ch";
     }
     function renderInvoices() {
       if (!invoicesList.length) {
-        biContent.innerHTML = ckEmpty("🧾", "Aucune facture émise",
+        biContent.innerHTML = ckEmpty(ICONS.doc, "Aucune facture émise",
           "Crée ta première facture manuellement, ou configure un abonnement pour une asso — la facture sera générée automatiquement à l'échéance.",
           '<div class="flex gap-2"><button type="button" data-empty-new="invoice" class="rounded-full bg-ink-50 px-4 py-2 text-sm font-medium text-black transition-colors hover:bg-white/90 disabled:cursor-not-allowed disabled:opacity-60">+ Nouvelle facture</button>' +
           '<button type="button" data-goto-subs class="rounded-full bg-white/[0.08] px-4 py-2 text-sm font-medium text-ink-50 transition-colors hover:bg-white/[0.12]">Voir les abonnements</button></div>');
@@ -3595,7 +3708,7 @@ const ADMIN_EMAIL = "contact@konclav.ch";
 
       biContent.innerHTML =
         '<div class="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">' +
-        kpi("Encaissé ce mois-ci", fmtCHF(sums.paidMonth, "CHF"), "#30d158") +
+        kpi("Encaissé ce mois-ci", fmtCHF(sums.paidMonth, "CHF"), sums.paidMonth > 0 ? "#30d158" : "#f5f5f7") +
         kpi("En attente", fmtCHF(sums.due, "CHF"), "#ff9f0a") +
         kpi("En retard", fmtCHF(sums.late, "CHF"), sums.late > 0 ? "#ff453a" : "#98989d") +
         kpi("Encaissé total", fmtCHF(sums.paidAll, "CHF"), "#f5f5f7") +
@@ -3650,28 +3763,29 @@ const ADMIN_EMAIL = "contact@konclav.ch";
               status: (i) => i.status,
             });
           if (!shown.length) {
-            return ckEmpty("🔍", "Aucune facture ne correspond à ta recherche", "Modifie le filtre ou efface-le pour voir toutes les factures.", "");
+            return ckEmpty(ICONS.search, "Aucune facture ne correspond à ta recherche", "Modifie le filtre ou efface-le pour voir toutes les factures.", "");
           }
-          return '<div class="mt-2 relative overflow-x-auto rounded-[20px] bg-ink-900">' +
-        '<table class="w-full text-sm">' +
+          return '<div class="ck-tscroll mt-2 relative overflow-x-auto rounded-[20px] bg-ink-900">' +
+        '<table class="w-full min-w-[56rem] text-sm">' +
         '<thead class="border-b border-white/[0.08] text-[12px] text-ink-400">' +
         '<tr>' + thSort("invoices", "number", "Numéro") + thSort("invoices", "client", "Client") + thSort("invoices", "issued", "Émise") + thSort("invoices", "due", "Échéance") + thSort("invoices", "total", "Total", "right") + thSort("invoices", "status", "Statut") + '<th scope="col" class="px-4 py-3"><span class="sr-only">Actions</span></th></tr>' +
         '</thead><tbody class="divide-y divide-white/[0.08]">' +
         shown.map((inv) => {
           const st = invoiceStatus(inv.status);
+          const stc = tintText(st[1]);
           return '<tr data-invoice="' + esc(inv.id) + '" class="transition-colors hover:bg-white/[0.04]">' +
-            '<td class="px-4 py-3.5 font-mono text-xs text-ink-200">' + esc(inv.number) +
-            (inv.doc_type === "credit_note" ? ' <span class="rounded-full bg-[#ff375f]/[0.14] px-1.5 py-0.5 font-sans text-[9px] font-semibold text-[#ff375f]">AVOIR</span>' : "") +
-            (inv.subscription_id ? ' <span title="Générée par abonnement">🔄</span>' : "") + '</td>' +
-            '<td class="px-4 py-3.5 text-ink-200">' + esc((inv.customer && inv.customer.asso_name) || "—") + '</td>' +
+            '<td class="whitespace-nowrap px-4 py-3.5 font-mono text-xs text-ink-200">' + esc(inv.number) +
+            (inv.doc_type === "credit_note" ? ' <span class="inline-block rounded-full bg-white/[0.08] px-1.5 py-0.5 font-sans text-[10px] font-medium lowercase text-ink-200 first-letter:uppercase">AVOIR</span>' : "") +
+            (inv.subscription_id ? ' <span title="Générée par abonnement" class="text-ink-500">' + ICON_REPEAT_SM + '<span class="sr-only">Générée par abonnement</span></span>' : "") + '</td>' +
+            '<td class="min-w-[10rem] px-4 py-3.5 text-ink-200">' + esc((inv.customer && inv.customer.asso_name) || "—") + '</td>' +
             '<td class="whitespace-nowrap px-4 py-3.5 text-ink-300">' + fmtDate(inv.issue_date) + '</td>' +
             '<td class="whitespace-nowrap px-4 py-3.5 ' + (isLate(inv) ? 'font-medium text-[#ff453a]' : 'text-ink-300') + '">' + fmtDate(inv.due_date) + '</td>' +
             '<td class="whitespace-nowrap px-4 py-3.5 text-right font-semibold tabular-nums text-ink-50">' + fmtCHF(inv.total, inv.currency) + '</td>' +
-            '<td class="px-4 py-3.5"><select data-inv-status class="rounded-full border-0 bg-white/[0.08] py-1 pl-2.5 pr-1.5 text-xs font-medium text-ink-50">' +
+            '<td class="px-4 py-3.5"><select data-inv-status class="rounded-full border-0 bg-white/[0.08] py-1 pl-2.5 pr-1.5 text-xs font-medium text-ink-50" style="background-color:' + st[1] + '26;color:' + stc + '">' +
             ["draft", "sent", "paid", "overdue", "canceled"].map((v) => '<option value="' + v + '"' + (v === inv.status ? " selected" : "") + '>' + invoiceStatus(v)[0] + '</option>').join("") +
             '</select></td>' +
             '<td class="px-4 py-3.5 text-right whitespace-nowrap">' +
-            '<button type="button" data-inv-pdf class="text-xs text-accent-300 hover:text-accent-400">PDF</button>' +
+            '<button type="button" data-inv-pdf class="text-xs text-ink-300 hover:text-ink-50">PDF</button>' +
             ((inv.status === "sent" || inv.status === "overdue") && inv.doc_type !== "credit_note"
               ? ' · <button type="button" data-inv-remind class="text-xs text-[#ff9f0a] transition-opacity hover:opacity-75">Relancer' + (inv.reminder_count > 0 ? " · " + inv.reminder_count : "") + '</button>'
               : "") +
@@ -3679,11 +3793,12 @@ const ADMIN_EMAIL = "contact@konclav.ch";
               ? ' · <button type="button" data-inv-credit class="text-xs text-ink-300 hover:text-ink-50">Avoir</button>'
               : "") +
             ' · <button type="button" data-inv-edit class="text-xs text-ink-300 hover:text-ink-50">Modifier</button>' +
-            ' · <button type="button" data-inv-del class="text-xs text-[#ff453a] transition-opacity hover:opacity-75">×</button>' +
+            ' · <button type="button" data-inv-del aria-label="Supprimer" title="Supprimer" class="px-1 text-xs text-[#ff453a] transition-opacity hover:opacity-75">×</button>' +
             '</td></tr>';
         }).join("") +
         '</tbody></table></div>';
         })();
+      mountCharts(biContent);
     }
     registerTable("invoices", () => { if (invoicesList.length) renderInvoices(); });
     // Filtre période sur Factures
@@ -3859,9 +3974,9 @@ const ADMIN_EMAIL = "contact@konclav.ch";
 
     function lineRow(line, idx) {
       return '<div class="ck-line" data-line-idx="' + idx + '">' +
-        '<input data-l-desc placeholder="Description" value="' + esc(line.description || "") + '" class="ck-input" />' +
-        '<input data-l-qty type="number" step="0.01" min="0" value="' + (line.qty != null ? line.qty : 1) + '" class="ck-input" />' +
-        '<input data-l-price type="number" step="0.01" min="0" value="' + (line.unit_price != null ? line.unit_price : 0) + '" class="ck-input" />' +
+        '<input data-l-desc placeholder="Description" aria-label="Description" value="' + esc(line.description || "") + '" class="ck-input" />' +
+        '<input data-l-qty type="number" step="0.01" min="0" placeholder="Qté" aria-label="Quantité" value="' + (line.qty != null ? line.qty : 1) + '" class="ck-input" />' +
+        '<input data-l-price type="number" step="0.01" min="0" placeholder="Prix" aria-label="Prix unitaire" value="' + (line.unit_price != null ? line.unit_price : 0) + '" class="ck-input" />' +
         '<span class="text-right text-xs tabular-nums text-ink-300" data-l-total>0.00</span>' +
         '<button type="button" data-l-rm aria-label="Supprimer la ligne" class="ck-line-rm text-[#ff453a] transition-opacity hover:opacity-75">×</button>' +
         '</div>';
@@ -4168,7 +4283,7 @@ const ADMIN_EMAIL = "contact@konclav.ch";
         '<p class="flex items-center gap-2 text-[#30d158]"><span class="h-2 w-2 rounded-full bg-[#30d158]"></span>2FA actif sur ce compte.</p>' +
         '<p class="mt-3 text-xs text-ink-500">Chaque connexion exige un code de votre app d\'authentification. La base refuse toute session non vérifiée, même avec le bon mot de passe.</p>' +
         '<div class="mt-5 flex justify-end">' +
-        '<button type="button" data-mfa-disable="' + esc(factor.id) + '" class="rounded-full bg-[#ff453a]/[0.14] px-4 py-2 text-sm font-medium text-[#ff453a] transition-colors hover:bg-[#ff453a]/[0.22]">Désactiver le 2FA</button>' +
+        '<button type="button" data-mfa-disable="' + esc(factor.id) + '" class="rounded-full bg-[#ff453a]/[0.14] px-4 py-2 text-sm font-medium text-[#ff6961] transition-colors hover:bg-[#ff453a]/[0.22]">Désactiver le 2FA</button>' +
         '</div>';
     }
     function renderMfaEnroll(enr) {
@@ -4181,7 +4296,7 @@ const ADMIN_EMAIL = "contact@konclav.ch";
         '<div class="mt-4 flex justify-center"><div class="rounded-2xl bg-white p-3">' + qrHtml + '</div></div>' +
         '<p class="mt-3 break-all text-center font-mono text-[11px] text-ink-500">' + esc((enr.totp && enr.totp.secret) || "") + '</p>' +
         '<form data-mfa-activate-form class="mt-4 flex gap-2">' +
-        '<input data-mfa-code inputmode="numeric" pattern="[0-9]{6}" maxlength="6" required placeholder="000000" autocomplete="one-time-code" class="ck-input text-center tracking-[0.3em] tabular-nums" />' +
+        '<input data-mfa-code inputmode="numeric" pattern="[0-9]{6}" maxlength="6" required placeholder="000000" aria-label="Code à 6 chiffres" autocomplete="one-time-code" class="ck-input text-center tracking-[0.3em] tabular-nums" />' +
         '<button type="submit" class="shrink-0 rounded-full bg-ink-50 px-4 py-2 text-sm font-medium text-black transition-colors hover:bg-white/90 disabled:cursor-not-allowed disabled:opacity-60">Activer</button>' +
         '</form>' +
         '<p data-mfa-enroll-error role="alert" hidden class="mt-2 text-xs text-[#ff453a]"></p>' +
