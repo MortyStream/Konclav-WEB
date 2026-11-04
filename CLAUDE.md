@@ -16,7 +16,7 @@ Site marketing d'une app intranet privée pour associations suisses. Site statiq
 
 Deux thèmes, pilotés par `<html data-theme>` (posé dans `Layout.astro`) :
 - **Clair (défaut)** — tout le site marketing : sobre, blanc, une seule couleur d'accent tirée du logo.
-- **Sombre** — uniquement `/admin` (cockpit) et `/espace` (espace client), via `<Layout dark>`. Rendu inchangé : tokens `ink-*` / `accent-*`, `.aurora-global`, grain, `.cta-shimmer`, `.live-dot`, autofill sombre. **Ne pas supprimer ces styles** : le cockpit et l'espace en dépendent.
+- **Sombre façon Apple** (refonte du 04/11/2026) — uniquement `/admin` (cockpit) et `/espace` (espace client), via `<Layout dark>`. Tokens `ink-*` = gris système sombres d'Apple (`ink-950` #000 page, `ink-900` #1c1c1e cartes/modals, `ink-800` #2c2c2e surfaces surélevées ; textes `ink-50` #f5f5f7, `ink-400` #aeaeb2, `ink-500` #98989d) ; `accent-*` = orange du logo (`accent-500` #e8572a aplats/graphes — jamais de petit texte blanc dessus, `accent-400` #ff8a50 texte). Statuts = couleurs système Apple (vert #30d158, jaune #ffd60a, orange #ff9f0a, rouge #ff453a, rose #ff375f, bleu #0a84ff). Boutons principaux = pilule blanche (`bg-ink-50 text-black`), onglets = contrôle segmenté, libellés en casse normale (plus de MAJUSCULES espacées), cartes plates sans bordure ni halo. Les composants `ck-*` du cockpit sont stylés dans son `<style is:global>` (hors `@layer` → bat les utilitaires) et une partie des classes est réécrite par le JS : changer le style **là**, pas seulement dans le markup. Retirés : aurora, grain, `.cta-shimmer`, `.live-dot`, ombre colorée, tout le violet.
 
 Tokens clairs (`src/styles/global.css`, bloc `@theme`) :
 

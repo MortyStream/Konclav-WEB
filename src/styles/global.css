@@ -14,7 +14,6 @@
   --color-accent-500: #e8572a; /* aplats, indicateurs, graphiques — pas de petit texte blanc dessus (3.6:1) */
   --color-accent-400: #ff8a50; /* texte accent sur sombre — 7.3:1 sur ink-900 */
   --color-accent-300: #ff9a62; /* texte accent clair */
-  --shadow-cta: none;
 
   /* ── Clair : site marketing (style Apple, sobre) ── */
   --color-paper: #ffffff;
@@ -613,27 +612,3 @@ html[data-theme="light"] textarea:-webkit-autofill {
    (façon Apple : noir + graphite, accent orange, ni halo ni grain)
    ============================================================ */
 
-/* Reflet animé sur les CTA (bouton de connexion cockpit / espace) */
-.cta-shimmer {
-  position: relative;
-  overflow: hidden;
-  isolation: isolate;
-}
-.cta-shimmer::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(100deg, transparent 25%, rgba(255, 255, 255, 0.22) 50%, transparent 75%);
-  transform: translateX(-100%);
-  transition: transform 800ms var(--ease-out-quart);
-  pointer-events: none;
-}
-.cta-shimmer:hover::after,
-.cta-shimmer:focus-visible::after {
-  transform: translateX(100%);
-}
-.cta-shimmer:disabled::after,
-.cta-shimmer:disabled:hover::after { display: none; }
-@media (prefers-reduced-motion: reduce) {
-  .cta-shimmer::after { display: none; }
-}

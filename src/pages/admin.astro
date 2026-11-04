@@ -144,7 +144,7 @@ const ADMIN_EMAIL = "contact@konclav.ch";
           id="ck-mfa-code"
           inputmode="numeric"
           autocomplete="one-time-code"
-          pattern="\d{6}"
+          pattern="[0-9]{6}"
           maxlength="6"
           required
           placeholder="••••••"
@@ -4181,7 +4181,7 @@ const ADMIN_EMAIL = "contact@konclav.ch";
         '<div class="mt-4 flex justify-center"><div class="rounded-2xl bg-white p-3">' + qrHtml + '</div></div>' +
         '<p class="mt-3 break-all text-center font-mono text-[11px] text-ink-500">' + esc((enr.totp && enr.totp.secret) || "") + '</p>' +
         '<form data-mfa-activate-form class="mt-4 flex gap-2">' +
-        '<input data-mfa-code inputmode="numeric" pattern="\\d{6}" maxlength="6" required placeholder="000000" autocomplete="one-time-code" class="ck-input text-center tracking-[0.3em] tabular-nums" />' +
+        '<input data-mfa-code inputmode="numeric" pattern="[0-9]{6}" maxlength="6" required placeholder="000000" autocomplete="one-time-code" class="ck-input text-center tracking-[0.3em] tabular-nums" />' +
         '<button type="submit" class="shrink-0 rounded-full bg-ink-50 px-4 py-2 text-sm font-medium text-black transition-colors hover:bg-white/90 disabled:cursor-not-allowed disabled:opacity-60">Activer</button>' +
         '</form>' +
         '<p data-mfa-enroll-error role="alert" hidden class="mt-2 text-xs text-[#ff453a]"></p>' +
