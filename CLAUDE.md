@@ -170,7 +170,8 @@ Arrêter un build : Ctrl+C, `kill <pid de node scripts/build.mjs>` ou `kill -- -
 cd ~/sites/konclav.ch
 git checkout package-lock.json          # si npm l'a modifié (sinon le pull refuse)
 git pull origin claude/modest-newton-5FRWm
-git log --oneline -1                    # doit montrer le dernier commit poussé
+git --no-pager log --oneline -1        # doit montrer le dernier commit poussé (sans --no-pager, la console web
+                                        # d'Infomaniak ouvre l'afficheur « less » : taper q pour en sortir)
 npm install && npm run build            # attendre « swap-dist : nouveau build en ligne »
 ```
 
