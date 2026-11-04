@@ -13,7 +13,7 @@ interface Props {
   description?: string;
   image?: string;
   noindex?: boolean;
-  /** Thème sombre historique — réservé au cockpit /admin et à l'espace client /espace */
+  /** Thème sombre façon Apple — réservé au cockpit /admin et à l'espace client /espace */
   dark?: boolean;
 }
 
@@ -36,7 +36,7 @@ const imageUrl = new URL(image, Astro.site ?? Astro.url.origin).toString();
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="generator" content={Astro.generator} />
     <meta name="description" content={description} />
-    <meta name="theme-color" content={dark ? "#08090a" : "#ffffff"} />
+    <meta name="theme-color" content={dark ? "#000000" : "#ffffff"} />
     <meta name="color-scheme" content={dark ? "dark" : "light"} />
     {noindex && <meta name="robots" content="noindex, nofollow" />}
     <link rel="canonical" href={canonical} />
@@ -141,7 +141,9 @@ const imageUrl = new URL(image, Astro.site ?? Astro.url.origin).toString();
   <body class={dark ? "bg-ink-950 font-display text-ink-50 antialiased" : "bg-paper font-display text-graphite antialiased"}>
     <a
       href="#main"
-      class="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-lg focus:bg-graphite focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-white"
+      class={dark
+        ? "sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-full focus:bg-ink-50 focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:text-black"
+        : "sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-lg focus:bg-graphite focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-white"}
     >
       Aller au contenu
     </a>

@@ -12,84 +12,85 @@ const PUBLISHABLE_KEY = "sb_publishable_VALB2_pMZ2GjMNP3mmyChg_y-vuitny";
 <Layout title="Espace client — Konclav" description="Gérez votre abonnement et téléchargez vos factures." noindex={true} dark>
   <main
     id="main"
-    class="mx-auto min-h-dvh w-full max-w-4xl px-6 pb-24 pt-10"
+    class="mx-auto flex min-h-dvh w-full max-w-4xl flex-col px-6 pb-24 pt-10"
     data-portal
     data-url={SUPABASE_URL}
     data-key={PUBLISHABLE_KEY}
   >
     <!-- Header -->
-    <header class="flex items-center justify-between border-b border-white/[0.06] pb-6">
-      <a href="/" class="flex items-center gap-2 text-base font-semibold tracking-tight text-ink-50">
+    <header class="flex items-center justify-between gap-4">
+      <a href="/" class="flex items-center gap-2.5 text-[17px] font-semibold tracking-[-0.01em] text-ink-50">
         <Logo class="h-7 w-7" />
-        Konclav <span class="rounded-md border border-accent-500/40 bg-accent-500/10 px-2 py-0.5 text-[11px] font-medium text-accent-300">Espace client</span>
+        Konclav <span class="whitespace-nowrap rounded-full bg-white/[0.08] px-2.5 py-0.5 text-[12px] font-medium tracking-normal text-ink-400">Espace client</span>
       </a>
       <button
         type="button"
         data-cp-logout
         hidden
-        class="rounded-lg border border-white/10 bg-white/[0.02] px-4 py-2 text-xs font-medium text-ink-400 transition-colors hover:border-white/20 hover:text-ink-50"
+        class="shrink-0 whitespace-nowrap rounded-full bg-white/[0.08] px-3.5 py-1.5 text-xs font-medium text-ink-50 transition-colors hover:bg-white/[0.12]"
       >
         Se déconnecter
       </button>
     </header>
 
     <!-- ===== LOGIN ===== -->
-    <section data-cp-login class="mx-auto mt-20 max-w-sm">
-      <h1 class="text-center text-2xl font-semibold tracking-tight text-ink-50">Connectez-vous</h1>
-      <p class="mt-2 text-center text-sm text-ink-400">
+    <section data-cp-login class="mx-auto flex w-full max-w-[360px] flex-1 flex-col justify-center py-12">
+      <Logo class="mx-auto h-16 w-16" />
+      <h1 class="mt-6 text-center text-[28px] font-semibold leading-tight tracking-[-0.02em] text-ink-50 sm:text-[32px]">Connectez-vous</h1>
+      <p class="mt-3 text-center text-[15px] leading-relaxed text-ink-400">
         Utilisez les identifiants de votre compte Konclav (le même que dans l'app).
       </p>
       <form data-cp-login-form class="mt-8 space-y-4">
         <div>
-          <label for="cp-email" class="mb-2 block text-sm font-medium text-ink-50">Email</label>
+          <label for="cp-email" class="mb-1.5 block pl-1 text-[13px] font-medium text-ink-400">Email</label>
           <input id="cp-email" type="email" autocomplete="username" required
-            class="w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-ink-50 placeholder:text-ink-500 focus:border-accent-500/50 focus:outline-none focus:ring-2 focus:ring-accent-500/20" />
+            class="w-full rounded-xl border-0 bg-ink-900 px-4 py-3 text-[15px] text-ink-50 placeholder:text-ink-500" />
         </div>
         <div>
-          <label for="cp-password" class="mb-2 block text-sm font-medium text-ink-50">Mot de passe</label>
+          <label for="cp-password" class="mb-1.5 block pl-1 text-[13px] font-medium text-ink-400">Mot de passe</label>
           <input id="cp-password" type="password" autocomplete="current-password" required
-            class="w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-ink-50 focus:border-accent-500/50 focus:outline-none focus:ring-2 focus:ring-accent-500/20" />
+            class="w-full rounded-xl border-0 bg-ink-900 px-4 py-3 text-[15px] text-ink-50 placeholder:text-ink-500" />
         </div>
         <button type="submit" data-cp-login-btn
-          class="cta-shimmer w-full rounded-xl bg-accent-500 px-5 py-3 text-sm font-semibold text-white shadow-[var(--shadow-cta)] transition-colors hover:bg-accent-400 disabled:cursor-not-allowed disabled:opacity-60">
+          class="mt-6 block w-full rounded-full bg-ink-50 px-5 py-3 text-[15px] font-medium text-black transition-colors hover:bg-white/90 disabled:cursor-not-allowed disabled:opacity-60">
           Se connecter
         </button>
-        <p data-cp-login-error role="alert" hidden class="text-center text-sm text-rose-400"></p>
-        <p class="mt-4 text-center text-xs text-ink-500">
-          Pas encore de compte ? Cet espace est réservé aux <strong class="text-ink-300">membres du comité</strong> (président, vice-président, trésorier, secrétaire, comité).
-          Si votre asso n'a pas encore Konclav, <a href="/inscription" class="text-accent-300 hover:text-accent-400">demandez un accès</a>.
+        <p data-cp-login-error role="alert" hidden class="text-center text-[13px] text-[#ff453a]"></p>
+        <p class="mt-6 text-center text-[13px] leading-relaxed text-ink-500">
+          Pas encore de compte ? Cet espace est réservé aux <strong class="font-semibold text-ink-300">membres du comité</strong> (président, vice-président, trésorier, secrétaire, comité).
+          Si votre asso n'a pas encore Konclav, <a href="/inscription" class="text-accent-400 hover:underline">demandez un accès</a>.
         </p>
       </form>
     </section>
 
     <!-- ===== PAS DE DROITS ===== -->
-    <section data-cp-forbidden hidden class="mx-auto mt-20 max-w-md text-center">
-      <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl border border-rose-400/30 bg-rose-400/10 text-2xl">⚠️</div>
-      <h1 class="mt-6 text-2xl font-semibold tracking-tight text-ink-50">Accès non autorisé</h1>
-      <p class="mt-3 text-sm leading-relaxed text-ink-400">
-        Cet espace est réservé aux membres du <strong class="text-ink-200">comité</strong> de chaque association (président, vice-président, trésorier, secrétaire, comité).
+    <section data-cp-forbidden hidden class="mx-auto flex w-full max-w-md flex-1 flex-col items-center justify-center py-12 text-center">
+      <div class="flex h-16 w-16 items-center justify-center rounded-[20px] bg-white/[0.06] text-[28px]">⚠️</div>
+      <h1 class="mt-6 text-[28px] font-semibold leading-tight tracking-[-0.02em] text-ink-50">Accès non autorisé</h1>
+      <p class="mt-3 text-[15px] leading-relaxed text-ink-400">
+        Cet espace est réservé aux membres du <strong class="font-semibold text-ink-200">comité</strong> de chaque association (président, vice-président, trésorier, secrétaire, comité).
         Si vous pensez qu'il s'agit d'une erreur, contactez votre président·e ou
-        <a href="mailto:contact@konclav.ch" class="text-accent-300 hover:text-accent-400">écrivez-nous</a>.
+        <a href="mailto:contact@konclav.ch" class="text-accent-400 hover:underline">écrivez-nous</a>.
       </p>
       <button type="button" data-cp-relogout
-        class="mt-8 rounded-lg border border-white/10 bg-white/[0.02] px-4 py-2 text-xs font-medium text-ink-300 transition-colors hover:border-white/20 hover:text-ink-50">
+        class="mt-8 rounded-full bg-white/[0.08] px-5 py-2 text-sm font-medium text-ink-50 transition-colors hover:bg-white/[0.12]">
         Se reconnecter avec un autre compte
       </button>
     </section>
 
     <!-- ===== DASHBOARD ===== -->
-    <section data-cp-app hidden class="mt-8 space-y-6">
+    <section data-cp-app hidden class="mt-10 space-y-8">
       <!-- Bandeau asso -->
-      <div data-cp-headline class="rounded-2xl border border-white/10 bg-gradient-to-br from-accent-500/[0.10] via-white/[0.02] to-white/[0.02] p-6 shadow-[0_0_36px_rgba(94,106,210,0.10)]"></div>
+      <div data-cp-headline class="rounded-[22px] bg-ink-900 p-6 sm:p-8"></div>
 
-      <!-- Onglets -->
-      <nav class="flex flex-wrap gap-1 border-b border-white/[0.06]" role="tablist" aria-label="Espace client">
+      <!-- Onglets (contrôle segmenté) -->
+      <nav class="flex w-full rounded-full bg-white/[0.06] p-1 sm:w-fit" role="tablist" aria-label="Espace client">
         <button type="button" data-cp-tab="invoices" role="tab" aria-selected="true"
-          class="cp-tab relative -mb-px border-b-2 border-accent-500 px-4 py-3 text-sm font-medium text-ink-50">
+          class="cp-tab flex-1 whitespace-nowrap rounded-full px-5 py-1.5 text-[13px] font-medium transition-colors sm:flex-none">
           Mes factures
         </button>
         <button type="button" data-cp-tab="contact" role="tab" aria-selected="false"
-          class="cp-tab relative -mb-px border-b-2 border-transparent px-4 py-3 text-sm font-medium text-ink-400 hover:text-ink-50">
+          class="cp-tab flex-1 whitespace-nowrap rounded-full px-5 py-1.5 text-[13px] font-medium transition-colors sm:flex-none">
           Mes coordonnées
         </button>
       </nav>
@@ -101,72 +102,72 @@ const PUBLISHABLE_KEY = "sb_publishable_VALB2_pMZ2GjMNP3mmyChg_y-vuitny";
 
       <!-- Panel : coordonnées -->
       <div data-cp-panel="contact" role="tabpanel" hidden>
-        <form data-cp-contact-form class="space-y-4 rounded-2xl border border-white/10 bg-white/[0.02] p-6">
-          <p class="text-sm text-ink-400">
+        <form data-cp-contact-form class="space-y-5 rounded-[20px] bg-ink-900 p-6 sm:p-8">
+          <p class="text-[15px] leading-relaxed text-ink-400">
             Ces informations apparaissent sur vos factures. Le nom de l'association est figé — pour le changer,
-            <a href="mailto:contact@konclav.ch" class="text-accent-300 hover:text-accent-400">contactez-nous</a>.
+            <a href="mailto:contact@konclav.ch" class="text-accent-400 hover:underline">contactez-nous</a>.
           </p>
           <div>
-            <label class="mb-1 block text-xs font-medium text-ink-400">Association (figé)</label>
+            <label class="mb-1.5 block text-[13px] font-medium text-ink-400">Association (figé)</label>
             <input data-cp-field="asso_name" disabled
-              class="w-full cursor-not-allowed rounded-lg border border-white/[0.06] bg-white/[0.01] px-3 py-2 text-sm text-ink-400" />
+              class="w-full cursor-not-allowed rounded-xl border-0 bg-white/[0.04] px-3.5 py-2.5 text-[15px] text-ink-400" />
           </div>
-          <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div class="grid grid-cols-1 gap-x-4 gap-y-5 sm:grid-cols-2">
             <div>
-              <label class="mb-1 block text-xs font-medium text-ink-400">Nom du contact *</label>
+              <label class="mb-1.5 block text-[13px] font-medium text-ink-400">Nom du contact *</label>
               <input data-cp-field="contact_name" required class="cp-input" />
             </div>
             <div>
-              <label class="mb-1 block text-xs font-medium text-ink-400">Email du contact *</label>
+              <label class="mb-1.5 block text-[13px] font-medium text-ink-400">Email du contact *</label>
               <input data-cp-field="contact_email" type="email" required class="cp-input" />
             </div>
           </div>
-          <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div class="grid grid-cols-1 gap-x-4 gap-y-5 sm:grid-cols-2">
             <div>
-              <label class="mb-1 block text-xs font-medium text-ink-400">Téléphone</label>
+              <label class="mb-1.5 block text-[13px] font-medium text-ink-400">Téléphone</label>
               <input data-cp-field="phone" type="tel" class="cp-input" />
             </div>
             <div>
-              <label class="mb-1 block text-xs font-medium text-ink-400">N° TVA (si assujetti)</label>
+              <label class="mb-1.5 block text-[13px] font-medium text-ink-400">N° TVA (si assujetti)</label>
               <input data-cp-field="vat_number" class="cp-input" placeholder="CHE-123.456.789 TVA" />
             </div>
           </div>
           <div>
-            <label class="mb-1 block text-xs font-medium text-ink-400">Adresse</label>
+            <label class="mb-1.5 block text-[13px] font-medium text-ink-400">Adresse</label>
             <input data-cp-field="address_line" class="cp-input" placeholder="Rue + n°" />
           </div>
-          <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
+          <div class="grid grid-cols-3 gap-x-4 gap-y-5">
             <div>
-              <label class="mb-1 block text-xs font-medium text-ink-400">NPA</label>
+              <label class="mb-1.5 block text-[13px] font-medium text-ink-400">NPA</label>
               <input data-cp-field="postal_code" class="cp-input" />
             </div>
-            <div class="sm:col-span-2">
-              <label class="mb-1 block text-xs font-medium text-ink-400">Localité</label>
+            <div class="col-span-2">
+              <label class="mb-1.5 block text-[13px] font-medium text-ink-400">Localité</label>
               <input data-cp-field="city" class="cp-input" />
             </div>
           </div>
           <div>
-            <label class="mb-1 block text-xs font-medium text-ink-400">Pays</label>
+            <label class="mb-1.5 block text-[13px] font-medium text-ink-400">Pays</label>
             <input data-cp-field="country" maxlength="2" class="cp-input uppercase" />
           </div>
-          <p data-cp-contact-error role="alert" hidden class="text-sm text-rose-400"></p>
-          <div class="flex items-center justify-between border-t border-white/[0.06] pt-4">
-            <p data-cp-contact-msg class="text-xs text-emerald-400" hidden>Enregistré ✓</p>
+          <p data-cp-contact-error role="alert" hidden class="text-[13px] text-[#ff453a]"></p>
+          <div class="flex flex-wrap items-center justify-between gap-x-4 gap-y-3 border-t border-white/[0.08] pt-5">
+            <p data-cp-contact-msg class="text-[13px] font-medium text-[#30d158]" hidden>Enregistré ✓</p>
             <button type="submit" data-cp-contact-submit
-              class="ml-auto rounded-lg bg-accent-500 px-5 py-2 text-sm font-semibold text-white shadow-[var(--shadow-cta)] transition-colors hover:bg-accent-400 disabled:cursor-not-allowed disabled:opacity-60">
+              class="ml-auto rounded-full bg-ink-50 px-5 py-2 text-sm font-medium text-black transition-colors hover:bg-white/90 disabled:cursor-not-allowed disabled:opacity-60">
               Enregistrer
             </button>
           </div>
         </form>
 
         <!-- Demande de modification (ce qui n'est pas auto-éditable : nom asso, président…) -->
-        <form data-cp-cr-form class="mt-6 space-y-4 rounded-2xl border border-white/10 bg-white/[0.02] p-6">
+        <form data-cp-cr-form class="mt-6 space-y-5 rounded-[20px] bg-ink-900 p-6 sm:p-8">
           <div>
-            <h3 class="text-sm font-semibold text-ink-50">Demander une modification</h3>
-            <p class="mt-1 text-sm text-ink-400">Pour ce qui n'est pas modifiable ici (nom officiel de l'association, changement de président…), décrivez votre demande. Kévin la traite et revient vers vous.</p>
+            <h3 class="text-[17px] font-semibold tracking-[-0.01em] text-ink-50">Demander une modification</h3>
+            <p class="mt-1.5 text-[15px] leading-relaxed text-ink-400">Pour ce qui n'est pas modifiable ici (nom officiel de l'association, changement de président…), décrivez votre demande. Kévin la traite et revient vers vous.</p>
           </div>
           <div>
-            <label class="mb-1 block text-xs font-medium text-ink-400">Sujet</label>
+            <label class="mb-1.5 block text-[13px] font-medium text-ink-400">Sujet</label>
             <select data-cp-cr-subject class="cp-input">
               <option>Nom de l'association</option>
               <option>Changement de président·e</option>
@@ -176,14 +177,14 @@ const PUBLISHABLE_KEY = "sb_publishable_VALB2_pMZ2GjMNP3mmyChg_y-vuitny";
             </select>
           </div>
           <div>
-            <label class="mb-1 block text-xs font-medium text-ink-400">Votre demande *</label>
+            <label class="mb-1.5 block text-[13px] font-medium text-ink-400">Votre demande *</label>
             <textarea data-cp-cr-message rows="4" required maxlength="4000" class="cp-input" placeholder="Décrivez ce que vous souhaitez modifier…"></textarea>
           </div>
-          <p data-cp-cr-error role="alert" hidden class="text-sm text-rose-400"></p>
-          <div class="flex items-center justify-between">
-            <p data-cp-cr-msg class="text-xs text-emerald-400" hidden>Demande envoyée ✓ — Kévin revient vers vous.</p>
+          <p data-cp-cr-error role="alert" hidden class="text-[13px] text-[#ff453a]"></p>
+          <div class="flex flex-wrap items-center justify-between gap-x-4 gap-y-3">
+            <p data-cp-cr-msg class="text-[13px] font-medium text-[#30d158]" hidden>Demande envoyée ✓ — Kévin revient vers vous.</p>
             <button type="submit" data-cp-cr-submit
-              class="ml-auto rounded-lg border border-accent-500/40 bg-accent-500/10 px-5 py-2 text-sm font-semibold text-accent-300 transition-colors hover:bg-accent-500/20 disabled:cursor-not-allowed disabled:opacity-60">
+              class="ml-auto shrink-0 rounded-full bg-white/[0.08] px-5 py-2 text-sm font-medium text-ink-50 transition-colors hover:bg-white/[0.12] disabled:cursor-not-allowed disabled:opacity-60">
               Envoyer la demande
             </button>
           </div>
@@ -197,9 +198,22 @@ const PUBLISHABLE_KEY = "sb_publishable_VALB2_pMZ2GjMNP3mmyChg_y-vuitny";
 </Layout>
 
 <style is:global>
-  .cp-input { width: 100%; border-radius: .65rem; border: 1px solid rgba(255,255,255,.10); background: rgba(255,255,255,.03); padding: .55rem .8rem; font-size: .875rem; color: var(--color-ink-50); }
-  .cp-input:focus { outline: none; border-color: rgba(94,106,210,.50); box-shadow: 0 0 0 3px rgba(94,106,210,.20); }
-  .cp-tab[aria-selected="true"] { border-color: var(--color-accent-500); color: var(--color-ink-50); }
+  /* Non layerisé : bat les utilitaires Tailwind → les composants cp-* se stylent ici, pas par classes. */
+  .cp-input { display: block; width: 100%; border: 0; border-radius: 12px; background-color: var(--color-ink-800); padding: .625rem .875rem; font-size: .9375rem; line-height: 1.4; color: var(--color-ink-50); }
+  .cp-input::placeholder { color: var(--color-ink-500); opacity: 1; }
+  textarea.cp-input { min-height: 7rem; resize: vertical; }
+  select.cp-input {
+    appearance: none; -webkit-appearance: none; cursor: pointer; padding-right: 2.5rem;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' fill='none' stroke='%23aeaeb2' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 4.5 6 7.5 9 4.5'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right .875rem center; background-size: 12px 12px;
+  }
+  /* Anneau de focus unique, collé au champ (bat la règle globale à 3 px de décalage) */
+  main[data-portal] :is(input, textarea, select):focus-visible { outline: 2px solid var(--color-accent-400); outline-offset: 0; box-shadow: none; }
+  /* Contrôle segmenté : le JS réécrit className, l'état actif suit aria-selected */
+  .cp-tab { color: var(--color-ink-400); }
+  .cp-tab:hover { color: var(--color-ink-50); }
+  main[data-portal] .cp-tab:focus-visible { outline-offset: 1px; }
+  .cp-tab[aria-selected="true"] { background-color: var(--color-ink-800); color: var(--color-ink-50); box-shadow: 0 1px 3px rgba(0,0,0,.4), inset 0 0 0 .5px rgba(255,255,255,.08); }
   [data-portal] select, [data-portal] input, [data-portal] textarea { color-scheme: dark; }
   [data-portal] input:-webkit-autofill, [data-portal] input:-webkit-autofill:hover, [data-portal] input:-webkit-autofill:focus {
     -webkit-text-fill-color: var(--color-ink-50) !important;
@@ -207,10 +221,13 @@ const PUBLISHABLE_KEY = "sb_publishable_VALB2_pMZ2GjMNP3mmyChg_y-vuitny";
     caret-color: var(--color-ink-50);
     transition: background-color 9999s ease-out;
   }
+  [data-portal] .cp-input:-webkit-autofill, [data-portal] .cp-input:-webkit-autofill:hover, [data-portal] .cp-input:-webkit-autofill:focus {
+    -webkit-box-shadow: 0 0 0 30px var(--color-ink-800) inset !important;
+  }
   .cp-toasts { position: fixed; bottom: 1.25rem; left: 50%; transform: translateX(-50%); z-index: 80; display: flex; flex-direction: column; align-items: center; gap: .5rem; width: min(92vw, 28rem); pointer-events: none; }
-  .cp-toast { pointer-events: auto; max-width: 100%; border-radius: .75rem; border: 1px solid rgba(255,255,255,.10); background: var(--color-ink-900); padding: .6rem 1rem; font-size: .8rem; color: var(--color-ink-50); box-shadow: 0 8px 24px rgba(0,0,0,.5); transition: opacity .3s; animation: cp-toast-in .25s cubic-bezier(0.16, 1, 0.3, 1); }
-  .cp-toast-ok { border-color: rgba(74,222,128,.35); }
-  .cp-toast-err { border-color: rgba(248,113,113,.45); }
+  .cp-toast { pointer-events: auto; max-width: 100%; border-radius: 22px; border: 1px solid rgba(255,255,255,.08); background: var(--color-ink-800); padding: .55rem 1.1rem; font-size: .8125rem; font-weight: 500; line-height: 1.35; color: var(--color-ink-50); box-shadow: 0 4px 16px rgba(0,0,0,.35); transition: opacity .3s; animation: cp-toast-in .25s cubic-bezier(0.16, 1, 0.3, 1); }
+  .cp-toast-ok { border-color: rgba(255,255,255,.08); }
+  .cp-toast-err { border-color: rgba(255,69,58,.45); }
   @keyframes cp-toast-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
   @media (prefers-reduced-motion: reduce) { .cp-toast { animation: none; } }
 </style>
@@ -246,6 +263,8 @@ const PUBLISHABLE_KEY = "sb_publishable_VALB2_pMZ2GjMNP3mmyChg_y-vuitny";
     const fmtCHF = (n, c) => (c || "CHF") + " " + (Number(n) || 0).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, "'");
     const fmtDate = (s) => s ? new Date(s).toLocaleDateString("fr-CH", { day: "2-digit", month: "short", year: "numeric" }) : "—";
     const INTERVALS = { monthly: "mois", yearly: "an" };
+    const ICON_DOC = '<svg aria-hidden="true" viewBox="0 0 24 24" class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M9 13h6M9 17h4"/></svg>';
+    const ICON_CLOCK = '<svg aria-hidden="true" viewBox="0 0 24 24" class="h-[18px] w-[18px]" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>';
 
     function toast(msg, type) {
       const el = document.createElement("div");
@@ -307,7 +326,7 @@ const PUBLISHABLE_KEY = "sb_publishable_VALB2_pMZ2GjMNP3mmyChg_y-vuitny";
       tabs.forEach((t) => {
         const on = t.dataset.cpTab === name;
         t.setAttribute("aria-selected", on ? "true" : "false");
-        t.className = "cp-tab relative -mb-px border-b-2 px-4 py-3 text-sm font-medium transition-colors " + (on ? "border-accent-500 text-ink-50" : "border-transparent text-ink-400 hover:text-ink-50");
+        t.className = "cp-tab flex-1 whitespace-nowrap rounded-full px-5 py-1.5 text-[13px] font-medium transition-colors sm:flex-none";
       });
       Object.entries(panels).forEach(([k, el]) => { if (el) el.hidden = k !== name; });
     }
@@ -328,13 +347,14 @@ const PUBLISHABLE_KEY = "sb_publishable_VALB2_pMZ2GjMNP3mmyChg_y-vuitny";
           showForbidden();
           return;
         }
-        headline.innerHTML = '<p class="text-sm text-rose-400">Erreur de chargement : ' + esc(e.message) + "</p>";
+        headline.innerHTML = '<p class="text-sm text-[#ff453a]">Erreur de chargement : ' + esc(e.message) + "</p>";
         return;
       }
       if (!dashboardData || !dashboardData.customer) {
-        headline.innerHTML = '<div class="text-center text-sm text-ink-300">' +
-          '<p class="font-semibold text-ink-50">Votre association n\'a pas encore de fiche de facturation.</p>' +
-          '<p class="mt-2 text-ink-400">Cela arrivera lors de la mise en route. Si vous pensez qu\'il y a une erreur, contactez-nous à <a href="mailto:contact@konclav.ch" class="text-accent-300">contact@konclav.ch</a>.</p>' +
+        headline.innerHTML = '<div class="mx-auto max-w-md py-2 text-center">' +
+          '<div class="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-[14px] bg-white/[0.06] text-ink-400">' + ICON_DOC + '</div>' +
+          '<p class="text-balance text-[17px] font-semibold tracking-[-0.01em] text-ink-50">Votre association n\'a pas encore de fiche de facturation.</p>' +
+          '<p class="mt-2 text-[15px] leading-relaxed text-ink-400">Cela arrivera lors de la mise en route. Si vous pensez qu\'il y a une erreur, contactez-nous à <a href="mailto:contact@konclav.ch" class="text-accent-400 hover:underline">contact@konclav.ch</a>.</p>' +
           '</div>';
         invoicesPanel.innerHTML = "";
         return;
@@ -351,76 +371,77 @@ const PUBLISHABLE_KEY = "sb_publishable_VALB2_pMZ2GjMNP3mmyChg_y-vuitny";
       if (sub) {
         const interval = INTERVALS[sub.billing_interval] || sub.billing_interval;
         const isActive = sub.active;
-        subBlock = '<div class="mt-4 flex flex-wrap items-baseline gap-x-6 gap-y-2 text-sm">' +
-          '<div><p class="text-[10px] font-medium uppercase tracking-[0.14em] text-accent-300">Abonnement</p>' +
-          '<p class="mt-1 text-lg font-semibold text-ink-50 tabular-nums">' + fmtCHF(sub.amount, sub.currency) + " <span class=\"text-xs font-normal text-ink-400\">/ " + interval + "</span></p></div>" +
-          '<div><p class="text-[10px] font-medium uppercase tracking-[0.14em] text-ink-500">Statut</p>' +
-          '<p class="mt-1 ' + (isActive ? "text-emerald-400" : "text-amber-400") + '">' + (isActive ? "✓ Actif" : "⏸ En pause") + "</p></div>" +
-          (sub.next_invoice_date ? '<div><p class="text-[10px] font-medium uppercase tracking-[0.14em] text-ink-500">Prochaine facture</p>' +
-            '<p class="mt-1 text-ink-200">' + fmtDate(sub.next_invoice_date) + "</p></div>" : "") +
+        subBlock = '<div class="mt-7 grid grid-cols-2 gap-x-6 gap-y-5 border-t border-white/[0.08] pt-6 sm:grid-cols-3">' +
+          '<div class="col-span-2 sm:col-span-1"><p class="text-[13px] font-medium text-ink-400">Abonnement</p>' +
+          '<p class="mt-1 text-[22px] font-semibold tracking-tight text-ink-50 tabular-nums">' + fmtCHF(sub.amount, sub.currency) + " <span class=\"text-[13px] font-normal tracking-normal text-ink-400\">/ " + interval + "</span></p></div>" +
+          '<div><p class="text-[13px] font-medium text-ink-400">Statut</p>' +
+          '<p class="mt-1 text-[22px] font-semibold tracking-tight ' + (isActive ? "text-[#30d158]" : "text-[#ff9f0a]") + '">' + (isActive ? "✓ Actif" : "⏸ En pause") + "</p></div>" +
+          (sub.next_invoice_date ? '<div><p class="text-[13px] font-medium text-ink-400">Prochaine facture</p>' +
+            '<p class="mt-1 text-[22px] font-semibold tracking-tight text-ink-50 tabular-nums">' + fmtDate(sub.next_invoice_date) + "</p></div>" : "") +
           "</div>";
       } else {
-        subBlock = '<p class="mt-4 text-xs text-ink-400">Pas d\'abonnement actif. Si vous souhaitez en mettre un en place, écrivez-nous à <a href="mailto:contact@konclav.ch" class="text-accent-300">contact@konclav.ch</a>.</p>';
+        subBlock = '<p class="mt-7 border-t border-white/[0.08] pt-6 text-[15px] leading-relaxed text-ink-400">Pas d\'abonnement actif. Si vous souhaitez en mettre un en place, écrivez-nous à <a href="mailto:contact@konclav.ch" class="text-accent-400 hover:underline">contact@konclav.ch</a>.</p>';
       }
       headline.innerHTML =
         '<div class="flex flex-wrap items-start justify-between gap-4">' +
-        '<div><p class="text-[10px] font-medium uppercase tracking-[0.14em] text-accent-300">Espace de</p>' +
-        '<h1 class="mt-1 text-2xl font-semibold tracking-tight text-ink-50">' + esc(c.asso_name) + "</h1>" +
-        '<p class="mt-1 text-xs text-ink-400">' + esc(c.contact_name || "") + ' · <a href="mailto:' + esc(c.contact_email || "") + '" class="hover:text-accent-300">' + esc(c.contact_email || "") + "</a></p></div>" +
+        '<div class="min-w-0"><p class="text-[14px] font-medium text-accent-400">Espace de</p>' +
+        '<h1 class="mt-1 text-balance text-[28px] font-semibold leading-tight tracking-[-0.02em] text-ink-50 sm:text-[32px]">' + esc(c.asso_name) + "</h1>" +
+        '<p class="mt-2 break-words text-[14px] text-ink-400">' + esc(c.contact_name || "") + ' · <a href="mailto:' + esc(c.contact_email || "") + '" class="transition-colors hover:text-accent-400">' + esc(c.contact_email || "") + "</a></p></div>" +
         "</div>" + subBlock;
     }
 
     function renderInvoices(invs) {
       if (!invs.length) {
-        invoicesPanel.innerHTML = '<div class="rounded-2xl border border-white/[0.06] bg-white/[0.01] p-8 text-center"><p class="text-sm text-ink-400">Aucune facture émise à ce jour.</p></div>';
+        invoicesPanel.innerHTML = '<div class="rounded-[20px] bg-ink-900 px-6 py-12 text-center"><div class="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-[14px] bg-white/[0.06] text-ink-400">' + ICON_DOC + '</div><p class="text-[15px] text-ink-400">Aucune facture émise à ce jour.</p></div>';
         return;
       }
       const statusBadge = (s) => {
         const map = {
-          paid: ["Payée", "text-emerald-400 bg-emerald-400/10 border-emerald-400/30"],
-          sent: ["Envoyée", "text-accent-300 bg-accent-500/10 border-accent-500/30"],
-          overdue: ["En retard", "text-rose-400 bg-rose-400/10 border-rose-400/30"],
-          canceled: ["Annulée", "text-ink-500 bg-white/[0.04] border-white/10"],
+          paid: ["Payée", "bg-[#30d158]/[0.14] text-[#30d158]"],
+          sent: ["Envoyée", "bg-[#0a84ff]/[0.16] text-[#409cff]"],
+          overdue: ["En retard", "bg-[#ff453a]/[0.16] text-[#ff6961]"],
+          canceled: ["Annulée", "bg-white/[0.08] text-ink-400"],
         };
-        const [lbl, cls] = map[s] || [s, "text-ink-400 bg-white/[0.04] border-white/10"];
-        return '<span class="rounded-md border px-2 py-0.5 text-[11px] font-medium ' + cls + '">' + lbl + "</span>";
+        const [lbl, cls] = map[s] || [s, "bg-white/[0.08] text-ink-400"];
+        return '<span class="whitespace-nowrap rounded-full px-2 py-0.5 text-[12px] font-medium ' + cls + '">' + lbl + "</span>";
       };
       const today = new Date().toISOString().slice(0, 10);
       const isLate = (inv) => inv.status === "overdue" || (inv.status === "sent" && inv.due_date && inv.due_date < today);
       const totalOpen = invs.filter((i) => (i.status === "sent" || i.status === "overdue") && i.doc_type !== "credit_note").reduce((s, i) => s + (Number(i.total) || 0), 0);
       let summary = "";
       if (totalOpen > 0) {
-        summary = '<div class="mb-4 rounded-2xl border border-amber-400/30 bg-amber-400/[0.06] p-4 text-sm">' +
-          '<p class="font-medium text-amber-400">' + fmtCHF(totalOpen, "CHF") + " en attente de paiement</p>" +
-          '<p class="mt-1 text-xs text-ink-400">Téléchargez la facture en PDF ci-dessous, scannez le QR-bill avec votre app bancaire.</p></div>';
+        summary = '<div class="mb-6 flex items-start gap-3.5 rounded-[20px] bg-ink-900 p-4 sm:p-5">' +
+          '<div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#ff9f0a]/[0.16] text-[#ff9f0a]">' + ICON_CLOCK + '</div>' +
+          '<div class="min-w-0 pt-0.5"><p class="text-[15px] font-semibold tabular-nums text-ink-50">' + fmtCHF(totalOpen, "CHF") + " en attente de paiement</p>" +
+          '<p class="mt-1 text-[13px] leading-relaxed text-ink-400">Téléchargez la facture en PDF ci-dessous, scannez le QR-bill avec votre app bancaire.</p></div></div>';
       }
       // Barre d'export ZIP par année (années présentes dans les factures)
       const years = [...new Set(invs.map((i) => (i.issue_date || "").slice(0, 4)).filter(Boolean))].sort().reverse();
       const zipBar = years.length
-        ? '<div class="mb-4 flex flex-wrap items-center gap-2 text-xs"><span class="text-ink-500">Télécharger toutes les factures :</span>' +
-          years.map((y) => '<button type="button" data-cp-zip="' + esc(y) + '" class="rounded-lg border border-white/10 bg-white/[0.02] px-3 py-1.5 font-medium text-ink-200 transition-colors hover:border-accent-500/40 hover:text-accent-300">📦 ' + esc(y) + " (ZIP)</button>").join("") +
+        ? '<div class="mb-4 flex flex-wrap items-center gap-2"><span class="mr-1 basis-full text-[13px] text-ink-400 sm:basis-auto">Télécharger toutes les factures :</span>' +
+          years.map((y) => '<button type="button" data-cp-zip="' + esc(y) + '" class="rounded-full bg-white/[0.08] px-3.5 py-1.5 text-xs font-medium text-ink-50 transition-colors hover:bg-white/[0.12] disabled:cursor-not-allowed disabled:opacity-60">📦 ' + esc(y) + " (ZIP)</button>").join("") +
           "</div>"
         : "";
       invoicesPanel.innerHTML = summary + zipBar +
-        '<div class="overflow-hidden rounded-2xl border border-white/10 bg-white/[0.02]">' +
-        '<ul class="divide-y divide-white/[0.06]">' +
+        '<div class="overflow-hidden rounded-[20px] bg-ink-900">' +
+        '<ul class="divide-y divide-white/[0.08]">' +
         invs.map((inv) => {
           const isCredit = inv.doc_type === "credit_note";
           const due = inv.due_date && !isCredit ? fmtDate(inv.due_date) : null;
-          return '<li data-inv="' + esc(inv.id) + '" class="flex flex-wrap items-center gap-x-4 gap-y-2 px-4 py-4">' +
-            '<div class="min-w-0 flex-1">' +
-            '<p class="flex items-center gap-2"><span class="font-mono text-sm text-ink-100">' + esc(inv.number) + "</span>" +
-            (isCredit ? '<span class="rounded bg-rose-400/10 px-1.5 py-0.5 text-[10px] font-semibold text-rose-400">AVOIR</span>' : "") +
+          return '<li data-inv="' + esc(inv.id) + '" class="flex flex-wrap items-center gap-x-5 gap-y-3 px-5 py-4 transition-colors hover:bg-white/[0.04] sm:px-6">' +
+            '<div class="min-w-0 basis-full sm:basis-0 sm:flex-1">' +
+            '<p class="flex flex-wrap items-center gap-x-2 gap-y-1"><span class="whitespace-nowrap text-[15px] font-semibold tabular-nums text-ink-50">' + esc(inv.number) + "</span>" +
+            (isCredit ? '<span class="rounded-full bg-white/[0.08] px-2 py-0.5 text-[11px] font-semibold text-ink-200">AVOIR</span>' : "") +
             statusBadge(inv.status) +
-            (isLate(inv) ? '<span class="text-[11px] font-medium text-rose-400">Échéance dépassée</span>' : "") +
+            (isLate(inv) ? '<span class="whitespace-nowrap text-[12px] font-medium text-[#ff453a]">Échéance dépassée</span>' : "") +
             "</p>" +
-            '<p class="mt-1 text-xs text-ink-500">Émise le ' + fmtDate(inv.issue_date) + (due ? " · échéance " + due : "") + (inv.paid_at ? " · payée le " + fmtDate(inv.paid_at) : "") + "</p>" +
+            '<p class="mt-1 text-[13px] text-ink-500">Émise le ' + fmtDate(inv.issue_date) + (due ? " · échéance " + due : "") + (inv.paid_at ? " · payée le " + fmtDate(inv.paid_at) : "") + "</p>" +
             "</div>" +
-            '<div class="text-right">' +
-            '<p class="text-lg font-semibold tabular-nums text-ink-50">' + fmtCHF(inv.total, inv.currency) + "</p>" +
-            (Number(inv.vat_rate) > 0 ? '<p class="text-[10px] text-ink-500">dont TVA ' + inv.vat_rate + "%</p>" : "") +
+            '<div class="mr-auto sm:mr-0 sm:text-right">' +
+            '<p class="whitespace-nowrap text-[17px] font-semibold tracking-tight tabular-nums text-ink-50">' + fmtCHF(inv.total, inv.currency) + "</p>" +
+            (Number(inv.vat_rate) > 0 ? '<p class="text-[11px] text-ink-500">dont TVA ' + inv.vat_rate + "%</p>" : "") +
             "</div>" +
-            '<button type="button" data-cp-pdf="' + esc(inv.id) + '" data-cp-num="' + esc(inv.number) + '" class="rounded-lg border border-accent-500/40 bg-accent-500/10 px-3 py-1.5 text-xs font-medium text-accent-300 transition-colors hover:bg-accent-500/20">📄 PDF</button>' +
+            '<button type="button" data-cp-pdf="' + esc(inv.id) + '" data-cp-num="' + esc(inv.number) + '" class="shrink-0 rounded-full bg-white/[0.08] px-3.5 py-1.5 text-xs font-medium text-ink-50 transition-colors hover:bg-white/[0.12] disabled:cursor-not-allowed disabled:opacity-60">📄 PDF</button>' +
             "</li>";
         }).join("") +
         "</ul></div>";
