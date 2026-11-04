@@ -1,19 +1,20 @@
 @import "tailwindcss";
 
 @theme {
-  /* ── Sombre : cockpit /admin et espace client /espace (inchangés) ── */
-  --color-ink-950: #08090a;
-  --color-ink-900: #0f1011;
-  --color-ink-800: #111214;
-  --color-ink-50:  #f4f4f5;
-  --color-ink-200: #e4e4e7;
-  --color-ink-300: #d4d4d8;
-  --color-ink-400: #a1a1aa;
-  --color-ink-500: #8b8b94;   /* WCAG AA on ink-950: 5.1:1 */
-  --color-accent-500: #5e6ad2;
-  --color-accent-400: #7170ff;
-  --color-accent-300: #9b9bff;
-  --shadow-cta: 0 18px 40px -12px rgba(94, 106, 210, 0.7);
+  /* ── Sombre façon Apple (macOS/iOS dark) : cockpit /admin et espace client /espace ── */
+  --color-ink-950: #000000;   /* fond de page */
+  --color-ink-900: #1c1c1e;   /* cartes, modals */
+  --color-ink-800: #2c2c2e;   /* surfaces surélevées, survol */
+  --color-ink-50:  #f5f5f7;   /* texte principal */
+  --color-ink-200: #e5e5ea;
+  --color-ink-300: #d1d1d6;
+  --color-ink-400: #aeaeb2;   /* texte secondaire */
+  --color-ink-500: #98989d;   /* texte tertiaire — 5.9:1 sur ink-900, 4.8:1 sur ink-800 */
+  /* Accent = orange du logo (plus de violet) */
+  --color-accent-500: #e8572a; /* aplats, indicateurs, graphiques — pas de petit texte blanc dessus (3.6:1) */
+  --color-accent-400: #ff8a50; /* texte accent sur sombre — 7.3:1 sur ink-900 */
+  --color-accent-300: #ff9a62; /* texte accent clair */
+  --shadow-cta: none;
 
   /* ── Clair : site marketing (style Apple, sobre) ── */
   --color-paper: #ffffff;
@@ -38,12 +39,6 @@
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
   --ease-fluid: cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-@property --aurora-angle {
-  syntax: "<angle>";
-  initial-value: 0deg;
-  inherits: false;
 }
 
 /* ============================================================
@@ -74,7 +69,7 @@ body {
 }
 
 html[data-theme="dark"] ::selection {
-  background-color: var(--color-accent-500);
+  background-color: rgba(255, 138, 80, 0.35);
   color: #ffffff;
 }
 html[data-theme="light"] ::selection {
@@ -83,9 +78,8 @@ html[data-theme="light"] ::selection {
 
 /* Focus visible — anneau net, couleur selon le thème */
 html[data-theme="dark"] :where(a, button, summary, input, textarea, select):focus-visible {
-  outline: 2px solid var(--color-accent-500);
+  outline: 2px solid var(--color-accent-400);
   outline-offset: 3px;
-  box-shadow: 0 0 0 6px rgba(94, 106, 210, 0.18);
 }
 /* En layer base : un utilitaire (focus:outline-none + ring) peut le remplacer */
 @layer base {
@@ -616,54 +610,8 @@ html[data-theme="light"] textarea:-webkit-autofill {
 
 /* ============================================================
    THÈME SOMBRE UNIQUEMENT — cockpit /admin et espace /espace
+   (façon Apple : noir + graphite, accent orange, ni halo ni grain)
    ============================================================ */
-
-/* Grain de film très subtil (desktop) */
-@media (min-width: 1024px) {
-  html[data-theme="dark"] body::after {
-    content: "";
-    position: fixed;
-    inset: 0;
-    z-index: 9999;
-    pointer-events: none;
-    opacity: 0.035;
-    mix-blend-mode: soft-light;
-    background-image: url("data:image/svg+xml;utf8,<svg viewBox='0 0 220 220' xmlns='http://www.w3.org/2000/svg'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
-  }
-}
-@media (prefers-reduced-motion: reduce) {
-  html[data-theme="dark"] body::after { display: none; }
-}
-
-/* Aurora de fond (fixée au viewport) */
-.aurora-global {
-  position: fixed;
-  inset: -10vw;
-  z-index: -1;
-  pointer-events: none;
-  background: conic-gradient(
-    from var(--aurora-angle, 0deg) at 50% 45%,
-    rgba(94, 106, 210, 0)    0deg,
-    rgba(94, 106, 210, 0.55)  55deg,
-    rgba(168, 85, 247, 0.45) 110deg,
-    rgba(94, 106, 210, 0)    175deg,
-    rgba(94, 106, 210, 0)    205deg,
-    rgba(34, 211, 238, 0.42) 260deg,
-    rgba(113, 112, 255, 0.55) 320deg,
-    rgba(94, 106, 210, 0)    360deg
-  );
-  filter: blur(110px) saturate(135%);
-  -webkit-mask-image: radial-gradient(ellipse 80% 70% at 50% 45%, #000 0%, #000 50%, transparent 95%);
-          mask-image: radial-gradient(ellipse 80% 70% at 50% 45%, #000 0%, #000 50%, transparent 95%);
-  opacity: 0.55;
-  animation: aurora-spin 55s linear infinite;
-}
-@media (max-width: 768px), (prefers-reduced-motion: reduce) {
-  .aurora-global { animation: none; opacity: 0.4; }
-}
-@keyframes aurora-spin {
-  to { --aurora-angle: 360deg; }
-}
 
 /* Reflet animé sur les CTA (bouton de connexion cockpit / espace) */
 .cta-shimmer {
